@@ -14,27 +14,27 @@
 DolbyVisionDialog::DolbyVisionDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("Dolby Vision メタデータ"));
+    setWindowTitle(QStringLiteral("Dolby Vision metadata"));
 
     auto *rootLayout = new QVBoxLayout(this);
 
     // --- プロファイル / タイトル ---
-    auto *headerGroup = new QGroupBox(QStringLiteral("シーケンス"), this);
+    auto *headerGroup = new QGroupBox(QStringLiteral("Sequence"), this);
     auto *headerForm = new QFormLayout(headerGroup);
 
     m_profileCombo = new QComboBox(headerGroup);
-    m_profileCombo->addItem(QStringLiteral("プロファイル 5 (single-layer)"), 5);
-    m_profileCombo->addItem(QStringLiteral("プロファイル 8.1 (HDR10 互換)"), 81);
+    m_profileCombo->addItem(QStringLiteral("Profile 5 (single-layer)"), 5);
+    m_profileCombo->addItem(QStringLiteral("Profile 8.1 (HDR10 compatible)"), 81);
 
     m_titleEdit = new QLineEdit(headerGroup);
 
-    headerForm->addRow(QStringLiteral("プロファイル"), m_profileCombo);
-    headerForm->addRow(QStringLiteral("タイトル"),     m_titleEdit);
+    headerForm->addRow(QStringLiteral("Profile"), m_profileCombo);
+    headerForm->addRow(QStringLiteral("Title"),     m_titleEdit);
     rootLayout->addWidget(headerGroup);
 
     // --- Level6 (CLL/FALL + マスタリングディスプレイ輝度) ---
     auto *l6Group = new QGroupBox(
-        QStringLiteral("Level6 (CLL/FALL・マスタリングディスプレイ)"), this);
+        QStringLiteral("Level 6 (CLL/FALL · Mastering display)"), this);
     auto *l6Form = new QFormLayout(l6Group);
 
     m_maxCllSpin = new QSpinBox(l6Group);
@@ -55,13 +55,13 @@ DolbyVisionDialog::DolbyVisionDialog(QWidget *parent)
 
     l6Form->addRow(QStringLiteral("MaxCLL"),                 m_maxCllSpin);
     l6Form->addRow(QStringLiteral("MaxFALL"),                m_maxFallSpin);
-    l6Form->addRow(QStringLiteral("マスタリング最大輝度"),   m_masteringMaxSpin);
-    l6Form->addRow(QStringLiteral("マスタリング最小輝度"),   m_masteringMinSpin);
+    l6Form->addRow(QStringLiteral("Mastering max luminance"),   m_masteringMaxSpin);
+    l6Form->addRow(QStringLiteral("Mastering min luminance"),   m_masteringMinSpin);
     rootLayout->addWidget(l6Group);
 
     // --- 先頭ショットの Level1 輝度 (簡易編集) ---
     auto *shotGroup = new QGroupBox(
-        QStringLiteral("先頭ショット Level1 輝度"), this);
+        QStringLiteral("First shot Level 1 luminance"), this);
     auto *shotForm = new QFormLayout(shotGroup);
 
     m_shotCountLabel = new QLabel(shotGroup);
@@ -81,17 +81,17 @@ DolbyVisionDialog::DolbyVisionDialog(QWidget *parent)
     m_shotMaxNitsSpin->setDecimals(4);
     m_shotMaxNitsSpin->setSuffix(QStringLiteral(" nits"));
 
-    shotForm->addRow(QStringLiteral("ショット数"),     m_shotCountLabel);
-    shotForm->addRow(QStringLiteral("最小輝度 (min)"), m_shotMinNitsSpin);
-    shotForm->addRow(QStringLiteral("平均輝度 (avg)"), m_shotAvgNitsSpin);
-    shotForm->addRow(QStringLiteral("最大輝度 (max)"), m_shotMaxNitsSpin);
+    shotForm->addRow(QStringLiteral("Shot count"),     m_shotCountLabel);
+    shotForm->addRow(QStringLiteral("Min luminance (min)"), m_shotMinNitsSpin);
+    shotForm->addRow(QStringLiteral("Avg luminance (avg)"), m_shotAvgNitsSpin);
+    shotForm->addRow(QStringLiteral("Max luminance (max)"), m_shotMaxNitsSpin);
     rootLayout->addWidget(shotGroup);
 
     // --- XML エクスポート + OK / キャンセル ---
     auto *buttonBox = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     auto *exportButton = buttonBox->addButton(
-        QStringLiteral("XML をエクスポート..."), QDialogButtonBox::ActionRole);
+        QStringLiteral("Export XML..."), QDialogButtonBox::ActionRole);
     rootLayout->addWidget(buttonBox);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);

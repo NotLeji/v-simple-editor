@@ -1590,14 +1590,14 @@ void VideoPlayer::setupUI()
     m_stopButton->setFixedSize(40, 32);
     m_playButton->setStyleSheet(mediaBtnStyle);
     m_stopButton->setStyleSheet(mediaBtnStyle);
-    m_playButton->setToolTip(QStringLiteral("再生"));
-    m_stopButton->setToolTip(QStringLiteral("停止"));
+    m_playButton->setToolTip(QStringLiteral("Playback"));
+    m_stopButton->setToolTip(QStringLiteral("Stop"));
     m_stepBackButton->setFixedSize(40, 32);
     m_stepFwdButton->setFixedSize(40, 32);
     m_stepBackButton->setStyleSheet(mediaBtnStyle);
     m_stepFwdButton->setStyleSheet(mediaBtnStyle);
-    m_stepBackButton->setToolTip(QStringLiteral("1フレーム戻る (←)"));
-    m_stepFwdButton->setToolTip(QStringLiteral("1フレーム進む (→)"));
+    m_stepBackButton->setToolTip(QStringLiteral("Step back 1 frame (←)"));
+    m_stepFwdButton->setToolTip(QStringLiteral("Step forward 1 frame (→)"));
     connect(m_stepBackButton, &QPushButton::clicked, this, &VideoPlayer::stepBackward);
     connect(m_stepFwdButton,  &QPushButton::clicked, this, &VideoPlayer::stepForward);
 
@@ -1618,9 +1618,9 @@ void VideoPlayer::setupUI()
     m_proxyButton->setText(proxyLabel(m_proxyDivisor));
     m_proxyButton->setFixedSize(56, 32);
     m_proxyButton->setStyleSheet(mediaBtnStyle);
-    m_proxyButton->setToolTip(QStringLiteral("プロキシ設定 (再生用プロキシ ON/OFF と プレビュー解像度)"));
+    m_proxyButton->setToolTip(QStringLiteral("Proxy settings (playback proxy ON/OFF and preview resolution)"));
     // Forward to MainWindow's proxy settings dialog so this seekbar-left
-    // affordance and the toolbar's "プロキシモード切替" / "プロキシ生成..."
+    // affordance and the toolbar's "Toggle Proxy Mode" / "Generate Proxies..."
     // entries all drive the same configuration surface.
     connect(m_proxyButton, &QPushButton::clicked, this, &VideoPlayer::proxySettingsRequested);
     m_timeLabel->setFixedWidth(120);
@@ -1635,7 +1635,7 @@ void VideoPlayer::setupUI()
     m_maximizeButton->setCheckable(true);
     m_maximizeButton->setFixedSize(40, 32);
     m_maximizeButton->setStyleSheet(mediaBtnStyle);
-    m_maximizeButton->setToolTip(QStringLiteral("プレビュー最大化 (Esc で解除)"));
+    m_maximizeButton->setToolTip(QStringLiteral("Maximize Preview (Esc to restore)"));
     connect(m_maximizeButton, &QPushButton::toggled,
             this, &VideoPlayer::setPreviewMaximized);
 
@@ -2194,7 +2194,7 @@ void VideoPlayer::setSequence(const QVector<PlaybackEntry> &entries,
 
     // Iteration 10 — auto-play on the first non-empty sequence delivery.
     // User-accepted side effect of the boundary auto-resume request:
-    // "アプリ立ち上げて最初にクリップ貼った時も自動で再生始まるかも". The
+    // "Playback may start automatically when you paste the first clip after launching the app". The
     // QTimer::singleShot defers play() to the next event loop tick so any
     // pending loadFile / seekInternal(0) inside this setSequence call has
     // settled before play() arms the playback timer (avoids the cold-open
@@ -3452,8 +3452,8 @@ void VideoPlayer::setPreviewMaximized(bool maximized)
             ? QString::fromUtf8("\xE2\xA4\xA1")    // ⤡
             : QString::fromUtf8("\xE2\x9B\xB6")); // ⛶
         m_maximizeButton->setToolTip(maximized
-            ? QStringLiteral("プレビュー最大化解除 (Esc)")
-            : QStringLiteral("プレビュー最大化 (Esc で解除)"));
+            ? QStringLiteral("Exit preview maximize (Esc)")
+            : QStringLiteral("Maximize Preview (Esc to restore)"));
     }
     emit previewMaximizeChanged(maximized);
 }
@@ -3467,8 +3467,8 @@ void VideoPlayer::updatePlayButton()
             ? QString::fromUtf8("\xE2\x8F\xB8")    // ⏸ pause
             : QString::fromUtf8("\xE2\x96\xB6")); // ▶ play
         m_playButton->setToolTip(m_playing
-            ? QStringLiteral("一時停止")
-            : QStringLiteral("再生"));
+            ? QStringLiteral("Pause")
+            : QStringLiteral("Playback"));
         m_playButton->setEnabled(true);
     }
     if (m_stopButton) m_stopButton->setEnabled(true);
@@ -3701,7 +3701,7 @@ void VideoPlayer::displayFrame(const QImage &image, bool overlaysAlreadyBaked,
     // 精度が必要なエッジ/輝度判定のためエイドは PV-C 縮小前の full res に適用し、
     // aid=None + cap=0 の既定パスは従来どおり composed をそのまま表示へ渡す。
     // STILLS-WIPE: the live side must be the same fully processed timeline
-    // frame used by "現在フレームを書き出し" and still capture.  The decoded
+    // frame used by "Export Current Frame" and still capture.  The decoded
     // preview image can still be raw and would otherwise receive the active
     // clip grade later in GLPreview.  Resolve only the display-local copy from
     // renderFrameAt; m_currentFrameImage, frameComposited, and preview caches
@@ -7294,7 +7294,7 @@ VideoPlayer::TrackDecoder *VideoPlayer::openTrackDecoder(const PlaybackEntry &en
     // (avformat_open_input + avformat_find_stream_info on the source
     // file). On a 4h sparse-keyframe H.264 source this can take 1-3
     // seconds and runs synchronously on the main thread, fitting the
-    // user-reported "数秒" intermittent stall pattern at clip
+    // user-reported "a few seconds" intermittent stall pattern at clip
     // boundaries. Default off.
     QElapsedTimer stallTimer;
     if (stallTraceEnabled())

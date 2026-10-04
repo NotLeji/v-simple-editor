@@ -39,20 +39,20 @@ QString formatTimecode(qint64 ms)
 PptxExportDialog::PptxExportDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("PowerPoint 資料を書き出し (.pptx)"));
+    setWindowTitle(QStringLiteral("Export PowerPoint Deck (.pptx)"));
     setObjectName(QStringLiteral("pptxExportDialog"));
 
     auto *root = new QVBoxLayout(this);
 
     // --- デッキ種別 ---
-    auto *kindGroup = new QGroupBox(QStringLiteral("スライドの内容"), this);
+    auto *kindGroup = new QGroupBox(QStringLiteral("Slide Content"), this);
     auto *kindLayout = new QVBoxLayout(kindGroup);
     m_kindCombo = new QComboBox(kindGroup);
-    m_kindCombo->addItem(QStringLiteral("文字起こしスライド (1 セリフ = 1 枚)"),
+    m_kindCombo->addItem(QStringLiteral("Transcript Slides (1 line = 1 slide)"),
                          DeckTranscript);
-    m_kindCombo->addItem(QStringLiteral("マーカー / 章一覧 (1 マーカー = 1 枚)"),
+    m_kindCombo->addItem(QStringLiteral("Marker / Chapter List (1 marker = 1 slide)"),
                          DeckMarkers);
-    m_kindCombo->addItem(QStringLiteral("タイトルのみ (1 枚)"),
+    m_kindCombo->addItem(QStringLiteral("Title Only (1 slide)"),
                          DeckTitleOnly);
     kindLayout->addWidget(m_kindCombo);
     root->addWidget(kindGroup);
@@ -60,31 +60,31 @@ PptxExportDialog::PptxExportDialog(QWidget *parent)
     // --- プレゼン情報 ---
     auto *infoForm = new QFormLayout();
     m_titleEdit = new QLineEdit(this);
-    m_titleEdit->setText(QStringLiteral("プレゼンテーション"));
-    m_titleEdit->setPlaceholderText(QStringLiteral("プレゼンテーションのタイトル"));
-    infoForm->addRow(QStringLiteral("タイトル:"), m_titleEdit);
+    m_titleEdit->setText(QStringLiteral("Presentation"));
+    m_titleEdit->setPlaceholderText(QStringLiteral("Presentation title"));
+    infoForm->addRow(QStringLiteral("Title:"), m_titleEdit);
 
     m_authorEdit = new QLineEdit(this);
-    m_authorEdit->setPlaceholderText(QStringLiteral("作成者 (任意)"));
-    infoForm->addRow(QStringLiteral("作成者:"), m_authorEdit);
+    m_authorEdit->setPlaceholderText(QStringLiteral("Author (optional)"));
+    infoForm->addRow(QStringLiteral("Author:"), m_authorEdit);
     root->addLayout(infoForm);
 
     // --- 出力先 ---
     auto *outForm = new QFormLayout();
     auto *outRow = new QHBoxLayout();
     m_outputEdit = new QLineEdit(this);
-    m_outputEdit->setPlaceholderText(QStringLiteral("出力先 .pptx ファイル"));
-    m_browseBtn = new QPushButton(QStringLiteral("参照…"), this);
+    m_outputEdit->setPlaceholderText(QStringLiteral("Output .pptx file"));
+    m_browseBtn = new QPushButton(QStringLiteral("Browse…"), this);
     outRow->addWidget(m_outputEdit, 1);
     outRow->addWidget(m_browseBtn);
-    outForm->addRow(QStringLiteral("出力先:"), outRow);
+    outForm->addRow(QStringLiteral("Output:"), outRow);
     root->addLayout(outForm);
 
     // --- 操作ボタン ---
     auto *buttons = new QDialogButtonBox(this);
-    m_exportBtn = buttons->addButton(QStringLiteral("書き出し"),
+    m_exportBtn = buttons->addButton(QStringLiteral("Export"),
                                      QDialogButtonBox::AcceptRole);
-    m_closeBtn = buttons->addButton(QStringLiteral("閉じる"),
+    m_closeBtn = buttons->addButton(QStringLiteral("Close"),
                                     QDialogButtonBox::RejectRole);
     root->addWidget(buttons);
 
@@ -113,7 +113,7 @@ void PptxExportDialog::browseOutputPath()
         initial = QStringLiteral("presentation.pptx");
     const QString path = QFileDialog::getSaveFileName(
         this,
-        QStringLiteral("PowerPoint ファイルの保存先"),
+        QStringLiteral("Save PowerPoint File"),
         initial,
         QStringLiteral("PowerPoint (*.pptx)"));
     if (!path.isEmpty())
@@ -126,7 +126,7 @@ pptxexport::Deck PptxExportDialog::buildDeck() const
     pptxexport::Deck deck;
     deck.title  = m_titleEdit->text().trimmed();
     if (deck.title.isEmpty())
-        deck.title = QStringLiteral("プレゼンテーション");
+        deck.title = QStringLiteral("Presentation");
     deck.author = m_authorEdit->text().trimmed();
 
     const int kind = m_kindCombo->currentData().toInt();
@@ -153,7 +153,7 @@ pptxexport::Deck PptxExportDialog::buildDeck() const
             pptxexport::Slide slide;
             const qint64 ms = mk.timelineUs / 1000;
             const QString label = mk.label.isEmpty()
-                ? QStringLiteral("マーカー %1").arg(index)
+                ? QStringLiteral("Marker %1").arg(index)
                 : mk.label;
             slide.title = QStringLiteral("%1  %2")
                               .arg(formatTimecode(ms))
@@ -179,7 +179,7 @@ void PptxExportDialog::doExport()
     QString path = m_outputEdit->text().trimmed();
     if (path.isEmpty()) {
         QMessageBox::warning(this, windowTitle(),
-            QStringLiteral("出力先のファイルを指定してください。"));
+            QStringLiteral("Please specify an output file."));
         return;
     }
     // 拡張子を補う。
@@ -191,12 +191,12 @@ void PptxExportDialog::doExport()
     const int kind = m_kindCombo->currentData().toInt();
     if (kind == DeckTranscript && m_captions.isEmpty()) {
         QMessageBox::information(this, windowTitle(),
-            QStringLiteral("文字起こし結果がありません。"
-                           "タイトル 1 枚のみの資料を書き出します。"));
+            QStringLiteral("No transcription results."
+                           "Exports a deck with only one title slide."));
     } else if (kind == DeckMarkers && m_markers.isEmpty()) {
         QMessageBox::information(this, windowTitle(),
-            QStringLiteral("マーカーがありません。"
-                           "タイトル 1 枚のみの資料を書き出します。"));
+            QStringLiteral("No markers."
+                           "Exports a deck with only one title slide."));
     }
 
     // デッキ組み立て → 純粋エンジンで .pptx バイト列を生成。
@@ -204,7 +204,7 @@ void PptxExportDialog::doExport()
     const QByteArray bytes = pptxexport::buildPptx(deck);
     if (bytes.isEmpty()) {
         QMessageBox::critical(this, windowTitle(),
-            QStringLiteral("PPTX の生成に失敗しました。"));
+            QStringLiteral("Failed to generate the PPTX."));
         return;
     }
 
@@ -212,7 +212,7 @@ void PptxExportDialog::doExport()
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         QMessageBox::critical(this, windowTitle(),
-            QStringLiteral("ファイルを書き込めませんでした:\n%1\n\n%2")
+            QStringLiteral("Could not write file:\n%1\n\n%2")
                 .arg(path, file.errorString()));
         return;
     }
@@ -223,13 +223,13 @@ void PptxExportDialog::doExport()
 
     if (written != bytes.size() || !flushed) {
         QMessageBox::critical(this, windowTitle(),
-            QStringLiteral("ファイルの書き込みが途中で失敗しました:\n%1\n\n%2")
+            QStringLiteral("File write failed partway:\n%1\n\n%2")
                 .arg(path, writeError));
         return;
     }
 
     QMessageBox::information(this, windowTitle(),
-        QStringLiteral("PowerPoint 資料を書き出しました:\n%1\n\n(%2 スライド)")
+        QStringLiteral("Exported PowerPoint deck:\n%1\n\n(%2 slides)")
             .arg(QFileInfo(path).absoluteFilePath())
             .arg(qMax(1, deck.slides.size())));  // 0 枚はタイトル 1 枚に補完される
     accept();

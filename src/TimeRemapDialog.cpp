@@ -248,7 +248,7 @@ private:
 TimeRemapDialog::TimeRemapDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Time Remap — カーブ編集"));
+    setWindowTitle(tr("Time Remap — Curve Editor"));
     setMinimumSize(640, 600);
 
     // ---- Curve editor ----

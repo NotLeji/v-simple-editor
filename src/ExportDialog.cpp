@@ -35,15 +35,15 @@ QVector<ExportPreset> ExportDialog::presets()
         {"ProRes 422",                  "prores_ks",  "pcm_s16le","mov", 147000, 1536, 0, false, 2},
         {"ProRes 422 HQ",               "prores_ks",  "pcm_s16le","mov", 220000, 1536, 0, false, 3},
         {"ProRes 4444",                 "prores_ks",  "pcm_s16le","mov", 330000, 1536, 0, false, 4},
-        {"YouTube (AV1 高圧縮)",        "libsvtav1",  "aac",      "mp4",   8000, 192, 0},
+        {"YouTube (AV1 high compression)",        "libsvtav1",  "aac",      "mp4",   8000, 192, 0},
         {"YouTube Shorts",              "libx264",    "aac",      "mp4",   8000, 192, 0},
         {"TikTok / Reels",              "libx264",    "aac",      "mp4",   8000, 192, 0},
         {"X / Twitter",                 "libx264",    "aac",      "mp4",  10000, 192, 512},
         {"Facebook",                    "libx264",    "aac",      "mp4",  10000, 192, 0},
         {"Twitch Clip (60fps)",         "libx264",    "aac",      "mp4",   8000, 192, 0},
-        {"Discord (25MB制限)",          "libx264",    "aac",      "mp4",   2000, 128, 25},
-        {"ニコニコ動画",                 "libx264",    "aac",      "mp4",   8000, 192, 0},
-        {"H.265 高画質",                "libx265",    "aac",      "mkv",  12000, 192, 0},
+        {"Discord (25MB limit)",          "libx264",    "aac",      "mp4",   2000, 128, 25},
+        {"Niconico",                 "libx264",    "aac",      "mp4",   8000, 192, 0},
+        {"H.265 high quality",                "libx265",    "aac",      "mkv",  12000, 192, 0},
         {"VP9 WebM",                    "libvpx-vp9", "libopus",  "webm",  8000, 128, 0},
         {"Custom",                      "libx264",    "aac",      "mp4",  10000, 192, 0},
     };
@@ -68,7 +68,7 @@ void ExportDialog::setupUI()
     auto *typeGroup = new QGroupBox("Export Type");
     auto *typeLayout = new QVBoxLayout(typeGroup);
     m_exportTypeCombo = new QComboBox(this);
-    m_exportTypeCombo->addItem("動画ファイル (Video)", static_cast<int>(ExportType::Video));
+    m_exportTypeCombo->addItem("Video file (Video)", static_cast<int>(ExportType::Video));
     m_exportTypeCombo->addItem("Premiere Pro XML (FCP7)", static_cast<int>(ExportType::PremiereXml));
     typeLayout->addWidget(m_exportTypeCombo);
     mainLayout->addWidget(typeGroup);
@@ -165,8 +165,8 @@ void ExportDialog::setupUI()
         const bool anyHw    = hasNvenc || hasQsv || hasAmf;
 
         // Add items: index 0=none, 1=auto, 2=nvenc, 3=qsv, 4=amf
-        m_hwEncoderCombo->addItem("ソフトウェア (libx264/x265)", QVariant(QString("none")));
-        m_hwEncoderCombo->addItem("自動 (利用可能なら GPU)",     QVariant(QString("auto")));
+        m_hwEncoderCombo->addItem("Software (libx264/x265)", QVariant(QString("none")));
+        m_hwEncoderCombo->addItem("Auto (GPU if available)",     QVariant(QString("auto")));
         m_hwEncoderCombo->addItem("NVIDIA NVENC",               QVariant(QString("nvenc")));
         m_hwEncoderCombo->addItem("Intel QuickSync",            QVariant(QString("qsv")));
         m_hwEncoderCombo->addItem("AMD AMF",                    QVariant(QString("amf")));
@@ -198,7 +198,7 @@ void ExportDialog::setupUI()
             m_config.useHardwareAccel = false;
         }
     }
-    codecForm->addRow("ハードウェアエンコード:", m_hwEncoderCombo);
+    codecForm->addRow("Hardware encoding:", m_hwEncoderCombo);
 
     mainLayout->addWidget(codecGroup);
 
@@ -213,7 +213,7 @@ void ExportDialog::setupUI()
     mainLayout->addWidget(outputGroup);
 
     // Marked range
-    m_markedRangeCheckbox = new QCheckBox(tr("マークした In/Out 範囲のみ書き出す"), this);
+    m_markedRangeCheckbox = new QCheckBox(tr("Export only the marked In/Out range"), this);
     m_markedRangeCheckbox->setChecked(false);
     mainLayout->addWidget(m_markedRangeCheckbox);
 
@@ -223,20 +223,20 @@ void ExportDialog::setupUI()
     mainLayout->addWidget(m_summaryLabel);
 
     // YouTube chapter generator (概要欄チャプター)
-    auto *chapterGroup = new QGroupBox(tr("YouTube チャプター"), this);
+    auto *chapterGroup = new QGroupBox(tr("YouTube chapters"), this);
     auto *chapterLayout = new QVBoxLayout(chapterGroup);
-    m_chapterCheckbox = new QCheckBox(tr("YouTube 概要欄チャプターを生成"), this);
+    m_chapterCheckbox = new QCheckBox(tr("Generate YouTube description chapters"), this);
     // 空タイムラインでは生成不能なので初期は無効。setClips() で clips が
     // 入った時点で有効化する。
     m_chapterCheckbox->setEnabled(!m_clips.isEmpty());
     chapterLayout->addWidget(m_chapterCheckbox);
     m_chapterText = new QPlainTextEdit(this);
     m_chapterText->setReadOnly(true);
-    m_chapterText->setPlaceholderText(tr("チェックを入れると、タイムライン上のクリップから概要欄用チャプターを生成します。"));
+    m_chapterText->setPlaceholderText(tr("When checked, generates description chapters from the clips on the timeline."));
     m_chapterText->setMaximumHeight(140);
     m_chapterText->setVisible(false);
     chapterLayout->addWidget(m_chapterText);
-    m_chapterCopyBtn = new QPushButton(tr("クリップボードにコピー"), this);
+    m_chapterCopyBtn = new QPushButton(tr("Copy to Clipboard"), this);
     m_chapterCopyBtn->setVisible(false);
     chapterLayout->addWidget(m_chapterCopyBtn);
     mainLayout->addWidget(chapterGroup);
@@ -299,7 +299,7 @@ void ExportDialog::regenerateChapters()
 
     if (highlights.isEmpty()) {
         m_chapterText->setPlainText(
-            tr("タイムラインにクリップがありません。先に素材を配置してください。"));
+            tr("There are no clips on the timeline. Please place footage first."));
         return;
     }
 
@@ -437,7 +437,7 @@ void ExportDialog::onExport()
 
         if (!ok) {
             QMessageBox::warning(this, tr("Export"),
-                                 tr("Premiere XML エクスポートに失敗しました"));
+                                 tr("Premiere XML export failed"));
             return;
         }
 
@@ -501,7 +501,7 @@ void ExportDialog::updateMarkedRangeCheckboxEnabled()
     m_markedRangeCheckbox->setToolTip(
         rangeSelectable
             ? QString()
-            : tr("有効な In/Out 範囲がマークされていません"));
+            : tr("No valid In/Out range is marked"));
 }
 
 QString ExportDialog::defaultExtension() const

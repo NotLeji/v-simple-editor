@@ -70,20 +70,20 @@ QVector<StylePreset> capCutStylePresets()
     minimal.anchor = Anchor::BottomCenter;
 
     return QVector<StylePreset>{
-        { QStringLiteral("ポップ・ホワイト"), popWhite },
-        { QStringLiteral("ボックス・ブラック"), boxBlack },
-        { QStringLiteral("イエロー・ハイライト"), yellowHighlight },
-        { QStringLiteral("ネオン"), neon },
-        { QStringLiteral("ミニマル"), minimal }
+        { QStringLiteral("Pop White"), popWhite },
+        { QStringLiteral("Box Black"), boxBlack },
+        { QStringLiteral("Yellow highlight"), yellowHighlight },
+        { QStringLiteral("Neon"), neon },
+        { QStringLiteral("Minimal"), minimal }
     };
 }
 
 QStringList anchorNames()
 {
     return QStringList{
-        "上左",   "上中央",   "上右",
-        "中左",   "中央",     "中右",
-        "下左",   "下中央",   "下右"
+        "Top left",   "Top Center",   "Top right",
+        "Middle left",   "Center",     "Middle right",
+        "Bottom left",   "Bottom Center",   "Bottom right"
     };
 }
 

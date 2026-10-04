@@ -19,16 +19,16 @@ struct PresetDef {
 };
 
 const PresetDef kPresets[] = {
-    { "FadeIn",        "フェードイン" },
-    { "FadeOut",       "フェードアウト" },
-    { "PopIn",         "ポップイン" },
-    { "SlideInLeft",   "スライドイン(左)" },
-    { "SlideInRight",  "スライドイン(右)" },
-    { "SlideInTop",    "スライドイン(上)" },
-    { "SlideInBottom", "スライドイン(下)" },
-    { "SpinIn",        "スピンイン" },
-    { "BounceIn",      "バウンスイン" },
-    { "ZoomOutFade",   "ズームアウト" },
+    { "FadeIn",        "Fade In" },
+    { "FadeOut",       "Fade Out" },
+    { "PopIn",         "Pop In" },
+    { "SlideInLeft",   "Slide In (Left)" },
+    { "SlideInRight",  "Slide In (Right)" },
+    { "SlideInTop",    "Slide In (Top)" },
+    { "SlideInBottom", "Slide In (Bottom)" },
+    { "SpinIn",        "Spin In" },
+    { "BounceIn",      "Bounce In" },
+    { "ZoomOutFade",   "Zoom Out" },
 };
 
 QString idFromDef(const PresetDef &def)

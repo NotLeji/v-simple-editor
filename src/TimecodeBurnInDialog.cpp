@@ -14,19 +14,19 @@ TimecodeBurnInDialog::TimecodeBurnInDialog(
     QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("タイムコード焼き込み設定"));
+    setWindowTitle(tr("Burn-in Timecode Settings"));
     setMinimumWidth(420);
 
-    m_enabledCheck = new QCheckBox(tr("タイムコードを焼き込む"), this);
+    m_enabledCheck = new QCheckBox(tr("Burn in Timecode"), this);
     m_enabledCheck->setChecked(initial.enabled);
 
     m_positionCombo = new QComboBox(this);
-    m_positionCombo->addItem(tr("左上"), QStringLiteral("topLeft"));
-    m_positionCombo->addItem(tr("上中央"), QStringLiteral("topCenter"));
-    m_positionCombo->addItem(tr("右上"), QStringLiteral("topRight"));
-    m_positionCombo->addItem(tr("左下"), QStringLiteral("bottomLeft"));
-    m_positionCombo->addItem(tr("下中央"), QStringLiteral("bottomCenter"));
-    m_positionCombo->addItem(tr("右下"), QStringLiteral("bottomRight"));
+    m_positionCombo->addItem(tr("Top Left"), QStringLiteral("topLeft"));
+    m_positionCombo->addItem(tr("Top Center"), QStringLiteral("topCenter"));
+    m_positionCombo->addItem(tr("Top Right"), QStringLiteral("topRight"));
+    m_positionCombo->addItem(tr("Bottom Left"), QStringLiteral("bottomLeft"));
+    m_positionCombo->addItem(tr("Bottom Center"), QStringLiteral("bottomCenter"));
+    m_positionCombo->addItem(tr("Bottom Right"), QStringLiteral("bottomRight"));
     const int positionIndex = m_positionCombo->findData(
         TimecodeBurnInSettings::positionName(initial.position));
     if (positionIndex >= 0)
@@ -37,19 +37,19 @@ TimecodeBurnInDialog::TimecodeBurnInDialog(
     m_fontSizeSpin->setSuffix(tr(" %"));
     m_fontSizeSpin->setValue(initial.fontSizePct);
 
-    m_showFramesCheck = new QCheckBox(tr("フレーム番号を表示"), this);
+    m_showFramesCheck = new QCheckBox(tr("Show Frame Number"), this);
     m_showFramesCheck->setChecked(initial.showFrames);
 
-    m_dropFrameCheck = new QCheckBox(tr("ドロップフレーム"), this);
+    m_dropFrameCheck = new QCheckBox(tr("Drop Frame"), this);
     m_dropFrameCheck->setChecked(initial.dropFrame);
 
     m_prefixEdit = new QLineEdit(initial.prefix, this);
     m_prefixEdit->setClearButtonEnabled(true);
 
-    m_showClipNameCheck = new QCheckBox(tr("クリップ名を表示"), this);
+    m_showClipNameCheck = new QCheckBox(tr("Show Clip Name"), this);
     m_showClipNameCheck->setChecked(initial.showClipName);
 
-    m_showDateCheck = new QCheckBox(tr("日付を表示"), this);
+    m_showDateCheck = new QCheckBox(tr("Show Date"), this);
     m_showDateCheck->setChecked(initial.showDate);
 
     m_opacitySpin = new QDoubleSpinBox(this);
@@ -67,14 +67,14 @@ TimecodeBurnInDialog::TimecodeBurnInDialog(
 
     auto *form = new QFormLayout;
     form->addRow(QString(), m_enabledCheck);
-    form->addRow(tr("位置:"), m_positionCombo);
-    form->addRow(tr("文字サイズ (フレーム高):"), m_fontSizeSpin);
+    form->addRow(tr("Position:"), m_positionCombo);
+    form->addRow(tr("Font Size (Frame Height):"), m_fontSizeSpin);
     form->addRow(QString(), m_showFramesCheck);
     form->addRow(QString(), m_dropFrameCheck);
-    form->addRow(tr("接頭辞:"), m_prefixEdit);
+    form->addRow(tr("Prefix:"), m_prefixEdit);
     form->addRow(QString(), m_showClipNameCheck);
     form->addRow(QString(), m_showDateCheck);
-    form->addRow(tr("不透明度:"), m_opacitySpin);
+    form->addRow(tr("Opacity:"), m_opacitySpin);
 
     auto *root = new QVBoxLayout(this);
     root->addLayout(form);

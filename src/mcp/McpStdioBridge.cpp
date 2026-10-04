@@ -316,7 +316,7 @@ std::optional<int> dispatchMcpStdioPreQApplication(int argc, char* argv[])
 
     if (cliTokenWasUsed)
         std::fprintf(stderr,
-                     "--token はプロセス一覧から見えます。VEDITOR_MCP_TOKEN の使用を推奨します。\n");
+                     "--token is visible in the process list. Using VEDITOR_MCP_TOKEN is recommended.\n");
 
     return McpStdioBridge::run(port, token);
 }

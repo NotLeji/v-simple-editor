@@ -134,14 +134,14 @@ int runStillCompareSelftest()
         stillstore::Still saved;
         QString error;
         const bool savedOk = temporary.isValid()
-            && store.save(image, QStringLiteral("テストプロジェクト"),
-                          QStringLiteral("ラベル"), &saved, &error);
+            && store.save(image, QStringLiteral("Test Project"),
+                          QStringLiteral("Label"), &saved, &error);
         const QVector<stillstore::Still> listed = store.list(&error);
         const bool listedOk = savedOk && error.isEmpty() && listed.size() == 1
             && listed.front().id == saved.id
             && listed.front().timestamp.isValid()
-            && listed.front().projectName == QStringLiteral("テストプロジェクト")
-            && listed.front().label == QStringLiteral("ラベル")
+            && listed.front().projectName == QStringLiteral("Test Project")
+            && listed.front().label == QStringLiteral("Label")
             && QFile::exists(temporary.filePath(QStringLiteral("index.json")))
             && QFile::exists(saved.filePath);
         const bool removedOk = listedOk && store.remove(saved.id, &error)
@@ -150,7 +150,7 @@ int runStillCompareSelftest()
 
         stillstore::Still missing;
         const bool missingSaved = removedOk
-            && store.save(image, QStringLiteral("自己修復テスト"),
+            && store.save(image, QStringLiteral("Self-healing test"),
                           QString(), &missing, &error)
             && QFile::remove(missing.filePath);
         QString repairError;
@@ -168,7 +168,7 @@ int runStillCompareSelftest()
 
         stillstore::Still blocked;
         const bool blockedSaved = missingEntryRepaired
-            && store.save(image, QStringLiteral("削除失敗テスト"),
+            && store.save(image, QStringLiteral("Deletion failure test"),
                           QString(), &blocked, &error)
             && QFile::remove(blocked.filePath)
             && QDir().mkpath(blocked.filePath);
@@ -194,7 +194,7 @@ int runStillCompareSelftest()
         stillstore::Still rejected;
         QString saveError;
         const bool saveRejected = invalidIndexReady
-            && !store.save(image, QStringLiteral("一覧失敗テスト"),
+            && !store.save(image, QStringLiteral("Listing failure test"),
                            QString(), &rejected, &saveError)
             && !saveError.isEmpty();
         const QStringList orphanPngs = QDir(temporary.path()).entryList(

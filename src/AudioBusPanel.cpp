@@ -35,7 +35,7 @@ int AudioBusPanel::gainToSlider(double gain)
 }
 
 AudioBusPanel::AudioBusPanel(QWidget *parent)
-    : QDockWidget(QStringLiteral("オーディオ バス"), parent)
+    : QDockWidget(QStringLiteral("Audio Bus"), parent)
 {
     setObjectName(QStringLiteral("AudioBusPanel"));
 
@@ -52,16 +52,16 @@ AudioBusPanel::AudioBusPanel(QWidget *parent)
             this, &AudioBusPanel::onBusSelectionChanged);
 
     // --- 選択ストリップ ---------------------------------------------------
-    m_stripWidget = new QGroupBox(QStringLiteral("選択中のバス"), root);
+    m_stripWidget = new QGroupBox(QStringLiteral("Selected bus"), root);
     auto *form = new QFormLayout(m_stripWidget);
     form->setContentsMargins(8, 8, 8, 8);
     form->setSpacing(6);
 
     m_nameEdit = new QLineEdit(m_stripWidget);
-    m_nameEdit->setPlaceholderText(QStringLiteral("バス名"));
+    m_nameEdit->setPlaceholderText(QStringLiteral("Bus name"));
     connect(m_nameEdit, &QLineEdit::editingFinished,
             this, &AudioBusPanel::onRenameBus);
-    form->addRow(QStringLiteral("名前"), m_nameEdit);
+    form->addRow(QStringLiteral("Name"), m_nameEdit);
 
     auto *gainRow = new QWidget(m_stripWidget);
     auto *gainLayout = new QHBoxLayout(gainRow);
@@ -77,31 +77,31 @@ AudioBusPanel::AudioBusPanel(QWidget *parent)
     m_gainLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     gainLayout->addWidget(m_gainSlider, /*stretch*/ 1);
     gainLayout->addWidget(m_gainLabel);
-    form->addRow(QStringLiteral("ゲイン"), gainRow);
+    form->addRow(QStringLiteral("Gain"), gainRow);
 
     auto *toggleRow = new QWidget(m_stripWidget);
     auto *toggleLayout = new QHBoxLayout(toggleRow);
     toggleLayout->setContentsMargins(0, 0, 0, 0);
     toggleLayout->setSpacing(6);
     m_muteButton = new QToolButton(toggleRow);
-    m_muteButton->setText(QStringLiteral("ミュート"));
+    m_muteButton->setText(QStringLiteral("Mute"));
     m_muteButton->setCheckable(true);
     connect(m_muteButton, &QToolButton::toggled,
             this, &AudioBusPanel::onMuteToggled);
     m_soloButton = new QToolButton(toggleRow);
-    m_soloButton->setText(QStringLiteral("ソロ"));
+    m_soloButton->setText(QStringLiteral("Solo"));
     m_soloButton->setCheckable(true);
     connect(m_soloButton, &QToolButton::toggled,
             this, &AudioBusPanel::onSoloToggled);
     toggleLayout->addWidget(m_muteButton);
     toggleLayout->addWidget(m_soloButton);
     toggleLayout->addStretch(1);
-    form->addRow(QStringLiteral("状態"), toggleRow);
+    form->addRow(QStringLiteral("Status"), toggleRow);
 
     m_outputCombo = new QComboBox(m_stripWidget);
     connect(m_outputCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &AudioBusPanel::onOutputBusChanged);
-    form->addRow(QStringLiteral("出力先"), m_outputCombo);
+    form->addRow(QStringLiteral("Output"), m_outputCombo);
 
     rootLayout->addWidget(m_stripWidget);
 
@@ -110,9 +110,9 @@ AudioBusPanel::AudioBusPanel(QWidget *parent)
     auto *buttonLayout = new QHBoxLayout(buttonRow);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
     buttonLayout->setSpacing(6);
-    m_addButton = new QPushButton(QStringLiteral("バス追加"), buttonRow);
+    m_addButton = new QPushButton(QStringLiteral("Add bus"), buttonRow);
     connect(m_addButton, &QPushButton::clicked, this, &AudioBusPanel::onAddBus);
-    m_removeButton = new QPushButton(QStringLiteral("削除"), buttonRow);
+    m_removeButton = new QPushButton(QStringLiteral("Delete"), buttonRow);
     connect(m_removeButton, &QPushButton::clicked, this, &AudioBusPanel::onRemoveBus);
     buttonLayout->addWidget(m_addButton);
     buttonLayout->addWidget(m_removeButton);
@@ -160,7 +160,7 @@ void AudioBusPanel::refresh()
             if (b.mute) flags += QStringLiteral(" [M]");
             if (b.solo) flags += QStringLiteral(" [S]");
             const QString label = QStringLiteral("%1   x%2%3")
-                                      .arg(b.name.isEmpty() ? QStringLiteral("(無名)") : b.name)
+                                      .arg(b.name.isEmpty() ? QStringLiteral("(Unnamed)") : b.name)
                                       .arg(b.gain, 0, 'f', 2)
                                       .arg(flags);
             auto *item = new QListWidgetItem(label, m_busList);
@@ -191,14 +191,14 @@ void AudioBusPanel::rebuildOutputCombo(const audiobus::AudioBus *current)
     QSignalBlocker blocker(m_outputCombo);
     m_outputCombo->clear();
     // index 0 = master (-1)。以降は自分以外の各バス。UserRole に busId を保持。
-    m_outputCombo->addItem(QStringLiteral("マスター"), -1);
+    m_outputCombo->addItem(QStringLiteral("Master"), -1);
     int selectIndex = 0;
     if (m_routing && current) {
         const QVector<audiobus::AudioBus> &buses = m_routing->buses();
         for (const audiobus::AudioBus &b : buses) {
             if (b.id == current->id)
                 continue;  // 自分自身への出力は不可 (循環防止)
-            m_outputCombo->addItem(b.name.isEmpty() ? QStringLiteral("(無名)") : b.name, b.id);
+            m_outputCombo->addItem(b.name.isEmpty() ? QStringLiteral("(Unnamed)") : b.name, b.id);
             if (b.id == current->outputBusId)
                 selectIndex = m_outputCombo->count() - 1;
         }
@@ -249,7 +249,7 @@ void AudioBusPanel::onAddBus()
 {
     if (!m_routing)
         return;
-    const int newId = m_routing->addBus(QStringLiteral("バス %1").arg(m_routing->buses().size() + 1));
+    const int newId = m_routing->addBus(QStringLiteral("Bus %1").arg(m_routing->buses().size() + 1));
     refresh();
     // 追加したバスを選択する。
     if (m_busList) {

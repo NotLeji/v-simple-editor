@@ -60,7 +60,7 @@ VimeoUploadDialog::VimeoUploadDialog(vimeo::manager::Manager *manager,
     // --- Root layout ---
     auto *root = new QVBoxLayout(this);
     auto *setupHint = new QLabel(
-        QStringLiteral("Vimeo Pro/Business アカウントと API Client ID が必要です。Authenticate で認可します。"),
+        QStringLiteral("Requires a Vimeo Pro/Business account and an API Client ID. Authorize with Authenticate."),
         this);
     setupHint->setWordWrap(true);
     root->addWidget(setupHint);
@@ -77,13 +77,13 @@ VimeoUploadDialog::VimeoUploadDialog(vimeo::manager::Manager *manager,
         QMessageBox::information(
             this,
             QStringLiteral("Vimeo Authentication"),
-            QStringLiteral("Vimeo 認証が完了しました。"));
+            QStringLiteral("Vimeo authentication completed."));
     });
     connect(m_oauth, &vimeo::oauth::AuthClient::authError, this, [this](const QString &reason) {
         QMessageBox::warning(
             this,
             QStringLiteral("Vimeo Authentication"),
-            QStringLiteral("Vimeo 認証に失敗しました。\n%1").arg(reason));
+            QStringLiteral("Vimeo authentication failed.\n%1").arg(reason));
     });
 
     if (!m_manager.isNull()) {
@@ -198,7 +198,7 @@ void VimeoUploadDialog::onAuthenticateClicked()
         QMessageBox::information(
             this,
             QStringLiteral("Vimeo Authentication"),
-            QStringLiteral("認証済みです (トークン保持中)"));
+            QStringLiteral("Authenticated (token stored)"));
         return;
     }
 
@@ -207,7 +207,7 @@ void VimeoUploadDialog::onAuthenticateClicked()
         QMessageBox::warning(
             this,
             QStringLiteral("Vimeo Authentication"),
-            QStringLiteral("Vimeo の Client ID が未設定です。環境変数 VEDITOR_VIMEO_CLIENT_ID を設定するか、認証情報ダイアログで登録してください。"));
+            QStringLiteral("Vimeo Client ID is not set. Set the VEDITOR_VIMEO_CLIENT_ID environment variable or register it in the credentials dialog."));
         return;
     }
 
@@ -221,14 +221,14 @@ void VimeoUploadDialog::onAuthenticateClicked()
         QMessageBox::warning(
             this,
             QStringLiteral("Vimeo Authentication"),
-            QStringLiteral("Vimeo の認可ページをブラウザで開けませんでした。\n%1").arg(authUrl.toString()));
+            QStringLiteral("Could not open the Vimeo authorization page in the browser.\n%1").arg(authUrl.toString()));
         return;
     }
 
     QMessageBox::information(
         this,
         QStringLiteral("Vimeo Authentication"),
-        QStringLiteral("ブラウザでVimeoの認可ページを開きました。許可後に表示されるコードを次のダイアログに貼り付けてください。"));
+        QStringLiteral("Opened the Vimeo authorization page in the browser. After granting permission, paste the code shown into the next dialog."));
 
     bool ok = false;
     const QString code = QInputDialog::getText(

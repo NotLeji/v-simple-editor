@@ -37,12 +37,12 @@ QDoubleSpinBox *makeSpin(QWidget *parent, double minimum, double maximum,
 QString typeLabel(LightType type)
 {
     switch (type) {
-    case LightType::Ambient:  return QStringLiteral("Ambient / 環境光");
-    case LightType::Parallel: return QStringLiteral("Parallel / 平行光");
-    case LightType::Point:    return QStringLiteral("Point / 点光源");
-    case LightType::Spot:     return QStringLiteral("Spot / スポット");
+    case LightType::Ambient:  return QStringLiteral("Ambient");
+    case LightType::Parallel: return QStringLiteral("Parallel");
+    case LightType::Point:    return QStringLiteral("Point / Point Light");
+    case LightType::Spot:     return QStringLiteral("Spot");
     }
-    return QStringLiteral("Point / 点光源");
+    return QStringLiteral("Point / Point Light");
 }
 
 } // namespace
@@ -50,7 +50,7 @@ QString typeLabel(LightType type)
 Light3DDialog::Light3DDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("3D ライト"));
+    setWindowTitle(QStringLiteral("3D lights"));
     setModal(false);
     resize(900, 680);
     buildUi();
@@ -71,7 +71,7 @@ void Light3DDialog::buildUi()
     listPanel->setMinimumWidth(190);
     auto *listLayout = new QVBoxLayout(listPanel);
     listLayout->setContentsMargins(0, 0, 8, 0);
-    listLayout->addWidget(new QLabel(QStringLiteral("ライト一覧"), listPanel));
+    listLayout->addWidget(new QLabel(QStringLiteral("Light list"), listPanel));
 
     m_lightList = new QListWidget(listPanel);
     m_lightList->setObjectName(QStringLiteral("light3dList"));
@@ -82,9 +82,9 @@ void Light3DDialog::buildUi()
     listLayout->addWidget(m_lightList, 1);
 
     auto *listButtons = new QHBoxLayout;
-    m_addButton = new QPushButton(QStringLiteral("追加"), listPanel);
-    m_duplicateButton = new QPushButton(QStringLiteral("複製"), listPanel);
-    m_removeButton = new QPushButton(QStringLiteral("削除"), listPanel);
+    m_addButton = new QPushButton(QStringLiteral("Add"), listPanel);
+    m_duplicateButton = new QPushButton(QStringLiteral("Duplicate"), listPanel);
+    m_removeButton = new QPushButton(QStringLiteral("Delete"), listPanel);
     listButtons->addWidget(m_addButton);
     listButtons->addWidget(m_duplicateButton);
     listButtons->addWidget(m_removeButton);
@@ -99,9 +99,9 @@ void Light3DDialog::buildUi()
     inspectorLayout->setContentsMargins(4, 0, 0, 0);
     inspectorLayout->setSpacing(8);
 
-    m_lightSettingsGroup = new QGroupBox(QStringLiteral("選択ライト"), inspector);
+    m_lightSettingsGroup = new QGroupBox(QStringLiteral("Selected light"), inspector);
     auto *lightForm = new QFormLayout(m_lightSettingsGroup);
-    m_enabledCheck = new QCheckBox(QStringLiteral("有効"), m_lightSettingsGroup);
+    m_enabledCheck = new QCheckBox(QStringLiteral("Enabled"), m_lightSettingsGroup);
     lightForm->addRow(QString(), m_enabledCheck);
 
     m_typeCombo = new QComboBox(m_lightSettingsGroup);
@@ -109,7 +109,7 @@ void Light3DDialog::buildUi()
                                LightType::Point, LightType::Spot};
     for (LightType type : types)
         m_typeCombo->addItem(typeLabel(type), static_cast<int>(type));
-    lightForm->addRow(QStringLiteral("種別"), m_typeCombo);
+    lightForm->addRow(QStringLiteral("Type"), m_typeCombo);
 
     auto makeVectorRow = [this](QDoubleSpinBox *spins[3], QWidget *parent) {
         auto *row = new QHBoxLayout;
@@ -122,46 +122,46 @@ void Light3DDialog::buildUi()
         }
         return row;
     };
-    lightForm->addRow(QStringLiteral("位置"), makeVectorRow(m_position, m_lightSettingsGroup));
-    lightForm->addRow(QStringLiteral("ターゲット"), makeVectorRow(m_target, m_lightSettingsGroup));
+    lightForm->addRow(QStringLiteral("Position"), makeVectorRow(m_position, m_lightSettingsGroup));
+    lightForm->addRow(QStringLiteral("Target"), makeVectorRow(m_target, m_lightSettingsGroup));
 
     m_colorButton = new QPushButton(m_lightSettingsGroup);
-    m_colorButton->setText(QStringLiteral("色を選択"));
+    m_colorButton->setText(QStringLiteral("Select Color"));
     m_colorButton->setMinimumWidth(130);
-    lightForm->addRow(QStringLiteral("色"), m_colorButton);
+    lightForm->addRow(QStringLiteral("Color"), m_colorButton);
 
     m_intensitySpin = makeSpin(m_lightSettingsGroup, 0.0, 100.0, 0.05, 3);
-    m_intensitySpin->setSuffix(QStringLiteral(" 係数"));
-    lightForm->addRow(QStringLiteral("強度"), m_intensitySpin);
+    m_intensitySpin->setSuffix(QStringLiteral(" factor"));
+    lightForm->addRow(QStringLiteral("Intensity"), m_intensitySpin);
 
-    auto *falloffGroup = new QGroupBox(QStringLiteral("減衰（Point / Spot）"), m_lightSettingsGroup);
+    auto *falloffGroup = new QGroupBox(QStringLiteral("Falloff (Point / Spot)"), m_lightSettingsGroup);
     auto *falloffForm = new QFormLayout(falloffGroup);
-    m_falloffCheck = new QCheckBox(QStringLiteral("減衰を有効化"), falloffGroup);
+    m_falloffCheck = new QCheckBox(QStringLiteral("Enable falloff"), falloffGroup);
     falloffForm->addRow(QString(), m_falloffCheck);
     m_falloffRadiusSpin = makeSpin(falloffGroup, 0.0, 100000.0, 1.0, 2);
     m_falloffDistanceSpin = makeSpin(falloffGroup, 0.0, 100000.0, 1.0, 2);
-    falloffForm->addRow(QStringLiteral("非減衰半径"), m_falloffRadiusSpin);
-    falloffForm->addRow(QStringLiteral("ゼロまでの距離"), m_falloffDistanceSpin);
+    falloffForm->addRow(QStringLiteral("No-falloff radius"), m_falloffRadiusSpin);
+    falloffForm->addRow(QStringLiteral("Distance to zero"), m_falloffDistanceSpin);
     lightForm->addRow(falloffGroup);
 
-    auto *spotGroup = new QGroupBox(QStringLiteral("スポットコーン"), m_lightSettingsGroup);
+    auto *spotGroup = new QGroupBox(QStringLiteral("Spot cone"), m_lightSettingsGroup);
     auto *spotForm = new QFormLayout(spotGroup);
     m_coneAngleSpin = makeSpin(spotGroup, 0.1, 179.9, 1.0, 2);
     m_coneAngleSpin->setSuffix(QStringLiteral(" °"));
     m_coneFeatherSpin = makeSpin(spotGroup, 0.0, 100.0, 1.0, 1);
     m_coneFeatherSpin->setSuffix(QStringLiteral(" %"));
-    spotForm->addRow(QStringLiteral("コーン角（全角）"), m_coneAngleSpin);
-    spotForm->addRow(QStringLiteral("フェザー"), m_coneFeatherSpin);
+    spotForm->addRow(QStringLiteral("Cone angle (full)"), m_coneAngleSpin);
+    spotForm->addRow(QStringLiteral("Feather"), m_coneFeatherSpin);
     lightForm->addRow(spotGroup);
     inspectorLayout->addWidget(m_lightSettingsGroup);
 
-    auto *keyframeGroup = new QGroupBox(QStringLiteral("ライトキーフレーム"), inspector);
+    auto *keyframeGroup = new QGroupBox(QStringLiteral("Light keyframes"), inspector);
     auto *keyframeLayout = new QHBoxLayout(keyframeGroup);
-    keyframeLayout->addWidget(new QLabel(QStringLiteral("時刻"), keyframeGroup));
+    keyframeLayout->addWidget(new QLabel(QStringLiteral("Time"), keyframeGroup));
     m_keyframeTimeSpin = makeSpin(keyframeGroup, 0.0, 1000000.0, 0.1, 3);
     m_keyframeTimeSpin->setSuffix(QStringLiteral(" s"));
     keyframeLayout->addWidget(m_keyframeTimeSpin);
-    auto *addKeyframeButton = new QPushButton(QStringLiteral("現在値を追加"), keyframeGroup);
+    auto *addKeyframeButton = new QPushButton(QStringLiteral("Add current value"), keyframeGroup);
     keyframeLayout->addWidget(addKeyframeButton);
     m_keyframeSummary = new QLabel(keyframeGroup);
     m_keyframeSummary->setMinimumWidth(120);
@@ -169,9 +169,9 @@ void Light3DDialog::buildUi()
     keyframeLayout->addStretch(1);
     inspectorLayout->addWidget(keyframeGroup);
 
-    m_materialGroup = new QGroupBox(QStringLiteral("選択クリップのマテリアル"), inspector);
+    m_materialGroup = new QGroupBox(QStringLiteral("Selected clip material"), inspector);
     auto *materialForm = new QFormLayout(m_materialGroup);
-    m_acceptsLightsCheck = new QCheckBox(QStringLiteral("ライトを受ける"), m_materialGroup);
+    m_acceptsLightsCheck = new QCheckBox(QStringLiteral("Receive lights"), m_materialGroup);
     materialForm->addRow(QString(), m_acceptsLightsCheck);
     auto makeCoeff = [this](QWidget *parent) {
         return makeSpin(parent, 0.0, 1.0, 0.05, 3);
@@ -184,9 +184,9 @@ void Light3DDialog::buildUi()
     m_diffuseCoeffSpin->setObjectName(QStringLiteral("light3dDiffuseCoeff"));
     m_specularCoeffSpin->setObjectName(QStringLiteral("light3dSpecularCoeff"));
     m_shininessSpin->setObjectName(QStringLiteral("light3dShininess"));
-    materialForm->addRow(QStringLiteral("Ambient 係数"), m_ambientCoeffSpin);
-    materialForm->addRow(QStringLiteral("Diffuse 係数"), m_diffuseCoeffSpin);
-    materialForm->addRow(QStringLiteral("Specular 係数"), m_specularCoeffSpin);
+    materialForm->addRow(QStringLiteral("Ambient factor"), m_ambientCoeffSpin);
+    materialForm->addRow(QStringLiteral("Diffuse factor"), m_diffuseCoeffSpin);
+    materialForm->addRow(QStringLiteral("Specular factor"), m_specularCoeffSpin);
     materialForm->addRow(QStringLiteral("Shininess"), m_shininessSpin);
     inspectorLayout->addWidget(m_materialGroup);
     inspectorLayout->addStretch(1);
@@ -379,10 +379,10 @@ void Light3DDialog::updateKeyframeSummary()
 {
     const int row = currentRow();
     if (row < 0 || row >= m_lights.size()) {
-        m_keyframeSummary->setText(QStringLiteral("ライト未選択"));
+        m_keyframeSummary->setText(QStringLiteral("No light selected"));
         return;
     }
-    m_keyframeSummary->setText(QStringLiteral("%1 キーフレーム")
+    m_keyframeSummary->setText(QStringLiteral("%1 keyframes")
                                    .arg(m_lights.at(row).allKeyframeTimes().size()));
 }
 
@@ -540,7 +540,7 @@ void Light3DDialog::onColorClicked()
     const QColor current = m_colorButton->property("lightColor").value<QColor>();
     const QColor selected = QColorDialog::getColor(
         current.isValid() ? current : QColor(Qt::white), this,
-        QStringLiteral("ライトの色"), QColorDialog::ShowAlphaChannel);
+        QStringLiteral("Light color"), QColorDialog::ShowAlphaChannel);
     if (!selected.isValid())
         return;
     m_colorButton->setProperty("lightColor", selected);

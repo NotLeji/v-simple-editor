@@ -10,12 +10,12 @@
 CommandPaletteDialog::CommandPaletteDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("コマンドパレット"));
+    setWindowTitle(tr("Command palette"));
 
     auto* layout = new QVBoxLayout(this);
 
     m_searchEdit = new QLineEdit(this);
-    m_searchEdit->setPlaceholderText(tr("機能を検索 (名前や操作内容で)..."));
+    m_searchEdit->setPlaceholderText(tr("Search features (by name or action)..."));
     m_searchEdit->setClearButtonEnabled(true);
     layout->addWidget(m_searchEdit);
 

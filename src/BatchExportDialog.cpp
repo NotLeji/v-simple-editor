@@ -141,11 +141,11 @@ BatchExportDialog::BatchExportDialog(QWidget *parent)
         tr("No export tasks. Add a project file or the current project."), this);
     m_emptyLabel->setAlignment(Qt::AlignCenter);
 
-    m_addBtn = new QPushButton(tr("ファイルを追加..."), this);
-    m_addCurrentBtn = new QPushButton(tr("現在のプロジェクトを追加"), this);
+    m_addBtn = new QPushButton(tr("Add files..."), this);
+    m_addCurrentBtn = new QPushButton(tr("Add current project"), this);
     m_addCurrentBtn->setEnabled(false);
     m_addCurrentBtn->setToolTip(
-        tr("MainWindow で開いているタイムラインを編集内容ごと追加します。"));
+        tr("Adds the timeline open in MainWindow along with its edits."));
     m_removeBtn = new QPushButton(tr("Remove"), this);
     m_startBtn = new QPushButton(tr("Start"), this);
     m_pauseBtn = new QPushButton(tr("Pause"), this);
@@ -188,8 +188,8 @@ void BatchExportDialog::setCurrentProjectContext(
     m_addCurrentBtn->setEnabled(available);
     m_addCurrentBtn->setToolTip(
         available
-            ? tr("現在のタイムラインを編集内容ごと追加します。")
-            : tr("現在のプロジェクトが開かれていません。"));
+            ? tr("Adds the current timeline along with its edits.")
+            : tr("No project is currently open."));
 }
 
 batchexport::ExportTask BatchExportDialog::makeCurrentProjectTask(
@@ -318,7 +318,7 @@ void BatchExportDialog::onAddCurrentProjectClicked()
     if (!m_currentProject.timeline) {
         QMessageBox::information(
             this, tr("Batch Export"),
-            tr("現在のプロジェクトが開かれていません。"));
+            tr("No project is currently open."));
         return;
     }
 

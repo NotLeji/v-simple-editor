@@ -144,43 +144,43 @@ QVector<ParamDef> paramSchemaFor(VideoEffectType type)
 
     case VideoEffectType::GradientRamp:
         return {
-            { "type", "タイプ", ParamType::Int, 0.0, 1.0, 0.0 },
-            { "angle", "角度", ParamType::Float, 0.0, 360.0, 0.0 },
-            { "opacity", "不透明度", ParamType::Float, 0.0, 1.0, 1.0 },
+            { "type", "Type", ParamType::Int, 0.0, 1.0, 0.0 },
+            { "angle", "Angle", ParamType::Float, 0.0, 360.0, 0.0 },
+            { "opacity", "Opacity", ParamType::Float, 0.0, 1.0, 1.0 },
             { "keyColor", "Key Color", ParamType::Color, 0.0, 0.0, encodedColorDefault(QColor(255, 255, 255)) }
         };
 
     case VideoEffectType::Fill:
         return {
-            { "opacity", "不透明度", ParamType::Float, 0.0, 1.0, 1.0 },
+            { "opacity", "Opacity", ParamType::Float, 0.0, 1.0, 1.0 },
             { "keyColor", "Key Color", ParamType::Color, 0.0, 0.0, encodedColorDefault(QColor(255, 255, 255)) }
         };
 
     case VideoEffectType::Bloom:
         return {
-            { "threshold", "しきい値", ParamType::Int, 0.0, 255.0, 128.0 },
-            { "radius", "半径", ParamType::Float, 0.0, 80.0, 20.0 },
-            { "intensity", "強度", ParamType::Float, 0.0, 2.0, 1.0 }
+            { "threshold", "Threshold", ParamType::Int, 0.0, 255.0, 128.0 },
+            { "radius", "Radius", ParamType::Float, 0.0, 80.0, 20.0 },
+            { "intensity", "Intensity", ParamType::Float, 0.0, 2.0, 1.0 }
         };
 
     case VideoEffectType::Scanlines:
         return {
-            { "lineSpacing", "間隔", ParamType::Int, 2.0, 20.0, 4.0 },
-            { "darkness", "暗さ", ParamType::Float, 0.0, 1.0, 0.5 },
-            { "opacity", "不透明度", ParamType::Float, 0.0, 1.0, 1.0 }
+            { "lineSpacing", "Spacing", ParamType::Int, 2.0, 20.0, 4.0 },
+            { "darkness", "Darkness", ParamType::Float, 0.0, 1.0, 0.5 },
+            { "opacity", "Opacity", ParamType::Float, 0.0, 1.0, 1.0 }
         };
 
     case VideoEffectType::Halftone:
         return {
-            { "dotSize", "ドットサイズ", ParamType::Int, 2.0, 30.0, 8.0 },
-            { "angle", "角度", ParamType::Float, 0.0, 360.0, 45.0 }
+            { "dotSize", "Dot size", ParamType::Int, 2.0, 30.0, 8.0 },
+            { "angle", "Angle", ParamType::Float, 0.0, 360.0, 45.0 }
         };
 
     case VideoEffectType::Curves:
         return {
-            { "shadows", "シャドウ", ParamType::Float, -100.0, 100.0, 0.0 },
-            { "highlights", "ハイライト", ParamType::Float, -100.0, 100.0, 0.0 },
-            { "midContrast", "中間コントラスト", ParamType::Float, -100.0, 100.0, 0.0 }
+            { "shadows", "Shadows", ParamType::Float, -100.0, 100.0, 0.0 },
+            { "highlights", "Highlights", ParamType::Float, -100.0, 100.0, 0.0 },
+            { "midContrast", "Mid contrast", ParamType::Float, -100.0, 100.0, 0.0 }
         };
 
     case VideoEffectType::ChannelMixer:
@@ -191,91 +191,91 @@ QVector<ParamDef> paramSchemaFor(VideoEffectType type)
         };
 
     case VideoEffectType::Vibrance:
-        return { { "vibrance", "自然な彩度", ParamType::Float, -100.0, 100.0, 0.0 } };
+        return { { "vibrance", "Vibrance", ParamType::Float, -100.0, 100.0, 0.0 } };
 
     case VideoEffectType::PhotoFilter:
         return {
-            { "density", "濃度", ParamType::Float, 0.0, 100.0, 0.0 },
+            { "density", "Density", ParamType::Float, 0.0, 100.0, 0.0 },
             { "keyColor", "Key Color", ParamType::Color, 0.0, 0.0, encodedColorDefault(QColor(236, 138, 0)) }
         };
 
     case VideoEffectType::Tritone:
         return {
-            { "blend", "ブレンド", ParamType::Float, 0.0, 1.0, 0.0 },
+            { "blend", "Blend", ParamType::Float, 0.0, 1.0, 0.0 },
             { "keyColor", "Key Color", ParamType::Color, 0.0, 0.0, encodedColorDefault(QColor(0, 0, 0)) }
         };
 
     case VideoEffectType::BrightnessContrast:
         return {
-            { "brightness", "明るさ", ParamType::Float, -100.0, 100.0, 0.0 },
-            { "contrast", "コントラスト", ParamType::Float, -100.0, 100.0, 0.0 }
+            { "brightness", "Brightness", ParamType::Float, -100.0, 100.0, 0.0 },
+            { "contrast", "Contrast", ParamType::Float, -100.0, 100.0, 0.0 }
         };
 
     case VideoEffectType::Bulge:
         return {
-            { "amount", "量", ParamType::Float, -100.0, 100.0, 0.0 },
-            { "radius", "半径", ParamType::Float, 0.0, 1.0, 0.5 }
+            { "amount", "Amount", ParamType::Float, -100.0, 100.0, 0.0 },
+            { "radius", "Radius", ParamType::Float, 0.0, 1.0, 0.5 }
         };
 
     case VideoEffectType::Twirl:
         return {
-            { "angle", "角度", ParamType::Float, -720.0, 720.0, 0.0 },
-            { "radius", "半径", ParamType::Float, 0.0, 1.0, 0.5 }
+            { "angle", "Angle", ParamType::Float, -720.0, 720.0, 0.0 },
+            { "radius", "Radius", ParamType::Float, 0.0, 1.0, 0.5 }
         };
 
     case VideoEffectType::Mirror:
-        return { { "mode", "モード", ParamType::Int, 0.0, 3.0, 0.0 } };
+        return { { "mode", "Mode", ParamType::Int, 0.0, 3.0, 0.0 } };
 
     case VideoEffectType::PolarCoordinates:
         return {
-            { "type", "タイプ", ParamType::Int, 0.0, 1.0, 0.0 },
-            { "amount", "量", ParamType::Float, 0.0, 1.0, 0.0 }
+            { "type", "Type", ParamType::Int, 0.0, 1.0, 0.0 },
+            { "amount", "Amount", ParamType::Float, 0.0, 1.0, 0.0 }
         };
 
     case VideoEffectType::MotionTile:
         return {
-            { "tilesX", "横タイル", ParamType::Int, 1.0, 10.0, 1.0 },
-            { "tilesY", "縦タイル", ParamType::Int, 1.0, 10.0, 1.0 },
-            { "mirrorEdges", "ミラーエッジ", ParamType::Bool, 0.0, 1.0, 0.0 }
+            { "tilesX", "Horizontal tiles", ParamType::Int, 1.0, 10.0, 1.0 },
+            { "tilesY", "Vertical tiles", ParamType::Int, 1.0, 10.0, 1.0 },
+            { "mirrorEdges", "Mirror edges", ParamType::Bool, 0.0, 1.0, 0.0 }
         };
 
     case VideoEffectType::CornerPinSimple:
         return {
-            { "horizontalTilt", "水平チルト", ParamType::Float, -100.0, 100.0, 0.0 },
-            { "verticalTilt", "垂直チルト", ParamType::Float, -100.0, 100.0, 0.0 }
+            { "horizontalTilt", "Horizontal tilt", ParamType::Float, -100.0, 100.0, 0.0 },
+            { "verticalTilt", "Vertical tilt", ParamType::Float, -100.0, 100.0, 0.0 }
         };
 
     case VideoEffectType::LensDistortion:
         return {
-            { "k1", "径方向２次", ParamType::Float, -0.5, 0.5, 0.0 },
-            { "k2", "径方向４次", ParamType::Float, -0.5, 0.5, 0.0 },
-            { "scale", "拡大率", ParamType::Float, 0.5, 2.0, 1.0 },
-            { "centerX", "中心Ｘ", ParamType::Float, -0.5, 0.5, 0.0 },
-            { "centerY", "中心Ｙ", ParamType::Float, -0.5, 0.5, 0.0 }
+            { "k1", "Radial 2nd order", ParamType::Float, -0.5, 0.5, 0.0 },
+            { "k2", "Radial 4th order", ParamType::Float, -0.5, 0.5, 0.0 },
+            { "scale", "Scale", ParamType::Float, 0.5, 2.0, 1.0 },
+            { "centerX", "Center X", ParamType::Float, -0.5, 0.5, 0.0 },
+            { "centerY", "Center Y", ParamType::Float, -0.5, 0.5, 0.0 }
         };
 
     case VideoEffectType::FilmGrain:
         return {
-            { "amount", "量", ParamType::Float, 0.0, 1.0, 0.3 },
-            { "size", "サイズ", ParamType::Int, 1.0, 4.0, 1.0 },
-            { "colorAmount", "カラー量", ParamType::Float, 0.0, 1.0, 0.0 },
-            { "seedPerFrame", "フレーム毎にシード", ParamType::Bool, 0.0, 1.0, 1.0 }
+            { "amount", "Amount", ParamType::Float, 0.0, 1.0, 0.3 },
+            { "size", "Size", ParamType::Int, 1.0, 4.0, 1.0 },
+            { "colorAmount", "Color amount", ParamType::Float, 0.0, 1.0, 0.0 },
+            { "seedPerFrame", "Seed per frame", ParamType::Bool, 0.0, 1.0, 1.0 }
         };
 
     case VideoEffectType::RollingShutterRepair:
         return {
-            { "rate", "走査時間", ParamType::Float, 0.0, 1.0, 0.5 },
-            { "direction", "走査方向 (0=上→下 / 1=下→上)", ParamType::Int, 0.0, 1.0, 0.0 },
-            { "strength", "強度", ParamType::Float, 0.0, 1.0, 1.0 }
+            { "rate", "Scan time", ParamType::Float, 0.0, 1.0, 0.5 },
+            { "direction", "Scan direction (0=top→bottom / 1=bottom→top)", ParamType::Int, 0.0, 1.0, 0.0 },
+            { "strength", "Intensity", ParamType::Float, 0.0, 1.0, 1.0 }
         };
 
     case VideoEffectType::Echo:
         return {
-            { "delaySec", "遅延 (秒・調整レイヤーでは無効)",
+            { "delaySec", "Delay (s, disabled on adjustment layers)",
               ParamType::Float, 0.02, 2.0, 0.1 },
-            { "count", "残像数", ParamType::Int, 1.0, 8.0, 3.0 },
-            { "decay", "減衰", ParamType::Float, 0.0, 1.0, 0.5 },
-            { "blend", "合成 (0=加算 / 1=スクリーン / 2=比較 (明) / 3=通常)",
+            { "count", "Afterimage count", ParamType::Int, 1.0, 8.0, 3.0 },
+            { "decay", "Decay", ParamType::Float, 0.0, 1.0, 0.5 },
+            { "blend", "Composite (0=Add / 1=Screen / 2=Lighten / 3=Normal)",
               ParamType::Int, 0.0, 3.0, 2.0 }
         };
 

@@ -182,67 +182,67 @@ bool validate(const DolbyVisionMetadata& meta, QString* errorOut)
     };
 
     if (meta.profile != 5 && meta.profile != 81) {
-        return fail(QStringLiteral("profile は 5 または 81 のみ対応 (現値 %1)")
+        return fail(QStringLiteral("Only profiles 5 and 81 are supported (current: %1)")
                         .arg(meta.profile));
     }
     if (meta.level < 1) {
-        return fail(QStringLiteral("level は 1 以上である必要があります (現値 %1)")
+        return fail(QStringLiteral("Level must be 1 or higher (current: %1)")
                         .arg(meta.level));
     }
     if (meta.l6.masteringMaxNits < meta.l6.masteringMinNits) {
         return fail(QStringLiteral(
-                        "L6 マスタリングディスプレイの最大輝度が最小輝度を下回っています"));
+                        "L6 mastering display max luminance is below the min luminance"));
     }
     if (meta.l6.maxCll < 0 || meta.l6.maxCll > 10000) {
-        return fail(QStringLiteral("L6 MaxCLL は 0..10000 nits の範囲である必要があります"));
+        return fail(QStringLiteral("L6 MaxCLL must be within 0..10000 nits"));
     }
     if (meta.l6.maxFall < 0) {
-        return fail(QStringLiteral("L6 MaxFALL は 0 以上である必要があります"));
+        return fail(QStringLiteral("L6 MaxFALL must be 0 or higher"));
     }
     if (meta.l6.maxFall > meta.l6.maxCll) {
-        return fail(QStringLiteral("L6 MaxFALL は MaxCLL 以下である必要があります"));
+        return fail(QStringLiteral("L6 MaxFALL must be at or below MaxCLL"));
     }
     if (meta.l6.masteringMinNits < 0 || meta.l6.masteringMaxNits < 0
         || meta.l6.masteringMaxNits > 10000) {
         return fail(QStringLiteral(
-                        "L6 マスタリングディスプレイ輝度は 0..10000 nits の範囲である必要があります"));
+                        "L6 mastering display luminance must be within 0..10000 nits"));
     }
 
     for (int i = 0; i < meta.shots.size(); ++i) {
         const DvShot& s = meta.shots.at(i);
         if (!std::isfinite(s.startSec) || !std::isfinite(s.endSec)) {
-            return fail(QStringLiteral("ショット %1: 時刻が有限値ではありません").arg(i));
+            return fail(QStringLiteral("Shot %1: time is not a finite value").arg(i));
         }
         if (s.endSec < s.startSec) {
-            return fail(QStringLiteral("ショット %1: endSec が startSec より前です")
+            return fail(QStringLiteral("Shot %1: endSec is before startSec")
                             .arg(i));
         }
         if (s.startSec < 0.0 || s.endSec < 0.0) {
-            return fail(QStringLiteral("ショット %1: 時刻が負です").arg(i));
+            return fail(QStringLiteral("Shot %1: time is negative").arg(i));
         }
         if (!std::isfinite(s.l1.minNits) || !std::isfinite(s.l1.avgNits)
             || !std::isfinite(s.l1.maxNits)) {
-            return fail(QStringLiteral("ショット %1: L1 輝度が有限値ではありません").arg(i));
+            return fail(QStringLiteral("Shot %1: L1 luminance is not a finite value").arg(i));
         }
         if (s.l1.minNits < 0.0 || s.l1.avgNits < 0.0 || s.l1.maxNits < 0.0) {
-            return fail(QStringLiteral("ショット %1: L1 輝度が負です").arg(i));
+            return fail(QStringLiteral("Shot %1: L1 luminance is negative").arg(i));
         }
         if (s.l1.maxNits > kPqPeakNits) {
-            return fail(QStringLiteral("ショット %1: L1 最大輝度が 10000 nits を超えています").arg(i));
+            return fail(QStringLiteral("Shot %1: L1 max luminance exceeds 10000 nits").arg(i));
         }
         if (!(s.l1.maxNits > s.l1.minNits)) {
-            return fail(QStringLiteral("ショット %1: L1 最大輝度は最小輝度より大きい必要があります").arg(i));
+            return fail(QStringLiteral("Shot %1: L1 max luminance must be greater than min luminance").arg(i));
         }
         if (!(s.l1.minNits <= s.l1.avgNits && s.l1.avgNits <= s.l1.maxNits)) {
             return fail(QStringLiteral(
-                            "ショット %1: L1 輝度が min<=avg<=max を満たしません")
+                            "Shot %1: L1 luminance does not satisfy min<=avg<=max")
                             .arg(i));
         }
         for (int j = 0; j < s.trims.size(); ++j) {
             const L2Trim& t = s.trims.at(j);
             if (t.targetNits <= 0 || t.targetNits > 10000) {
                 return fail(QStringLiteral(
-                                "ショット %1 trim %2: targetNits は 1..10000 の範囲である必要があります")
+                                "Shot %1 trim %2: targetNits must be within 1..10000")
                                 .arg(i).arg(j));
             }
             const double values[] = {
@@ -252,13 +252,13 @@ bool validate(const DolbyVisionMetadata& meta, QString* errorOut)
             for (double v : values) {
                 if (!std::isfinite(v) || v < -1.0 || v > 1.0) {
                     return fail(QStringLiteral(
-                                    "ショット %1 trim %2: L2 trim 値は -1..1 の範囲である必要があります")
+                                    "Shot %1 trim %2: L2 trim value must be within -1..1")
                                     .arg(i).arg(j));
                 }
             }
         }
         if (s.l5.left < 0 || s.l5.right < 0 || s.l5.top < 0 || s.l5.bottom < 0) {
-            return fail(QStringLiteral("ショット %1: L5 アクティブエリア offset が負です").arg(i));
+            return fail(QStringLiteral("Shot %1: L5 active area offset is negative").arg(i));
         }
     }
 

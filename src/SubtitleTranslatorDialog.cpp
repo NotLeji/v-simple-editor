@@ -15,13 +15,13 @@ SubtitleTranslatorDialog::SubtitleTranslatorDialog(QWidget *parent)
     : QDialog(parent)
     , m_client(new subxlat::TranslatorClient(this))
 {
-    setWindowTitle(tr("字幕翻訳"));
+    setWindowTitle(tr("Subtitle Translation"));
     setModal(false);
     resize(620, 480);
 
     // --- provider combo ---
     m_providerCombo = new QComboBox(this);
-    m_providerCombo->addItem(tr("スタブ (オフライン、[lang] 接頭辞のみ)"),
+    m_providerCombo->addItem(tr("Stub (offline, [lang] prefix only)"),
                              static_cast<int>(subxlat::Provider::Stub));
     m_providerCombo->addItem(tr("Google Translate"), static_cast<int>(subxlat::Provider::GoogleV2));
     m_providerCombo->addItem(tr("DeepL"),            static_cast<int>(subxlat::Provider::DeepL));
@@ -38,11 +38,11 @@ SubtitleTranslatorDialog::SubtitleTranslatorDialog(QWidget *parent)
     m_apiKeyEdit->setText(defaultCfg.apiKey);
     m_apiKeyEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
 
-    m_saveApiKeyCheck = new QCheckBox(tr("このキーを保存"), this);
+    m_saveApiKeyCheck = new QCheckBox(tr("Save this key"), this);
     m_saveApiKeyCheck->setChecked(true);
 
     m_apiWarningLabel = new QLabel(
-        tr("翻訳 API キーが未設定です。選択したプロバイダでの翻訳には API キーが必要です。"),
+        tr("No translation API key set. An API key is required to translate with the selected provider."),
         this);
     m_apiWarningLabel->setWordWrap(true);
     m_apiWarningLabel->setStyleSheet(QStringLiteral("color: #b00020; font-weight: 600;"));
@@ -56,18 +56,18 @@ SubtitleTranslatorDialog::SubtitleTranslatorDialog(QWidget *parent)
     // --- preview ---
     m_preview = new QPlainTextEdit(this);
     m_preview->setReadOnly(true);
-    m_preview->setPlaceholderText(tr("翻訳結果がここに表示されます…"));
+    m_preview->setPlaceholderText(tr("Translation results will appear here…"));
 
     // --- buttons ---
-    QPushButton *loadBtn      = new QPushButton(tr("SRT を読み込む…"), this);
-    QPushButton *translateBtn = new QPushButton(tr("翻訳"), this);
+    QPushButton *loadBtn      = new QPushButton(tr("Load SRT…"), this);
+    QPushButton *translateBtn = new QPushButton(tr("Translate"), this);
 
     // --- layout ---
     QFormLayout *form = new QFormLayout;
-    form->addRow(tr("プロバイダー:"), m_providerCombo);
-    form->addRow(tr("API キー:"),     m_apiKeyEdit);
+    form->addRow(tr("Provider:"), m_providerCombo);
+    form->addRow(tr("API Key:"),     m_apiKeyEdit);
     form->addRow(QString(),            m_saveApiKeyCheck);
-    form->addRow(tr("翻訳先言語:"),   m_targetLangCombo);
+    form->addRow(tr("Target Language:"),   m_targetLangCombo);
 
     QHBoxLayout *btnRow = new QHBoxLayout;
     btnRow->addWidget(loadBtn);
@@ -78,7 +78,7 @@ SubtitleTranslatorDialog::SubtitleTranslatorDialog(QWidget *parent)
     root->addLayout(form);
     root->addWidget(m_apiWarningLabel);
     root->addLayout(btnRow);
-    root->addWidget(new QLabel(tr("プレビュー:"), this));
+    root->addWidget(new QLabel(tr("Preview:"), this));
     root->addWidget(m_preview);
 
     // --- connections ---
@@ -106,17 +106,17 @@ void SubtitleTranslatorDialog::onLoadSrtClicked()
 {
     const QString path = QFileDialog::getOpenFileName(
         this,
-        tr("SRT ファイルを開く"),
+        tr("Open SRT File"),
         QString(),
-        tr("SRT 字幕 (*.srt);;すべてのファイル (*.*)"));
+        tr("SRT Subtitles (*.srt);;All Files (*.*)"));
 
     if (path.isEmpty())
         return;
 
     const subtitle::ImportResult result = subtitle::importSrt(path);
     if (!result.success) {
-        QMessageBox::warning(this, tr("読み込みエラー"),
-                             tr("SRT を読み込めませんでした: %1").arg(result.error));
+        QMessageBox::warning(this, tr("Load Error"),
+                             tr("Failed to load SRT: %1").arg(result.error));
         return;
     }
 
@@ -125,15 +125,15 @@ void SubtitleTranslatorDialog::onLoadSrtClicked()
         m_track.addClip(c);
 
     m_preview->setPlainText(
-        tr("%1 件の字幕を読み込みました。「翻訳」を押して開始してください。")
+        tr("Loaded %1 subtitles. Press \"Translate\" to start.")
             .arg(m_track.clipCount()));
 }
 
 void SubtitleTranslatorDialog::onTranslateClicked()
 {
     if (m_track.clipCount() == 0) {
-        QMessageBox::information(this, tr("字幕がありません"),
-                                 tr("先に SRT ファイルを読み込んでください。"));
+        QMessageBox::information(this, tr("No subtitles"),
+                                 tr("Please load an SRT file first."));
         return;
     }
 
@@ -148,7 +148,7 @@ void SubtitleTranslatorDialog::onTranslateClicked()
                                 cfg.apiKey,
                                 m_saveApiKeyCheck->isChecked());
 
-    m_preview->setPlainText(tr("翻訳中…"));
+    m_preview->setPlainText(tr("Translating…"));
     m_client->translateTrack(m_track, cfg);
 }
 
@@ -168,8 +168,8 @@ void SubtitleTranslatorDialog::onFinished(const caption::Track &translated)
 
 void SubtitleTranslatorDialog::onFailed(const QString &error)
 {
-    QMessageBox::critical(this, tr("翻訳エラー"), error);
-    m_preview->setPlainText(tr("翻訳に失敗しました: %1").arg(error));
+    QMessageBox::critical(this, tr("Translation Error"), error);
+    m_preview->setPlainText(tr("Translation failed: %1").arg(error));
 }
 
 void SubtitleTranslatorDialog::updateApiWarning()

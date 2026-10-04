@@ -54,7 +54,7 @@ CloudRenderDialog::CloudRenderDialog(QWidget* parent)
 
     auto* root = new QVBoxLayout(this);
     auto* setupHint = new QLabel(
-        tr("クラウドレンダー先のエンドポイントURLと認証トークンが必要です。"),
+        tr("An endpoint URL and auth token for the cloud render destination are required."),
         this);
     setupHint->setWordWrap(true);
     root->addWidget(setupHint);

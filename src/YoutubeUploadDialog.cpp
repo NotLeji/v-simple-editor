@@ -96,7 +96,7 @@ YoutubeUploadDialog::YoutubeUploadDialog(youtube::manager::Manager* manager,
     // ---- assemble -----------------------------------------------------------
     auto* root = new QVBoxLayout(this);
     auto* setupHint = new QLabel(
-        tr("Google Cloud で OAuth クライアントを作成し、認証情報ダイアログに登録してください。"),
+        tr("Create an OAuth client in Google Cloud and register it in the credentials dialog."),
         this);
     setupHint->setWordWrap(true);
     root->addWidget(setupHint);

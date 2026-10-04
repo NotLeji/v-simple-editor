@@ -29,32 +29,32 @@ QString formatMinutesSeconds(double seconds)
 MusicRemixDialog::MusicRemixDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("ミュージックリミックス"));
+    setWindowTitle(QStringLiteral("Music Remix"));
     setMinimumWidth(360);
 
-    m_bpmLabel = new QLabel(QStringLiteral("検出 BPM: --"), this);
-    m_durationLabel = new QLabel(QStringLiteral("目標尺 (mm:ss): 00:00"), this);
+    m_bpmLabel = new QLabel(QStringLiteral("Detected BPM: --"), this);
+    m_durationLabel = new QLabel(QStringLiteral("Target duration (mm:ss): 00:00"), this);
 
     m_targetSpin = new QDoubleSpinBox(this);
     m_targetSpin->setRange(0.05, remix::kMaxTargetSec);
     m_targetSpin->setDecimals(2);
     m_targetSpin->setSingleStep(1.0);
-    m_targetSpin->setSuffix(QStringLiteral(" 秒"));
+    m_targetSpin->setSuffix(QStringLiteral(" sec"));
     connect(m_targetSpin, qOverload<double>(&QDoubleSpinBox::valueChanged),
             this, [this](double value) { updateDurationLabel(value); });
 
-    m_rippleCheck = new QCheckBox(QStringLiteral("後続をリップル"), this);
+    m_rippleCheck = new QCheckBox(QStringLiteral("Ripple subsequent clips"), this);
     m_rippleCheck->setChecked(false);
 
     auto *form = new QFormLayout;
-    form->addRow(QStringLiteral("検出結果:"), m_bpmLabel);
-    form->addRow(QStringLiteral("目標尺 (秒):"), m_targetSpin);
-    form->addRow(QStringLiteral("表示:"), m_durationLabel);
+    form->addRow(QStringLiteral("Detection result:"), m_bpmLabel);
+    form->addRow(QStringLiteral("Target duration (s):"), m_targetSpin);
+    form->addRow(QStringLiteral("Display:"), m_durationLabel);
 
     auto *buttons = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("適用"));
-    buttons->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("キャンセル"));
+    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("Apply"));
+    buttons->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("Cancel"));
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
@@ -68,8 +68,8 @@ void MusicRemixDialog::setDetectedBpm(double bpm)
 {
     if (m_bpmLabel) {
         m_bpmLabel->setText(std::isfinite(bpm) && bpm > 0.0
-                                ? QStringLiteral("検出 BPM: %1").arg(bpm, 0, 'f', 1)
-                                : QStringLiteral("検出 BPM: --"));
+                                ? QStringLiteral("Detected BPM: %1").arg(bpm, 0, 'f', 1)
+                                : QStringLiteral("Detected BPM: --"));
     }
 }
 
@@ -95,6 +95,6 @@ bool MusicRemixDialog::rippleFollowingClips() const
 void MusicRemixDialog::updateDurationLabel(double seconds)
 {
     if (m_durationLabel)
-        m_durationLabel->setText(QStringLiteral("目標尺 (mm:ss): %1")
+        m_durationLabel->setText(QStringLiteral("Target duration (mm:ss): %1")
                                      .arg(formatMinutesSeconds(seconds)));
 }

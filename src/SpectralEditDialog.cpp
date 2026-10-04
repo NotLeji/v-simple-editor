@@ -19,7 +19,7 @@
 SpectralEditDialog::SpectralEditDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("スペクトル編集"));
+    setWindowTitle(tr("Spectral Edit"));
     setModal(false); // modeless
     resize(720, 480);
 
@@ -51,8 +51,8 @@ SpectralEditDialog::SpectralEditDialog(QWidget *parent)
             this, &SpectralEditDialog::onFftSizeChanged);
 
     // --- ボタン ---------------------------------------------------------------
-    m_applyBtn = new QPushButton(tr("適用"), this);
-    m_closeBtn = new QPushButton(tr("閉じる"), this);
+    m_applyBtn = new QPushButton(tr("Apply"), this);
+    m_closeBtn = new QPushButton(tr("Close"), this);
 
     connect(m_applyBtn, &QPushButton::clicked,
             this, &SpectralEditDialog::onApplyClicked);
@@ -66,8 +66,8 @@ SpectralEditDialog::SpectralEditDialog(QWidget *parent)
 
     // --- コントロール行 -------------------------------------------------------
     auto *form = new QFormLayout;
-    form->addRow(tr("減衰量 (0=完全除去〜100%=無変化):"), attenRow);
-    form->addRow(tr("FFT サイズ:"), m_fftCombo);
+    form->addRow(tr("Attenuation (0=full removal, 100%=unchanged):"), attenRow);
+    form->addRow(tr("FFT Size:"), m_fftCombo);
 
     // --- レイアウト -----------------------------------------------------------
     auto *mainLayout = new QVBoxLayout(this);
@@ -132,7 +132,7 @@ void SpectralEditDialog::onApplyClicked()
     // samples 未設定なら no-op (安全)。
     if (m_samples.empty() || m_sampleRate <= 0) {
         m_processedSamples = m_samples;
-        qWarning("SpectralEditDialog: 音声が未設定のため適用をスキップしました。");
+        qWarning("SpectralEditDialog: Audio is not set; skipping apply.");
         emit applied();
         return;
     }
@@ -148,7 +148,7 @@ void SpectralEditDialog::onApplyClicked()
         m_samples, m_sampleRate, m_fftSize, hopSize, regions);
     m_processedSamples = (!edited.empty() || m_samples.empty()) ? std::move(edited) : m_samples;
 
-    qInfo("SpectralEditDialog: 適用完了 (fft=%d hop=%d regions=%d in=%d out=%d).",
+    qInfo("SpectralEditDialog: Apply complete (fft=%d hop=%d regions=%d in=%d out=%d).",
           m_fftSize, hopSize,
           static_cast<int>(regions.size()),
           static_cast<int>(m_samples.size()),

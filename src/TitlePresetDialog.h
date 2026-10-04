@@ -4,7 +4,7 @@
 // -----------------
 // Premiere Pro Essential Graphics / Resolve Fusion Titles parity. The user
 // picks a pre-built animated title from the list on the left, edits the text
-// + colour, and clicks "適用". The resolved EnhancedTextOverlay (font /
+// + colour, and clicks "Apply". The resolved EnhancedTextOverlay (font /
 // colour / animations / position keyframes baked) is then available via
 // resolvedOverlay() for the caller to insert into the active TextManager.
 //
@@ -34,7 +34,7 @@ public:
     explicit TitlePresetDialog(QWidget *parent = nullptr);
     ~TitlePresetDialog() override = default;
 
-    // Returns the overlay constructed when the user clicked "適用".
+    // Returns the overlay constructed when the user clicked "Apply".
     // Valid only after exec() returns QDialog::Accepted.
     const EnhancedTextOverlay &resolvedOverlay() const { return m_resolved; }
 

@@ -45,13 +45,13 @@ bool subtract(const std::vector<double>& in, std::vector<double>& out,
               int sampleRate, QString* error) {
     if (error) error->clear();
     auto fail = [&](const QString& message) { if (error) *error = message; return false; };
-    if (!print.isValid()) return fail(QStringLiteral("ノイズプリントの FFT サイズまたは振幅が不正です。"));
-    if (sampleRate != print.sampleRate) return fail(QStringLiteral("ノイズプリントと音声のサンプルレートが一致しません。"));
+    if (!print.isValid()) return fail(QStringLiteral("Invalid noise print FFT size or amplitude."));
+    if (sampleRate != print.sampleRate) return fail(QStringLiteral("Noise print and audio sample rates do not match."));
     if (!std::isfinite(amountDb) || amountDb < 0 || amountDb > 40
         || !std::isfinite(floorDb) || floorDb > 0 || floorDb < -120
-        || !finiteSamples(in)) return fail(QStringLiteral("音声または除去設定が不正です。"));
+        || !finiteSamples(in)) return fail(QStringLiteral("Invalid audio or removal settings."));
     if (in.size() > static_cast<size_t>(std::numeric_limits<int>::max() - print.fftSize * 2))
-        return fail(QStringLiteral("処理する音声が長すぎます。"));
+        return fail(QStringLiteral("The audio to process is too long."));
     if (amountDb == 0 || in.empty()) { out = in; return true; }
     const int pad = print.fftSize / 2;
     std::vector<double> padded(pad, 0.0);

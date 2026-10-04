@@ -27,7 +27,7 @@ QVector<ProjectPreset> ProjectSettingsDialog::presets()
 ProjectSettingsDialog::ProjectSettingsDialog(QWidget *parent, const ProjectConfig *initial)
     : QDialog(parent)
 {
-    setWindowTitle(initial ? "プロジェクト設定" : "New Project");
+    setWindowTitle(initial ? "Project Settings" : "New Project");
     setMinimumWidth(420);
     setupUI();
 

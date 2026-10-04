@@ -16,151 +16,151 @@ QVector<ResourceCategory> ResourceGuideDialog::allCategories()
 {
     return {
         // Video / Footage
-        { "動画素材 (Video Footage)", "🎬", {
+        { "Video Footage", "🎬", {
             { "Pexels Videos",
               "https://www.pexels.com/videos/",
-              "高品質な無料動画素材。商用利用OK、クレジット不要" },
+              "High-quality free stock video. Free for commercial use, no credit required" },
             { "Pixabay Videos",
               "https://pixabay.com/videos/",
-              "100万点以上の無料動画。商用利用OK" },
+              "Over 1 million free videos. Free for commercial use" },
             { "Coverr",
               "https://coverr.co/",
-              "ウェブ向け短尺動画。7日ごとに新素材追加" },
+              "Short web-ready videos. New material added every 7 days" },
             { "Videvo",
               "https://www.videvo.net/",
-              "無料動画クリップ・モーショングラフィックス" },
+              "Free video clips & motion graphics" },
             { "Mixkit",
               "https://mixkit.co/free-stock-video/",
-              "高品質な無料動画素材。商用利用OK" },
+              "High-quality free stock video. Free for commercial use" },
             { "Life of Vids",
               "https://lifeofvids.com/",
-              "CC0ライセンスの自然・風景動画" }
+              "CC0 nature & landscape videos" }
         }},
 
         // Images / Photos
-        { "画像・写真 (Images & Photos)", "📷", {
+        { "Images & Photos", "📷", {
             { "Unsplash",
               "https://unsplash.com/",
-              "高解像度写真。商用利用OK、クレジット不要" },
+              "High-resolution photos. Free for commercial use, no credit required" },
             { "Pexels Photos",
               "https://www.pexels.com/",
-              "無料写真素材。商用利用OK" },
+              "Free stock photos. Free for commercial use" },
             { "Pixabay Images",
               "https://pixabay.com/",
-              "写真・イラスト・ベクター画像" },
+              "Photos, illustrations & vector images" },
             { "StockSnap.io",
               "https://stocksnap.io/",
-              "CC0ライセンスの高品質写真" },
+              "CC0 high-quality photos" },
             { "Burst (Shopify)",
               "https://burst.shopify.com/",
-              "ビジネス向け無料写真" },
-            { "ぱくたそ",
+              "Free business photos" },
+            { "Pakutaso",
               "https://www.pakutaso.com/",
-              "日本の無料写真素材。人物・風景が豊富" }
+              "Free Japanese stock photos. Rich in people & landscapes" }
         }},
 
         // BGM / Music
-        { "BGM・音楽 (Music)", "🎵", {
+        { "Music", "🎵", {
             { "DOVA-SYNDROME",
               "https://dova-s.jp/",
-              "日本最大級のフリーBGMサイト。YouTube利用者多数" },
-            { "甘茶の音楽工房",
+              "One of Japan's largest free BGM sites. Popular with YouTubers" },
+            { "Amacha Music Workshop",
               "https://amachamusic.chagasi.com/",
-              "幅広いジャンルのフリーBGM。日本語" },
-            { "魔王魂",
+              "Free BGM in many genres. Japanese" },
+            { "Maou Damashii",
               "https://maou.audio/",
-              "ゲーム・動画向けフリーBGM・効果音" },
+              "Free BGM & sound effects for games & videos" },
             { "FreePD",
               "https://freepd.com/",
-              "パブリックドメインの音楽素材" },
+              "Public domain music" },
             { "Incompetech (Kevin MacLeod)",
               "https://incompetech.com/music/",
-              "ジャンル豊富なCC音楽。クレジット表記で無料" },
+              "CC music in many genres. Free with credit" },
             { "Mixkit Music",
               "https://mixkit.co/free-stock-music/",
-              "高品質フリーBGM。商用利用OK" },
+              "High-quality free BGM. Free for commercial use" },
             { "YouTube Audio Library",
               "https://studio.youtube.com/channel/UC/music",
-              "YouTube公式の無料音楽ライブラリ" }
+              "YouTube's official free music library" }
         }},
 
         // Sound Effects
-        { "効果音 (Sound Effects)", "🔊", {
-            { "効果音ラボ",
+        { "Sound Effects", "🔊", {
+            { "Sound Effect Lab",
               "https://soundeffect-lab.info/",
-              "日本語の効果音サイト。カテゴリ分けが豊富" },
+              "Japanese sound effects site. Rich categories" },
             { "Freesound",
               "https://freesound.org/",
-              "ユーザー投稿型。CC/CC0ライセンス" },
+              "User-submitted. CC/CC0 licensed" },
             { "Zapsplat",
               "https://www.zapsplat.com/",
-              "15万点以上の無料効果音" },
+              "Over 150,000 free sound effects" },
             { "SoundBible",
               "https://soundbible.com/",
-              "CC/パブリックドメインの効果音" },
+              "CC/public domain sound effects" },
             { "OtoLogic",
               "https://otologic.jp/",
-              "日本語。BGM・効果音・ジングル" },
-            { "On-Jin ～音人～",
+              "Japanese. BGM, sound effects & jingles" },
+            { "On-Jin",
               "https://on-jin.com/",
-              "日本語。システム音・生活音が充実" }
+              "Japanese. Rich system & everyday sounds" }
         }},
 
         // Fonts
-        { "フォント (Fonts)", "🔤", {
+        { "Fonts", "🔤", {
             { "Google Fonts",
               "https://fonts.google.com/",
-              "1500以上のオープンソースフォント" },
+              "Over 1500 open-source fonts" },
             { "FontFree",
               "https://fontfree.me/",
-              "日本語フリーフォントまとめ" },
+              "Free Japanese font collection" },
             { "FONTBEAR",
               "https://fontbear.net/",
-              "商用利用可の日本語フリーフォント" },
+              "Free Japanese fonts for commercial use" },
             { "Font Meme",
               "https://fontmeme.com/",
-              "映画・ブランド風フォント" },
+              "Movie & brand-style fonts" },
             { "DaFont",
               "https://www.dafont.com/",
-              "装飾フォントが豊富（ライセンス確認要）" }
+              "Rich decorative fonts (check license)" }
         }},
 
         // Icons / Illustrations
-        { "アイコン・イラスト (Icons & Illustrations)", "🎨", {
+        { "Icons & Illustrations", "🎨", {
             { "unDraw",
               "https://undraw.co/illustrations",
-              "カラー変更可能なSVGイラスト" },
+              "Recolorable SVG illustrations" },
             { "Flaticon",
               "https://www.flaticon.com/",
-              "アイコン素材（無料はクレジット要）" },
+              "Icon material (free version requires credit)" },
             { "Icons8",
               "https://icons8.com/",
-              "アイコン・写真・イラスト・音楽" },
-            { "いらすとや",
+              "Icons, photos, illustrations & music" },
+            { "Irasutoya",
               "https://www.irasutoya.com/",
-              "日本で最も有名なフリーイラスト" },
+              "Japan's most famous free illustrations" },
             { "Loose Drawing",
               "https://loosedrawing.com/",
-              "シンプルなフリーイラスト素材" },
+              "Simple free illustration material" },
             { "ICOOON MONO",
               "https://icooon-mono.com/",
-              "モノクロアイコン素材。商用利用OK" }
+              "Monochrome icon material. Free for commercial use" }
         }},
 
         // Textures / Backgrounds
-        { "テクスチャ・背景 (Textures & BG)", "🖼", {
+        { "Textures & Backgrounds", "🖼", {
             { "Subtle Patterns",
               "https://www.toptal.com/designers/subtlepatterns/",
-              "繊細なタイルパターン背景" },
+              "Delicate tile-pattern backgrounds" },
             { "Transparent Textures",
               "https://www.transparenttextures.com/",
-              "透過テクスチャ素材" },
+              "Transparent textures" },
             { "Hero Patterns",
               "https://heropatterns.com/",
-              "SVGベースの繰り返しパターン" },
+              "SVG-based repeating patterns" },
             { "Poly Haven",
               "https://polyhaven.com/",
-              "HDR環境マップ・テクスチャ。CC0" }
+              "HDR environment maps & textures. CC0" }
         }}
     };
 }
@@ -170,7 +170,7 @@ QVector<ResourceCategory> ResourceGuideDialog::allCategories()
 ResourceGuideDialog::ResourceGuideDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle("Free Resource Guide — フリー素材ガイド");
+    setWindowTitle("Free Resource Guide");
     resize(700, 600);
     setupUI();
 }
@@ -181,9 +181,9 @@ void ResourceGuideDialog::setupUI()
 
     // Header
     auto *headerLabel = new QLabel(
-        "<h2>フリー素材ガイド</h2>"
-        "<p style='color:#888;'>動画編集に使えるフリー素材サイト集。"
-        "各サイトの利用規約を確認してからご利用ください。</p>");
+        "<h2>Free Resource Guide</h2>"
+        "<p style='color:#888;'>A collection of free stock sites for video editing."
+        "Please check each site's terms of use.</p>");
     headerLabel->setWordWrap(true);
     mainLayout->addWidget(headerLabel);
 
@@ -241,7 +241,7 @@ void ResourceGuideDialog::setupUI()
     mainLayout->addWidget(scrollArea, 1);
 
     // Close button
-    auto *closeBtn = new QPushButton("閉じる (Close)");
+    auto *closeBtn = new QPushButton("Close");
     connect(closeBtn, &QPushButton::clicked, this, &QDialog::accept);
 
     auto *bottomLayout = new QHBoxLayout;

@@ -9,7 +9,7 @@
 DialogueLevelerDialog::DialogueLevelerDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("ダイアログレベラー"));
+    setWindowTitle(QStringLiteral("Dialogue Leveler"));
     setMinimumWidth(340);
 
     m_targetSpin = new QDoubleSpinBox(this);
@@ -24,17 +24,17 @@ DialogueLevelerDialog::DialogueLevelerDialog(QWidget *parent)
     m_smoothingSpin->setDecimals(2);
     m_smoothingSpin->setSingleStep(0.1);
     m_smoothingSpin->setValue(0.5);
-    m_smoothingSpin->setSuffix(QStringLiteral(" 秒"));
+    m_smoothingSpin->setSuffix(QStringLiteral(" sec"));
 
     auto *form = new QFormLayout;
-    form->addRow(QStringLiteral("目標ラウドネス:"), m_targetSpin);
-    form->addRow(QStringLiteral("強さ (平滑化):"), m_smoothingSpin);
+    form->addRow(QStringLiteral("Target loudness:"), m_targetSpin);
+    form->addRow(QStringLiteral("Strength (smoothing):"), m_smoothingSpin);
 
     auto *buttons = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("適用"));
+    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("Apply"));
     buttons->button(QDialogButtonBox::Cancel)->setText(
-        QStringLiteral("キャンセル"));
+        QStringLiteral("Cancel"));
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 

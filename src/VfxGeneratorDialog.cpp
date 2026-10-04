@@ -33,7 +33,7 @@ int typeIndex(VfxGeneratorType type)
 VfxGeneratorDialog::VfxGeneratorDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("VFX ジェネレータ"));
+    setWindowTitle(QStringLiteral("VFX Generator"));
     setModal(true);
     resize(820, 600);
     buildUi();
@@ -277,7 +277,7 @@ void VfxGeneratorDialog::buildUi()
     mainLayout->setSpacing(10);
 
     auto *typeLayout = new QHBoxLayout;
-    typeLayout->addWidget(new QLabel(QStringLiteral("ジェネレータ"), this));
+    typeLayout->addWidget(new QLabel(QStringLiteral("Generator"), this));
     m_typeCombo = new QComboBox(this);
     for (VfxGeneratorType type : VfxGenerators::allTypes())
         m_typeCombo->addItem(VfxGenerators::displayName(type), static_cast<int>(type));
@@ -295,16 +295,16 @@ void VfxGeneratorDialog::buildUi()
     bodyLayout->addWidget(settingsScroll, 3);
 
     auto *previewColumn = new QVBoxLayout;
-    previewColumn->addWidget(new QLabel(QStringLiteral("プレビュー"), this));
+    previewColumn->addWidget(new QLabel(QStringLiteral("Preview"), this));
     m_previewLabel = new QLabel(this);
     m_previewLabel->setMinimumSize(360, 220);
     m_previewLabel->setAlignment(Qt::AlignCenter);
     m_previewLabel->setStyleSheet(QStringLiteral(
         "QLabel { background: #10141b; border: 1px solid #384454; color: #b8c2d1; }"));
-    m_previewLabel->setText(QStringLiteral("生成結果を準備中"));
+    m_previewLabel->setText(QStringLiteral("Preparing generated result"));
     previewColumn->addWidget(m_previewLabel);
-    m_restartButton = new QPushButton(QStringLiteral("プレビューを再生"), this);
-    m_restartButton->setToolTip(QStringLiteral("プレビュー時刻を 0 秒に戻します"));
+    m_restartButton = new QPushButton(QStringLiteral("Play Preview"), this);
+    m_restartButton->setToolTip(QStringLiteral("Reset preview time to 0 seconds"));
     connect(m_restartButton, &QPushButton::clicked,
             this, &VfxGeneratorDialog::restartPreview);
     previewColumn->addWidget(m_restartButton);
@@ -369,8 +369,8 @@ void VfxGeneratorDialog::addColor(PageControls &page, const QColor &color)
 {
     page.color = color;
     page.colorButton = new QPushButton(page.page);
-    page.colorButton->setText(QStringLiteral("色を選択"));
-    page.colorButton->setAccessibleName(QStringLiteral("VFX カラー"));
+    page.colorButton->setText(QStringLiteral("Select Color"));
+    page.colorButton->setAccessibleName(QStringLiteral("VFX Color"));
     page.form->addRow(QStringLiteral("Color"), page.colorButton);
     connect(page.colorButton, &QPushButton::clicked,
             this, &VfxGeneratorDialog::chooseColor);
@@ -385,14 +385,14 @@ void VfxGeneratorDialog::buildExplosionPage()
     page.form->setContentsMargins(8, 8, 8, 8);
     page.form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     const ExplosionParameters p;
-    addDouble(page, QStringLiteral("centerX"), QStringLiteral("中心 X"), 0.0, 1.0, p.center.x());
-    addDouble(page, QStringLiteral("centerY"), QStringLiteral("中心 Y"), 0.0, 1.0, p.center.y());
-    addDouble(page, QStringLiteral("scale"), QStringLiteral("規模"), 0.01, 1.0, p.scale);
-    addInt(page, QStringLiteral("fragmentCount"), QStringLiteral("破片数"), 0, 256, p.fragmentCount);
-    addDouble(page, QStringLiteral("gravity"), QStringLiteral("重力"), 0.0, 1000.0, p.gravity, 1.0);
-    addDouble(page, QStringLiteral("colorTemperature"), QStringLiteral("色温度"), 0.0, 1.0, p.colorTemperature);
-    addDouble(page, QStringLiteral("duration"), QStringLiteral("継続時間 (秒)"), 0.05, 10.0, p.duration, 0.05);
-    addInt(page, QStringLiteral("seed"), QStringLiteral("シード"), 0, 2147483647, static_cast<int>(p.seed));
+    addDouble(page, QStringLiteral("centerX"), QStringLiteral("Center X"), 0.0, 1.0, p.center.x());
+    addDouble(page, QStringLiteral("centerY"), QStringLiteral("Center Y"), 0.0, 1.0, p.center.y());
+    addDouble(page, QStringLiteral("scale"), QStringLiteral("Scale"), 0.01, 1.0, p.scale);
+    addInt(page, QStringLiteral("fragmentCount"), QStringLiteral("Fragment count"), 0, 256, p.fragmentCount);
+    addDouble(page, QStringLiteral("gravity"), QStringLiteral("Gravity"), 0.0, 1000.0, p.gravity, 1.0);
+    addDouble(page, QStringLiteral("colorTemperature"), QStringLiteral("Temperature"), 0.0, 1.0, p.colorTemperature);
+    addDouble(page, QStringLiteral("duration"), QStringLiteral("Duration (sec)"), 0.05, 10.0, p.duration, 0.05);
+    addInt(page, QStringLiteral("seed"), QStringLiteral("Seed"), 0, 2147483647, static_cast<int>(p.seed));
     m_pagesStack->addWidget(page.page);
 }
 
@@ -403,17 +403,17 @@ void VfxGeneratorDialog::buildLightningPage()
     page.form = new QFormLayout(page.page);
     page.form->setContentsMargins(8, 8, 8, 8);
     const LightningParameters p;
-    addDouble(page, QStringLiteral("startX"), QStringLiteral("始点 X"), 0.0, 1.0, p.start.x());
-    addDouble(page, QStringLiteral("startY"), QStringLiteral("始点 Y"), 0.0, 1.0, p.start.y());
-    addDouble(page, QStringLiteral("endX"), QStringLiteral("終点 X"), 0.0, 1.0, p.end.x());
-    addDouble(page, QStringLiteral("endY"), QStringLiteral("終点 Y"), 0.0, 1.0, p.end.y());
-    addDouble(page, QStringLiteral("branchProbability"), QStringLiteral("分岐確率"), 0.0, 1.0, p.branchProbability);
-    addInt(page, QStringLiteral("recursionDepth"), QStringLiteral("再帰深度"), 0, 8, p.recursionDepth);
-    addDouble(page, QStringLiteral("jitterWidth"), QStringLiteral("ジッタ幅"), 0.0, 0.2, p.jitterWidth);
-    addDouble(page, QStringLiteral("coreWidth"), QStringLiteral("芯の太さ"), 0.5, 20.0, p.coreWidth, 0.5);
-    addDouble(page, QStringLiteral("flickerRate"), QStringLiteral("明滅速度"), 0.1, 30.0, p.flickerRate, 0.1);
-    addDouble(page, QStringLiteral("flickerDepth"), QStringLiteral("明滅深度"), 0.0, 1.0, p.flickerDepth);
-    addInt(page, QStringLiteral("seed"), QStringLiteral("シード"), 0, 2147483647, static_cast<int>(p.seed));
+    addDouble(page, QStringLiteral("startX"), QStringLiteral("Start X"), 0.0, 1.0, p.start.x());
+    addDouble(page, QStringLiteral("startY"), QStringLiteral("Start Y"), 0.0, 1.0, p.start.y());
+    addDouble(page, QStringLiteral("endX"), QStringLiteral("End X"), 0.0, 1.0, p.end.x());
+    addDouble(page, QStringLiteral("endY"), QStringLiteral("End Y"), 0.0, 1.0, p.end.y());
+    addDouble(page, QStringLiteral("branchProbability"), QStringLiteral("Branch probability"), 0.0, 1.0, p.branchProbability);
+    addInt(page, QStringLiteral("recursionDepth"), QStringLiteral("Recursion depth"), 0, 8, p.recursionDepth);
+    addDouble(page, QStringLiteral("jitterWidth"), QStringLiteral("Jitter width"), 0.0, 0.2, p.jitterWidth);
+    addDouble(page, QStringLiteral("coreWidth"), QStringLiteral("Core thickness"), 0.5, 20.0, p.coreWidth, 0.5);
+    addDouble(page, QStringLiteral("flickerRate"), QStringLiteral("Flicker speed"), 0.1, 30.0, p.flickerRate, 0.1);
+    addDouble(page, QStringLiteral("flickerDepth"), QStringLiteral("Flicker depth"), 0.0, 1.0, p.flickerDepth);
+    addInt(page, QStringLiteral("seed"), QStringLiteral("Seed"), 0, 2147483647, static_cast<int>(p.seed));
     addColor(page, p.color);
     m_pagesStack->addWidget(page.page);
 }
@@ -425,13 +425,13 @@ void VfxGeneratorDialog::buildShockWavePage()
     page.form = new QFormLayout(page.page);
     page.form->setContentsMargins(8, 8, 8, 8);
     const ShockWaveParameters p;
-    addDouble(page, QStringLiteral("centerX"), QStringLiteral("中心 X"), 0.0, 1.0, p.center.x());
-    addDouble(page, QStringLiteral("centerY"), QStringLiteral("中心 Y"), 0.0, 1.0, p.center.y());
-    addDouble(page, QStringLiteral("initialRadius"), QStringLiteral("初期半径"), 0.0, 300.0, p.initialRadius, 1.0);
-    addDouble(page, QStringLiteral("speed"), QStringLiteral("速度 (px/s)"), 0.0, 2000.0, p.speed, 10.0);
-    addDouble(page, QStringLiteral("ringWidth"), QStringLiteral("リング幅"), 1.0, 100.0, p.ringWidth, 1.0);
-    addDouble(page, QStringLiteral("distortionStrength"), QStringLiteral("歪み強度"), 0.0, 100.0, p.distortionStrength, 1.0);
-    addDouble(page, QStringLiteral("decay"), QStringLiteral("減衰"), 0.0, 10.0, p.decay);
+    addDouble(page, QStringLiteral("centerX"), QStringLiteral("Center X"), 0.0, 1.0, p.center.x());
+    addDouble(page, QStringLiteral("centerY"), QStringLiteral("Center Y"), 0.0, 1.0, p.center.y());
+    addDouble(page, QStringLiteral("initialRadius"), QStringLiteral("Initial radius"), 0.0, 300.0, p.initialRadius, 1.0);
+    addDouble(page, QStringLiteral("speed"), QStringLiteral("Speed (px/s)"), 0.0, 2000.0, p.speed, 10.0);
+    addDouble(page, QStringLiteral("ringWidth"), QStringLiteral("Ring width"), 1.0, 100.0, p.ringWidth, 1.0);
+    addDouble(page, QStringLiteral("distortionStrength"), QStringLiteral("Distortion strength"), 0.0, 100.0, p.distortionStrength, 1.0);
+    addDouble(page, QStringLiteral("decay"), QStringLiteral("Decay"), 0.0, 10.0, p.decay);
     addColor(page, p.color);
     m_pagesStack->addWidget(page.page);
 }
@@ -443,15 +443,15 @@ void VfxGeneratorDialog::buildEnergyBeamPage()
     page.form = new QFormLayout(page.page);
     page.form->setContentsMargins(8, 8, 8, 8);
     const EnergyBeamParameters p;
-    addDouble(page, QStringLiteral("startX"), QStringLiteral("始点 X"), 0.0, 1.0, p.start.x());
-    addDouble(page, QStringLiteral("startY"), QStringLiteral("始点 Y"), 0.0, 1.0, p.start.y());
-    addDouble(page, QStringLiteral("endX"), QStringLiteral("終点 X"), 0.0, 1.0, p.end.x());
-    addDouble(page, QStringLiteral("endY"), QStringLiteral("終点 Y"), 0.0, 1.0, p.end.y());
-    addDouble(page, QStringLiteral("coreWidth"), QStringLiteral("芯幅"), 0.5, 50.0, p.coreWidth, 0.5);
-    addDouble(page, QStringLiteral("haloWidth"), QStringLiteral("ハロー幅"), 1.0, 200.0, p.haloWidth, 1.0);
-    addDouble(page, QStringLiteral("noiseIntensity"), QStringLiteral("ノイズ強度"), 0.0, 1.0, p.noiseIntensity);
-    addDouble(page, QStringLiteral("flowSpeed"), QStringLiteral("流れ速度"), 0.0, 20.0, p.flowSpeed, 0.1);
-    addInt(page, QStringLiteral("seed"), QStringLiteral("シード"), 0, 2147483647, static_cast<int>(p.seed));
+    addDouble(page, QStringLiteral("startX"), QStringLiteral("Start X"), 0.0, 1.0, p.start.x());
+    addDouble(page, QStringLiteral("startY"), QStringLiteral("Start Y"), 0.0, 1.0, p.start.y());
+    addDouble(page, QStringLiteral("endX"), QStringLiteral("End X"), 0.0, 1.0, p.end.x());
+    addDouble(page, QStringLiteral("endY"), QStringLiteral("End Y"), 0.0, 1.0, p.end.y());
+    addDouble(page, QStringLiteral("coreWidth"), QStringLiteral("Core width"), 0.5, 50.0, p.coreWidth, 0.5);
+    addDouble(page, QStringLiteral("haloWidth"), QStringLiteral("Halo width"), 1.0, 200.0, p.haloWidth, 1.0);
+    addDouble(page, QStringLiteral("noiseIntensity"), QStringLiteral("Noise intensity"), 0.0, 1.0, p.noiseIntensity);
+    addDouble(page, QStringLiteral("flowSpeed"), QStringLiteral("Flow speed"), 0.0, 20.0, p.flowSpeed, 0.1);
+    addInt(page, QStringLiteral("seed"), QStringLiteral("Seed"), 0, 2147483647, static_cast<int>(p.seed));
     addColor(page, p.color);
     m_pagesStack->addWidget(page.page);
 }
@@ -463,24 +463,24 @@ void VfxGeneratorDialog::buildMagicCirclePage()
     page.form = new QFormLayout(page.page);
     page.form->setContentsMargins(8, 8, 8, 8);
     const MagicCircleParameters p;
-    addDouble(page, QStringLiteral("centerX"), QStringLiteral("中心 X"), 0.0, 1.0, p.center.x());
-    addDouble(page, QStringLiteral("centerY"), QStringLiteral("中心 Y"), 0.0, 1.0, p.center.y());
-    addDouble(page, QStringLiteral("radius"), QStringLiteral("半径"), 0.05, 1.0, p.radius);
-    addInt(page, QStringLiteral("ringCount"), QStringLiteral("リング数"), 1, 8, p.ringCount);
-    addInt(page, QStringLiteral("segmentCount"), QStringLiteral("分割数"), 3, 64, p.segmentCount);
-    addDouble(page, QStringLiteral("lineWidth"), QStringLiteral("線幅"), 0.5, 20.0, p.lineWidth, 0.5);
-    addDouble(page, QStringLiteral("tiltX"), QStringLiteral("3D 傾き X"), -80.0, 80.0, p.tilt.rotationX, 1.0);
-    addDouble(page, QStringLiteral("tiltY"), QStringLiteral("3D 傾き Y"), -80.0, 80.0, p.tilt.rotationY, 1.0);
+    addDouble(page, QStringLiteral("centerX"), QStringLiteral("Center X"), 0.0, 1.0, p.center.x());
+    addDouble(page, QStringLiteral("centerY"), QStringLiteral("Center Y"), 0.0, 1.0, p.center.y());
+    addDouble(page, QStringLiteral("radius"), QStringLiteral("Radius"), 0.05, 1.0, p.radius);
+    addInt(page, QStringLiteral("ringCount"), QStringLiteral("Ring count"), 1, 8, p.ringCount);
+    addInt(page, QStringLiteral("segmentCount"), QStringLiteral("Segment count"), 3, 64, p.segmentCount);
+    addDouble(page, QStringLiteral("lineWidth"), QStringLiteral("Line width"), 0.5, 20.0, p.lineWidth, 0.5);
+    addDouble(page, QStringLiteral("tiltX"), QStringLiteral("3D Tilt X"), -80.0, 80.0, p.tilt.rotationX, 1.0);
+    addDouble(page, QStringLiteral("tiltY"), QStringLiteral("3D Tilt Y"), -80.0, 80.0, p.tilt.rotationY, 1.0);
     for (int i = 0; i < 8; ++i) {
         const double fallback = (i % 2 == 0 ? 0.5 : -0.35)
             / (1.0 + static_cast<double>(i) * 0.2);
         const double speed = i < static_cast<int>(p.rotationSpeeds.size())
             ? p.rotationSpeeds[i] : fallback;
         addDouble(page, QStringLiteral("speed%1").arg(i),
-                  QStringLiteral("リング %1 回転速度").arg(i + 1),
+                  QStringLiteral("Ring %1 rotation speed").arg(i + 1),
                   -5.0, 5.0, speed, 0.05);
     }
-    addInt(page, QStringLiteral("seed"), QStringLiteral("シード"), 0, 2147483647, static_cast<int>(p.seed));
+    addInt(page, QStringLiteral("seed"), QStringLiteral("Seed"), 0, 2147483647, static_cast<int>(p.seed));
     addColor(page, p.color);
     m_pagesStack->addWidget(page.page);
 }
@@ -492,14 +492,14 @@ void VfxGeneratorDialog::buildMuzzleFlashPage()
     page.form = new QFormLayout(page.page);
     page.form->setContentsMargins(8, 8, 8, 8);
     const MuzzleFlashParameters p;
-    addDouble(page, QStringLiteral("centerX"), QStringLiteral("中心 X"), 0.0, 1.0, p.center.x());
-    addDouble(page, QStringLiteral("centerY"), QStringLiteral("中心 Y"), 0.0, 1.0, p.center.y());
-    addDouble(page, QStringLiteral("directionDegrees"), QStringLiteral("方向 (度)"), -360.0, 360.0, p.directionDegrees, 1.0);
-    addDouble(page, QStringLiteral("scale"), QStringLiteral("規模"), 0.05, 1.0, p.scale);
-    addInt(page, QStringLiteral("spikeCount"), QStringLiteral("スパイク数"), 1, 64, p.spikeCount);
-    addInt(page, QStringLiteral("durationFrames"), QStringLiteral("継続フレーム数"), 1, 10, p.durationFrames);
-    addDouble(page, QStringLiteral("frameRate"), QStringLiteral("基準 fps"), 1.0, 240.0, p.frameRate, 1.0);
-    addInt(page, QStringLiteral("seed"), QStringLiteral("シード"), 0, 2147483647, static_cast<int>(p.seed));
+    addDouble(page, QStringLiteral("centerX"), QStringLiteral("Center X"), 0.0, 1.0, p.center.x());
+    addDouble(page, QStringLiteral("centerY"), QStringLiteral("Center Y"), 0.0, 1.0, p.center.y());
+    addDouble(page, QStringLiteral("directionDegrees"), QStringLiteral("Direction (degrees)"), -360.0, 360.0, p.directionDegrees, 1.0);
+    addDouble(page, QStringLiteral("scale"), QStringLiteral("Scale"), 0.05, 1.0, p.scale);
+    addInt(page, QStringLiteral("spikeCount"), QStringLiteral("Spike count"), 1, 64, p.spikeCount);
+    addInt(page, QStringLiteral("durationFrames"), QStringLiteral("Duration (frames)"), 1, 10, p.durationFrames);
+    addDouble(page, QStringLiteral("frameRate"), QStringLiteral("Base fps"), 1.0, 240.0, p.frameRate, 1.0);
+    addInt(page, QStringLiteral("seed"), QStringLiteral("Seed"), 0, 2147483647, static_cast<int>(p.seed));
     m_pagesStack->addWidget(page.page);
 }
 
@@ -510,26 +510,26 @@ void VfxGeneratorDialog::buildEnergyShieldPage()
     page.form = new QFormLayout(page.page);
     page.form->setContentsMargins(8, 8, 8, 8);
     const EnergyShieldParameters p;
-    addDouble(page, QStringLiteral("centerX"), QStringLiteral("中心 X"), 0.0, 1.0, p.center.x());
-    addDouble(page, QStringLiteral("centerY"), QStringLiteral("中心 Y"), 0.0, 1.0, p.center.y());
-    addDouble(page, QStringLiteral("radius"), QStringLiteral("半径"), 0.05, 1.0, p.radius);
-    addDouble(page, QStringLiteral("edgeSharpness"), QStringLiteral("縁の鋭さ"), 0.5, 12.0, p.edgeSharpness, 0.5);
-    addDouble(page, QStringLiteral("cellSize"), QStringLiteral("セルサイズ"), 6.0, 120.0, p.cellSize, 1.0);
-    addDouble(page, QStringLiteral("rippleStrength"), QStringLiteral("着弾波紋強度"), 0.0, 2.0, p.rippleStrength);
-    addDouble(page, QStringLiteral("rippleSpeed"), QStringLiteral("波紋速度"), 1.0, 1000.0, p.rippleSpeed, 10.0);
-    addInt(page, QStringLiteral("impactCount"), QStringLiteral("着弾点数"), 0, 8,
+    addDouble(page, QStringLiteral("centerX"), QStringLiteral("Center X"), 0.0, 1.0, p.center.x());
+    addDouble(page, QStringLiteral("centerY"), QStringLiteral("Center Y"), 0.0, 1.0, p.center.y());
+    addDouble(page, QStringLiteral("radius"), QStringLiteral("Radius"), 0.05, 1.0, p.radius);
+    addDouble(page, QStringLiteral("edgeSharpness"), QStringLiteral("Edge sharpness"), 0.5, 12.0, p.edgeSharpness, 0.5);
+    addDouble(page, QStringLiteral("cellSize"), QStringLiteral("Cell size"), 6.0, 120.0, p.cellSize, 1.0);
+    addDouble(page, QStringLiteral("rippleStrength"), QStringLiteral("Impact ripple strength"), 0.0, 2.0, p.rippleStrength);
+    addDouble(page, QStringLiteral("rippleSpeed"), QStringLiteral("Ripple speed"), 1.0, 1000.0, p.rippleSpeed, 10.0);
+    addInt(page, QStringLiteral("impactCount"), QStringLiteral("Impact count"), 0, 8,
            static_cast<int>(p.impactPoints.size()));
     for (int i = 0; i < 8; ++i) {
         const QPointF point = i < static_cast<int>(p.impactPoints.size())
             ? p.impactPoints[i] : p.center;
         addDouble(page, QStringLiteral("impact%1X").arg(i),
-                  QStringLiteral("着弾 %1 X").arg(i + 1), 0.0, 1.0,
+                  QStringLiteral("Impact %1 X").arg(i + 1), 0.0, 1.0,
                   point.x());
         addDouble(page, QStringLiteral("impact%1Y").arg(i),
-                  QStringLiteral("着弾 %1 Y").arg(i + 1), 0.0, 1.0,
+                  QStringLiteral("Impact %1 Y").arg(i + 1), 0.0, 1.0,
                   point.y());
     }
-    addInt(page, QStringLiteral("seed"), QStringLiteral("シード"), 0, 2147483647, static_cast<int>(p.seed));
+    addInt(page, QStringLiteral("seed"), QStringLiteral("Seed"), 0, 2147483647, static_cast<int>(p.seed));
     addColor(page, p.color);
     m_pagesStack->addWidget(page.page);
 }
@@ -604,7 +604,7 @@ void VfxGeneratorDialog::updatePreview()
     const QImage image = VfxGenerators::render(type, QSize(360, 220), params, time);
     if (image.isNull()) {
         m_previewLabel->setPixmap(QPixmap());
-        m_previewLabel->setText(QStringLiteral("プレビューを生成できません"));
+        m_previewLabel->setText(QStringLiteral("Cannot generate preview"));
         return;
     }
     const QPixmap pixmap = QPixmap::fromImage(image);
@@ -628,7 +628,7 @@ void VfxGeneratorDialog::chooseColor()
         if (page.colorButton != button)
             continue;
         const QColor selected = QColorDialog::getColor(page.color, this,
-                                                        QStringLiteral("VFX カラー"),
+                                                        QStringLiteral("VFX Color"),
                                                         QColorDialog::ShowAlphaChannel);
         if (selected.isValid()) {
             page.color = selected;

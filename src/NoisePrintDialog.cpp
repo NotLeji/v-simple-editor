@@ -5,7 +5,7 @@
 #include <QPushButton>
 
 NoisePrintDialog::NoisePrintDialog(QWidget* parent) : QDialog(parent) {
-    setWindowTitle(tr("ノイズプリントで除去"));
+    setWindowTitle(tr("Remove with Noise Print"));
     auto* layout = new QFormLayout(this);
     m_amount = new QDoubleSpinBox(this);
     m_amount->setRange(0, 40);
@@ -15,11 +15,11 @@ NoisePrintDialog::NoisePrintDialog(QWidget* parent) : QDialog(parent) {
     m_floor->setRange(-120, 0);
     m_floor->setValue(-20);
     m_floor->setSuffix(tr(" dB"));
-    layout->addRow(tr("除去量:"), m_amount);
-    layout->addRow(tr("下限:"), m_floor);
+    layout->addRow(tr("Amount:"), m_amount);
+    layout->addRow(tr("Floor:"), m_floor);
     auto* buttons = new QDialogButtonBox(this);
-    buttons->addButton(tr("適用"), QDialogButtonBox::AcceptRole);
-    buttons->addButton(tr("キャンセル"), QDialogButtonBox::RejectRole);
+    buttons->addButton(tr("Apply"), QDialogButtonBox::AcceptRole);
+    buttons->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     layout->addRow(buttons);

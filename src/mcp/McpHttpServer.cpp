@@ -617,7 +617,7 @@ void McpHttpServer::handleRequest(QTcpSocket* socket, const Request& request)
     QString clientVersion;
     if (initializeClientInfo(request.body, &clientName, &clientVersion)
         && QJsonDocument::fromJson(response).object().contains(QStringLiteral("result"))) {
-        m_lastClientName = clientName.isEmpty() ? QStringLiteral("(名前なし)") : clientName;
+        m_lastClientName = clientName.isEmpty() ? QStringLiteral("(Unnamed)") : clientName;
         m_lastClientVersion = clientVersion;
         emit clientInitialized(m_lastClientName, m_lastClientVersion);
     }

@@ -1192,7 +1192,7 @@ signals:
     // timeline text strip so MainWindow can resync the right-panel
     // 開始時間 / 表示時間 spinboxes and re-push the preview overlays.
     void textOverlayTimeChanged(int overlayIndex, double startTime, double endTime);
-    // Right-click → "カスタム..." / "ビデオエフェクト..." / "色補正..." in the
+    // Right-click → "Custom..." / "Video Effects..." / "Color Correction..." in the
     // clip context menu. Timeline doesn't own the dialogs themselves, so it
     // signals up to MainWindow which holds the existing entry points
     // (addTransition / videoEffects / colorCorrection).
@@ -1205,7 +1205,7 @@ signals:
     // Emitted from applyTransitionToSelected when the requested duration
     // could not be honored against the available source handles. Carries
     // the asked vs effective duration in seconds so MainWindow can show
-    // a status message ("クロスディゾルブを 1.0s → 0.4s に短縮").
+    // a status message ("Shortened Cross Dissolve from 1.0s to 0.4s").
     void transitionShortened(QString transitionTypeName,
                              double askedSec, double effectiveSec);
     void statusMessageRequested(const QString &message, int timeoutMs);

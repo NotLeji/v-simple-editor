@@ -211,7 +211,7 @@ void SpectrogramWidget::paintEvent(QPaintEvent * /*event*/)
         // samples 未設定時の空表示。
         painter.setPen(QColor(140, 140, 150));
         painter.drawText(r, Qt::AlignCenter,
-                         tr("音声を読み込むとスペクトログラムが表示されます"));
+                         tr("Load audio to display the spectrogram"));
     }
 
     // 確定済み選択矩形 / ドラッグ中の矩形をオーバーレイ描画する。

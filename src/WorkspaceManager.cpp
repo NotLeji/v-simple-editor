@@ -149,10 +149,10 @@ void WorkspaceManager::ensureDefaults()
 
     // blob は空のまま名前だけ投入する。実際の blob は UI が後で埋める。
     static const char* const kDefaults[] = {
-        "編集",
-        "カラー",
-        "オーディオ",
-        "エフェクト",
+        "Edit",
+        "Color",
+        "Audio",
+        "Effects",
     };
     for (const char* name : kDefaults)
         addOrUpdate(QString::fromUtf8(name), QByteArray(), QByteArray());

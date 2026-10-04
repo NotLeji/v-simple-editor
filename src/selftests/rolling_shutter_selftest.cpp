@@ -159,7 +159,7 @@ int runRollingShutterSelftest()
         QJsonDocument::fromJson(QJsonDocument(
             PresetLibrary::videoEffectToJson(clip.effects[0])).toJson()).object());
     const EffectPreset preset = EffectPreset::fromClipStack(
-        QStringLiteral("ローリングシャッター補正"), clip, false);
+        QStringLiteral("Rolling Shutter Correction"), clip, false);
     const EffectPreset restored = EffectPreset::fromJson(
         QJsonDocument::fromJson(QJsonDocument(preset.toJson()).toJson()).object());
     ClipInfo destination;

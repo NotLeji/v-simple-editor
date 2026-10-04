@@ -13,22 +13,22 @@ namespace reframe {
 QString modeDisplayName(Mode m)
 {
     switch (m) {
-    case Mode::CenterCrop:        return QStringLiteral("中央クロップ");
-    case Mode::LetterBox:         return QStringLiteral("レターボックス");
-    case Mode::SmartCenterFollow: return QStringLiteral("スマート中央追跡");
-    case Mode::SkinToneFocus:     return QStringLiteral("肌色フォーカス");
-    case Mode::Manual:            return QStringLiteral("手動");
+    case Mode::CenterCrop:        return QStringLiteral("Center Crop");
+    case Mode::LetterBox:         return QStringLiteral("Letterbox");
+    case Mode::SmartCenterFollow: return QStringLiteral("Smart Center Follow");
+    case Mode::SkinToneFocus:     return QStringLiteral("Skin Tone Focus");
+    case Mode::Manual:            return QStringLiteral("Manual");
     }
-    return QStringLiteral("中央クロップ");
+    return QStringLiteral("Center Crop");
 }
 
 Mode modeFromString(const QString& s)
 {
-    if (s == QStringLiteral("中央クロップ")       || s == QStringLiteral("CenterCrop"))        return Mode::CenterCrop;
-    if (s == QStringLiteral("レターボックス")      || s == QStringLiteral("LetterBox"))         return Mode::LetterBox;
-    if (s == QStringLiteral("スマート中央追跡")    || s == QStringLiteral("SmartCenterFollow")) return Mode::SmartCenterFollow;
-    if (s == QStringLiteral("肌色フォーカス")      || s == QStringLiteral("SkinToneFocus"))     return Mode::SkinToneFocus;
-    if (s == QStringLiteral("手動")               || s == QStringLiteral("Manual"))             return Mode::Manual;
+    if (s == QStringLiteral("Center Crop")       || s == QStringLiteral("CenterCrop"))        return Mode::CenterCrop;
+    if (s == QStringLiteral("Letterbox")      || s == QStringLiteral("LetterBox"))         return Mode::LetterBox;
+    if (s == QStringLiteral("Smart Center Follow")    || s == QStringLiteral("SmartCenterFollow")) return Mode::SmartCenterFollow;
+    if (s == QStringLiteral("Skin Tone Focus")      || s == QStringLiteral("SkinToneFocus"))     return Mode::SkinToneFocus;
+    if (s == QStringLiteral("Manual")               || s == QStringLiteral("Manual"))             return Mode::Manual;
     return Mode::CenterCrop;
 }
 

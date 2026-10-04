@@ -211,7 +211,7 @@ constexpr const char* kCredentialStoreSelftestName = "credential-store";
 constexpr const char* kCredentialStoreSelftestEnv =
     "VEDITOR_CREDENTIAL_STORE_SELFTEST";
 constexpr const char* kCredentialStoreSelftestDescription =
-    "CredentialStore SSOT helper の env/QSettings/default fallback と Vault routing/masking を 10 gate で検証";
+    "CredentialStore SSOT helper: verifies env/QSettings/default fallback and Vault routing/masking with 10 gates";
 
 void ensureCredentialStoreSelftestContext()
 {
@@ -1569,11 +1569,11 @@ int main(int argc, char *argv[])
     AppSplashScreen splash;
     splash.show();
 
-    splash.setProgress(10, "コアモジュールを読み込み中...");
-    splash.setProgress(30, "ビデオエンジンを初期化中...");
-    splash.setProgress(50, "タイムラインを構築中...");
-    splash.setProgress(70, "プラグインとプリセットを読み込み中...");
-    splash.setProgress(90, "ワークスペースを準備中...");
+    splash.setProgress(10, "Loading core modules...");
+    splash.setProgress(30, "Initializing video engine...");
+    splash.setProgress(50, "Building timeline...");
+    splash.setProgress(70, "Loading plugins and presets...");
+    splash.setProgress(90, "Preparing workspace...");
 
     writeLogLine("INFO", "splash shown; constructing MainWindow");
     MainWindow window;

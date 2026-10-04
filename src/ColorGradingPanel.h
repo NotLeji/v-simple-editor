@@ -112,7 +112,7 @@ signals:
     //   rect     : normalized QRectF (0..1) in vTexCoord space
     void maskChanged(bool enabled, bool ellipse, bool invert, float feather,
                      QRectF rect);
-    // US-EF-2: User clicked "マスクを描画". MainWindow opens enterMaskEditMode
+    // US-EF-2: User clicked "Draw Mask". MainWindow opens enterMaskEditMode
     // on VideoPlayer; on drag-finish the callback feeds setMaskRect back here.
     void requestMaskDraw();
 
@@ -193,10 +193,10 @@ private slots:
     // → recompute uniforms and emit maskChanged. The rect itself is updated
     // separately via setMaskRect when the user redraws on the preview.
     void onMaskChanged();
-    // US-EF-2: "マスクを描画" button click → emit requestMaskDraw so MainWindow
+    // US-EF-2: "Draw Mask" button click → emit requestMaskDraw so MainWindow
     // can call VideoPlayer::enterMaskEditMode.
     void onMaskDrawClicked();
-    // US-EF-2: NIT-1 deferred. "キーフレーム追加" stub — currently just
+    // US-EF-2: NIT-1 deferred. "Add Keyframe" stub — currently just
     // re-emits maskChanged with the current rect; full per-clip keyframe
     // storage + linear interpolation are deferred to a follow-up story.
     void onMaskAddKeyframeClicked();

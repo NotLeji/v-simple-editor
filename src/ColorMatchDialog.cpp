@@ -134,7 +134,7 @@ ColorMatchDialog::ColorMatchDialog(QWidget *parent)
 
     m_btnGenerate = new QPushButton(tr("Generate && Export LUT..."), this);
     m_btnGenerate->setEnabled(false);
-    m_btnApply = new QPushButton(tr("選択クリップへ適用"), this);
+    m_btnApply = new QPushButton(tr("Apply to selected clip"), this);
     m_btnApply->setEnabled(false);
 
     auto *ctrlRow = new QHBoxLayout;

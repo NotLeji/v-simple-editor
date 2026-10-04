@@ -19,13 +19,13 @@ ShortcutCustomizeDialog::ShortcutCustomizeDialog(shortcut::ShortcutManager* mgr,
     , m_mgr(mgr)
 {
     setObjectName(QStringLiteral("shortcutCustomizeDialog"));
-    setWindowTitle(tr("ショートカット設定"));
+    setWindowTitle(tr("Shortcut Settings"));
     resize(640, 480);
 
     // --- Top row: preset + filter ---
     auto* topLayout = new QHBoxLayout;
 
-    auto* presetLabel = new QLabel(tr("プリセット:"), this);
+    auto* presetLabel = new QLabel(tr("Preset:"), this);
     m_presetCombo = new QComboBox(this);
     const auto presets = shortcut::ShortcutManager::availablePresets();
     for (shortcut::Preset p : presets)
@@ -39,9 +39,9 @@ ShortcutCustomizeDialog::ShortcutCustomizeDialog(shortcut::ShortcutManager* mgr,
             m_presetCombo->setCurrentIndex(idx);
     }
 
-    auto* filterLabel = new QLabel(tr("検索:"), this);
+    auto* filterLabel = new QLabel(tr("Search:"), this);
     m_filterEdit = new QLineEdit(this);
-    m_filterEdit->setPlaceholderText(tr("アクション名でフィルタ…"));
+    m_filterEdit->setPlaceholderText(tr("Filter by action name…"));
 
     topLayout->addWidget(presetLabel);
     topLayout->addWidget(m_presetCombo);
@@ -51,8 +51,8 @@ ShortcutCustomizeDialog::ShortcutCustomizeDialog(shortcut::ShortcutManager* mgr,
 
     // --- Table ---
     m_table = new QTableWidget(0, 4, this);
-    m_table->setHorizontalHeaderLabels({tr("カテゴリ"), tr("アクション"),
-                                        tr("ショートカット"), tr("ID")});
+    m_table->setHorizontalHeaderLabels({tr("Category"), tr("Action"),
+                                        tr("Shortcut"), tr("ID")});
     m_table->setColumnHidden(3, true);
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -68,8 +68,8 @@ ShortcutCustomizeDialog::ShortcutCustomizeDialog(shortcut::ShortcutManager* mgr,
     // --- Bottom row: reset + close ---
     auto* bottomLayout = new QHBoxLayout;
 
-    m_resetButton = new QPushButton(tr("デフォルトに戻す"), this);
-    m_closeButton = new QPushButton(tr("閉じる"), this);
+    m_resetButton = new QPushButton(tr("Restore Defaults"), this);
+    m_closeButton = new QPushButton(tr("Close"), this);
 
     bottomLayout->addWidget(m_resetButton);
     bottomLayout->addStretch();
@@ -204,8 +204,8 @@ void ShortcutCustomizeDialog::onItemDoubleClicked(int row, int column)
     bool ok = false;
     const QString newKeyStr = QInputDialog::getText(
         this,
-        tr("ショートカットを変更"),
-        tr("新しいショートカットを入力してください (例: Ctrl+Shift+O):"),
+        tr("Change Shortcut"),
+        tr("Enter a new shortcut (e.g. Ctrl+Shift+O):"),
         QLineEdit::Normal,
         currentKeyStr,
         &ok);

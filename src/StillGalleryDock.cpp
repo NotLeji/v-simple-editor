@@ -24,7 +24,7 @@ constexpr int kStillLabelRole = Qt::UserRole + 3;
 }
 
 StillGalleryDock::StillGalleryDock(QWidget *parent)
-    : QDockWidget(tr("スチルギャラリー"), parent)
+    : QDockWidget(tr("Still Gallery"), parent)
 {
     setObjectName(QStringLiteral("stillGalleryDock"));
 
@@ -45,12 +45,12 @@ StillGalleryDock::StillGalleryDock(QWidget *parent)
     layout->addWidget(m_list, 1);
 
     auto *modeRow = new QHBoxLayout();
-    auto *modeLabel = new QLabel(tr("比較方法:"), root);
+    auto *modeLabel = new QLabel(tr("Compare Method:"), root);
     modeRow->addWidget(modeLabel);
     m_modeCombo = new QComboBox(root);
-    m_modeCombo->addItem(tr("横ワイプ"));
-    m_modeCombo->addItem(tr("縦ワイプ"));
-    m_modeCombo->addItem(tr("左右に並べる"));
+    m_modeCombo->addItem(tr("Horizontal Wipe"));
+    m_modeCombo->addItem(tr("Vertical Wipe"));
+    m_modeCombo->addItem(tr("Side by Side"));
     modeLabel->setBuddy(m_modeCombo);
     modeRow->addWidget(m_modeCombo, 1);
     layout->addLayout(modeRow);
@@ -101,7 +101,7 @@ void StillGalleryDock::refresh()
     QString error;
     const QVector<stillstore::Still> stills = m_store->list(&error);
     if (!error.isEmpty()) {
-        auto *errorItem = new QListWidgetItem(tr("スチル一覧を読み込めません"), m_list);
+        auto *errorItem = new QListWidgetItem(tr("Cannot load stills list"), m_list);
         errorItem->setTextAlignment(Qt::AlignCenter);
         errorItem->setToolTip(error);
         errorItem->setFlags(Qt::NoItemFlags);
@@ -113,7 +113,7 @@ void StillGalleryDock::refresh()
     m_positionSlider->setEnabled(hasStills && m_modeCombo->currentIndex() != 2);
     if (!hasStills) {
         auto *emptyItem = new QListWidgetItem(
-            tr("保存したスチルはありません\n表示 > スチルを保存"), m_list);
+            tr("No saved stills\nView > Save Still"), m_list);
         emptyItem->setTextAlignment(Qt::AlignCenter);
         emptyItem->setFlags(Qt::NoItemFlags);
         return;
@@ -124,7 +124,7 @@ void StillGalleryDock::refresh()
             ? still.timestamp.toLocalTime().toString(QStringLiteral("yyyy/MM/dd HH:mm:ss"))
             : still.label;
         const QString project = still.projectName.isEmpty()
-            ? tr("プロジェクト名なし")
+            ? tr("No project name")
             : still.projectName;
         auto *item = new QListWidgetItem(title + QLatin1Char('\n') + project, m_list);
         item->setData(kStillIdRole, still.id);
@@ -133,7 +133,7 @@ void StillGalleryDock::refresh()
         const QImage thumbnail(still.filePath);
         if (!thumbnail.isNull())
             item->setIcon(QPixmap::fromImage(thumbnail));
-        item->setToolTip(tr("ダブルクリックで比較対象に設定"));
+        item->setToolTip(tr("Double-click to set as comparison target"));
     }
 }
 
@@ -156,7 +156,7 @@ QString StillGalleryDock::idForItem(const QListWidgetItem *item) const
 
 void StillGalleryDock::updatePositionLabel(int value)
 {
-    m_positionLabel->setText(tr("位置: %1%").arg(value));
+    m_positionLabel->setText(tr("Position: %1%").arg(value));
 }
 
 void StillGalleryDock::onItemDoubleClicked(QListWidgetItem *item)
@@ -165,8 +165,8 @@ void StillGalleryDock::onItemDoubleClicked(QListWidgetItem *item)
         return;
     const QImage image(item->data(kStillPathRole).toString());
     if (image.isNull()) {
-        QMessageBox::warning(this, tr("スチルギャラリー"),
-                             tr("スチル画像を開けません。"));
+        QMessageBox::warning(this, tr("Still Gallery"),
+                             tr("Cannot open still image."));
         return;
     }
     emit stillSelected(idForItem(item), image);
@@ -179,8 +179,8 @@ void StillGalleryDock::showItemMenu(const QPoint &position)
         return;
 
     QMenu menu(this);
-    QAction *labelAction = menu.addAction(tr("ラベルを変更..."));
-    QAction *deleteAction = menu.addAction(tr("削除"));
+    QAction *labelAction = menu.addAction(tr("Change Label..."));
+    QAction *deleteAction = menu.addAction(tr("Delete"));
     QAction *chosen = menu.exec(m_list->viewport()->mapToGlobal(position));
     if (!chosen)
         return;
@@ -190,12 +190,12 @@ void StillGalleryDock::showItemMenu(const QPoint &position)
     if (chosen == labelAction) {
         bool accepted = false;
         const QString label = QInputDialog::getText(
-            this, tr("ラベルを変更"), tr("ラベル:"), QLineEdit::Normal,
+            this, tr("Change Label"), tr("Label:"), QLineEdit::Normal,
             item->data(kStillLabelRole).toString(), &accepted);
         if (!accepted)
             return;
         if (!m_store->setLabel(id, label, &error)) {
-            QMessageBox::warning(this, tr("ラベルを変更"), error);
+            QMessageBox::warning(this, tr("Change Label"), error);
             return;
         }
         refresh();
@@ -203,8 +203,8 @@ void StillGalleryDock::showItemMenu(const QPoint &position)
         return;
     }
 
-    if (QMessageBox::question(this, tr("スチルを削除"),
-                              tr("選択したスチルを削除しますか？"),
+    if (QMessageBox::question(this, tr("Delete Still"),
+                              tr("Delete the selected still?"),
                               QMessageBox::Yes | QMessageBox::No,
                               QMessageBox::No) != QMessageBox::Yes) {
         return;
@@ -219,7 +219,7 @@ void StillGalleryDock::showItemMenu(const QPoint &position)
     if (!removed) {
         if (!QFileInfo::exists(imagePath))
             emit stillRemoved(id);
-        QMessageBox::warning(this, tr("スチルを削除"), error);
+        QMessageBox::warning(this, tr("Delete Still"), error);
         return;
     }
     emit stillRemoved(id);

@@ -81,7 +81,7 @@ QWidget *createPlatformTab(const QString &description,
 CredentialDialog::CredentialDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("配信認証情報"));
+    setWindowTitle(QStringLiteral("Streaming credentials"));
     resize(600, 400);
 
     auto *mainLayout = new QVBoxLayout(this);
@@ -109,7 +109,7 @@ CredentialDialog::CredentialDialog(QWidget *parent)
                                             this));
     m_tabWidget->addTab(
         createPlatformTab(
-            QStringLiteral("画面下に Google Cloud Console で発行した OAuth 2.0 Client ID/Secret を入力"),
+            QStringLiteral("Enter the OAuth 2.0 Client ID/Secret issued in Google Cloud Console below"),
             youtubeForm,
             m_youtubeStatusLabel,
             this),
@@ -135,7 +135,7 @@ CredentialDialog::CredentialDialog(QWidget *parent)
                                           this));
     m_tabWidget->addTab(
         createPlatformTab(
-            QStringLiteral("Vimeo Developer アプリで発行した Client ID/Secret を入力"),
+            QStringLiteral("Enter the Client ID/Secret issued by your Vimeo Developer app"),
             vimeoForm,
             m_vimeoStatusLabel,
             this),
@@ -161,7 +161,7 @@ CredentialDialog::CredentialDialog(QWidget *parent)
                                               this));
     m_tabWidget->addTab(
         createPlatformTab(
-            QStringLiteral("Instagram Graph API の access token / IG User ID を入力"),
+            QStringLiteral("Enter the Instagram Graph API access token / IG User ID"),
             instagramForm,
             m_instagramStatusLabel,
             this),
@@ -179,7 +179,7 @@ CredentialDialog::CredentialDialog(QWidget *parent)
                                       this));
     m_tabWidget->addTab(
         createPlatformTab(
-            QStringLiteral("X API で発行した Bearer Token を入力"),
+            QStringLiteral("Enter the Bearer Token issued by the X API"),
             xForm,
             m_xStatusLabel,
             this),
@@ -197,13 +197,13 @@ CredentialDialog::CredentialDialog(QWidget *parent)
                                            this));
     m_tabWidget->addTab(
         createPlatformTab(
-            QStringLiteral("Twitch 配信用の stream key を入力"),
+            QStringLiteral("Enter the stream key for Twitch streaming"),
             twitchForm,
             m_twitchStatusLabel,
             this),
         QStringLiteral("Twitch"));
 
-    m_reloadAllButton = new QPushButton(QStringLiteral("すべて再読み込み"), this);
+    m_reloadAllButton = new QPushButton(QStringLiteral("Reload all"), this);
     auto *buttonBox = new QDialogButtonBox(this);
     auto *closeButton = buttonBox->addButton(QDialogButtonBox::Close);
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
@@ -343,7 +343,7 @@ void CredentialDialog::reloadYouTubeStatus()
         QStringLiteral("youtube_oauth/client_secret"));
 
     m_youtubeStatusLabel->setText(
-        QStringLiteral("現在:\nClient ID: %1\nClient Secret: %2")
+        QStringLiteral("Current:\nClient ID: %1\nClient Secret: %2")
             .arg(sourceStatusText(clientIdEnvSet,
                                   clientIdSettingsSet,
                                   clientIdVaultSet,
@@ -373,7 +373,7 @@ void CredentialDialog::reloadVimeoStatus()
         QStringLiteral("vimeo_oauth/client_secret"));
 
     m_vimeoStatusLabel->setText(
-        QStringLiteral("現在:\nClient ID: %1\nClient Secret: %2")
+        QStringLiteral("Current:\nClient ID: %1\nClient Secret: %2")
             .arg(sourceStatusText(clientIdEnvSet,
                                   clientIdSettingsSet,
                                   clientIdVaultSet,
@@ -403,7 +403,7 @@ void CredentialDialog::reloadInstagramStatus()
         QStringLiteral("instagram/ig_user_id"));
 
     m_instagramStatusLabel->setText(
-        QStringLiteral("現在:\nAccess Token: %1\nIG User ID: %2")
+        QStringLiteral("Current:\nAccess Token: %1\nIG User ID: %2")
             .arg(sourceStatusText(accessTokenEnvSet,
                                   accessTokenSettingsSet,
                                   accessTokenVaultSet,
@@ -426,7 +426,7 @@ void CredentialDialog::reloadXStatus()
         QStringLiteral("x_video/bearer_token"));
 
     m_xStatusLabel->setText(
-        QStringLiteral("現在: %1")
+        QStringLiteral("Current: %1")
             .arg(sourceStatusText(bearerTokenEnvSet,
                                   bearerTokenSettingsSet,
                                   bearerTokenVaultSet,
@@ -445,7 +445,7 @@ void CredentialDialog::reloadTwitchStatus()
         QStringLiteral("twitch/stream_key"));
 
     m_twitchStatusLabel->setText(
-        QStringLiteral("現在: %1")
+        QStringLiteral("Current: %1")
             .arg(sourceStatusText(streamKeyEnvSet,
                                   streamKeySettingsSet,
                                   streamKeyVaultSet,

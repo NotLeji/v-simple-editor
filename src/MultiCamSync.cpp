@@ -36,7 +36,7 @@ AudioSyncReport estimateOffsetsForFiles(const QStringList &paths)
     const int usableCount = report.total - report.silent;
     if (!envelopes.isEmpty() && !envelopes.first().isEmpty() && usableCount >= 2)
         report.synced = usableCount;
-    report.message = QObject::tr("%1 本中 %2 本を同期しました (音声なし %3 本)")
+    report.message = QObject::tr("Synced %2 of %1 clips (%3 without audio)")
                          .arg(report.total).arg(report.synced).arg(report.silent);
     return report;
 }

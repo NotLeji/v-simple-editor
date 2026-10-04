@@ -31,24 +31,24 @@ QString formatMs(qint64 ms)
 TextBasedEditDialog::TextBasedEditDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("テキストベース編集"));
+    setWindowTitle(QStringLiteral("Text-Based Editing"));
     resize(560, 480);
 
     auto* layout = new QVBoxLayout(this);
 
     auto* help = new QLabel(
-        QStringLiteral("文字起こし結果を読み上げ順に一覧表示します。削除したい行にチェックを入れ、"
-                       "「タイムラインに適用 (リップル削除)」を押すと、その区間がタイムラインから"
-                       "詰めて削除されます。"),
+        QStringLiteral("Transcription results are listed in reading order. Check the rows you want to delete,"
+                       "pressing \"Apply to Timeline (Ripple Delete)\" removes those sections from the timeline"
+                       "closing the gap as they are removed."),
         this);
     help->setWordWrap(true);
     layout->addWidget(help);
 
     // 検索行
     auto* searchRow = new QHBoxLayout();
-    searchRow->addWidget(new QLabel(QStringLiteral("検索:"), this));
+    searchRow->addWidget(new QLabel(QStringLiteral("Search:"), this));
     m_searchEdit = new QLineEdit(this);
-    m_searchEdit->setPlaceholderText(QStringLiteral("テキストの一部を入力するとヒット行を強調します"));
+    m_searchEdit->setPlaceholderText(QStringLiteral("Type part of the text to highlight matching lines"));
     searchRow->addWidget(m_searchEdit, 1);
     layout->addLayout(searchRow);
 
@@ -63,8 +63,8 @@ TextBasedEditDialog::TextBasedEditDialog(QWidget* parent)
     // ボタン: 適用 (Ok 位置) + 閉じる (Cancel)
     m_buttonBox = new QDialogButtonBox(this);
     m_applyButton = m_buttonBox->addButton(
-        QStringLiteral("タイムラインに適用 (リップル削除)"), QDialogButtonBox::AcceptRole);
-    m_buttonBox->addButton(QStringLiteral("閉じる"), QDialogButtonBox::RejectRole);
+        QStringLiteral("Apply to Timeline (Ripple Delete)"), QDialogButtonBox::AcceptRole);
+    m_buttonBox->addButton(QStringLiteral("Close"), QDialogButtonBox::RejectRole);
     layout->addWidget(m_buttonBox);
 
     connect(m_searchEdit, &QLineEdit::textChanged,
@@ -99,7 +99,7 @@ QString TextBasedEditDialog::rowLabel(int index, const caption::Clip& clip) cons
 {
     QString text = clip.text.trimmed();
     if (text.isEmpty())
-        text = QStringLiteral("(無音)");
+        text = QStringLiteral("(Silence)");
     return QStringLiteral("[%1 - %2] %3")
         .arg(formatMs(clip.startMs))
         .arg(formatMs(clip.endMs))
@@ -175,7 +175,7 @@ void TextBasedEditDialog::updateSummary()
     const qint64 deletedMs = textedit::totalDeletedMs(ranges);
 
     m_summaryLabel->setText(
-        QStringLiteral("セグメント数: %1 / 削除対象: %2 / 削除区間: %3 / 削除合計: %4")
+        QStringLiteral("Segments: %1 / To delete: %2 / Deleted ranges: %3 / Total deleted: %4")
             .arg(m_transcript.size())
             .arg(m_deletedIndices.size())
             .arg(ranges.size())

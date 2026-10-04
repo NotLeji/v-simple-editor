@@ -45,7 +45,7 @@ QImage scaledExact(const QImage &image, const QSize &size)
 AutoMatteDialog::AutoMatteDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("自動背景除去 / マッティング"));
+    setWindowTitle(tr("Auto Background Removal / Matting"));
     setModal(false);
 
     // --- プレビュー (タブ: 元画像 / マット / 合成結果) ---
@@ -57,14 +57,14 @@ AutoMatteDialog::AutoMatteDialog(QWidget *parent)
         return lbl;
     };
 
-    m_sourceView = makePreviewLabel(tr("元画像 (未設定)"));
-    m_matteView  = makePreviewLabel(tr("マット"));
-    m_resultView = makePreviewLabel(tr("合成結果"));
+    m_sourceView = makePreviewLabel(tr("Source Image (Not Set)"));
+    m_matteView  = makePreviewLabel(tr("Matte"));
+    m_resultView = makePreviewLabel(tr("Composite Result"));
 
     m_tabs = new QTabWidget;
-    m_tabs->addTab(m_sourceView, tr("元画像"));
-    m_tabs->addTab(m_matteView,  tr("マット"));
-    m_tabs->addTab(m_resultView, tr("合成結果"));
+    m_tabs->addTab(m_sourceView, tr("Source image"));
+    m_tabs->addTab(m_matteView,  tr("Matte"));
+    m_tabs->addTab(m_resultView, tr("Composite Result"));
 
     // --- パラメータ コントロール ---
     m_thresholdSlider = new QSlider(Qt::Horizontal);
@@ -93,19 +93,19 @@ AutoMatteDialog::AutoMatteDialog(QWidget *parent)
     connect(m_spillSlider, &QSlider::valueChanged,      this, &AutoMatteDialog::onParamChanged);
 
     auto *form = new QFormLayout;
-    form->addRow(tr("しきい値:"),       m_thresholdSlider);
-    form->addRow(tr("収縮 (erode):"),   m_erodeSpin);
-    form->addRow(tr("膨張 (dilate):"),  m_dilateSpin);
-    form->addRow(tr("フェザー:"),       m_featherSpin);
-    form->addRow(tr("スピル抑制:"),     m_spillSlider);
+    form->addRow(tr("Threshold:"),       m_thresholdSlider);
+    form->addRow(tr("Erode:"),   m_erodeSpin);
+    form->addRow(tr("Dilate:"),  m_dilateSpin);
+    form->addRow(tr("Feather:"),       m_featherSpin);
+    form->addRow(tr("Spill suppression:"),     m_spillSlider);
 
-    auto *formBox = new QGroupBox(tr("パラメータ"));
+    auto *formBox = new QGroupBox(tr("Parameters"));
     formBox->setLayout(form);
 
     // --- 画像読み込み / 適用ボタン ---
-    m_loadPlateBtn = new QPushButton(tr("プレート読み込み..."));
-    m_loadBgBtn    = new QPushButton(tr("新背景読み込み..."));
-    m_applyBtn     = new QPushButton(tr("適用"));
+    m_loadPlateBtn = new QPushButton(tr("Load plate..."));
+    m_loadBgBtn    = new QPushButton(tr("Load new background..."));
+    m_applyBtn     = new QPushButton(tr("Apply"));
     m_applyBtn->setDefault(true);
     m_applyBtn->setEnabled(false);
 
@@ -118,7 +118,7 @@ AutoMatteDialog::AutoMatteDialog(QWidget *parent)
     loadRow->addWidget(m_loadBgBtn);
 
     auto *btnRow = new QHBoxLayout;
-    auto *closeBtn = new QPushButton(tr("閉じる"));
+    auto *closeBtn = new QPushButton(tr("Close"));
     connect(closeBtn, &QPushButton::clicked, this, &QDialog::reject);
     btnRow->addWidget(m_applyBtn);
     btnRow->addStretch(1);
@@ -161,9 +161,9 @@ void AutoMatteDialog::onLoadPlateClicked()
 {
     QString path = QFileDialog::getOpenFileName(
         this,
-        tr("クリーンプレートを開く"),
+        tr("Open clean plate"),
         QString(),
-        tr("画像 (*.png *.jpg *.jpeg *.bmp *.tiff *.tif *.webp);;すべてのファイル (*)"));
+        tr("Images (*.png *.jpg *.jpeg *.bmp *.tiff *.tif *.webp);;All files (*)"));
     if (path.isEmpty())
         return;
 
@@ -178,9 +178,9 @@ void AutoMatteDialog::onLoadBackgroundClicked()
 {
     QString path = QFileDialog::getOpenFileName(
         this,
-        tr("新背景を開く"),
+        tr("Open new background"),
         QString(),
-        tr("画像 (*.png *.jpg *.jpeg *.bmp *.tiff *.tif *.webp);;すべてのファイル (*)"));
+        tr("Images (*.png *.jpg *.jpeg *.bmp *.tiff *.tif *.webp);;All files (*)"));
     if (path.isEmpty())
         return;
 
@@ -323,7 +323,7 @@ void AutoMatteDialog::updatePreviews()
 {
     // 元画像。
     if (m_source.isNull()) {
-        m_sourceView->setText(tr("元画像 (未設定)"));
+        m_sourceView->setText(tr("Source Image (Not Set)"));
     } else {
         const QImage shown = m_sourcePreview.isNull()
             ? scaledToFit(m_source, kPreviewSize)
@@ -336,7 +336,7 @@ void AutoMatteDialog::updatePreviews()
 
     // マット。
     if (m_matte.isNull()) {
-        m_matteView->setText(tr("マット"));
+        m_matteView->setText(tr("Matte"));
     } else {
         m_matteView->setPixmap(
             QPixmap::fromImage(m_matte).scaled(
@@ -346,7 +346,7 @@ void AutoMatteDialog::updatePreviews()
 
     // 合成結果 (透過の場合はチェッカーボード上で表示)。
     if (m_result.isNull()) {
-        m_resultView->setText(tr("合成結果"));
+        m_resultView->setText(tr("Composite Result"));
     } else {
         QImage shown;
         if (m_newBg.isNull()) {

@@ -142,7 +142,7 @@ void MultiCamDialog::buildUi()
     auto *btnCol = new QVBoxLayout();
     m_addBtn = new QPushButton(tr("Add Angle..."), this);
     m_removeBtn = new QPushButton(tr("Remove"), this);
-    m_syncBtn = new QPushButton(tr("音声で同期"), this);
+    m_syncBtn = new QPushButton(tr("Sync by Audio"), this);
     m_syncBtn->setObjectName(QStringLiteral("multiCamAudioSyncButton"));
     btnCol->addWidget(m_addBtn);
     btnCol->addWidget(m_removeBtn);
@@ -191,7 +191,7 @@ void MultiCamDialog::buildUi()
     auto *bb = new QDialogButtonBox(this);
     m_applyBtn = bb->addButton(QDialogButtonBox::Apply);
     m_cancelBtn = bb->addButton(QDialogButtonBox::Cancel);
-    m_applyBtn->setText(tr("タイムラインに適用"));
+    m_applyBtn->setText(tr("Apply to Timeline"));
     m_applyBtn->setObjectName(QStringLiteral("multiCamApplyButton"));
     connect(m_applyBtn, &QPushButton::clicked, this, [this]() {
         emit applyToTimeline(m_project);
@@ -408,7 +408,7 @@ void MultiCamDialog::rebuildAngleList()
         rowLayout->addWidget(new QLabel(
             QStringLiteral("[%1] %2  —  %3")
                 .arg(i + 1).arg(a.label, fileName), rowWidget), 1);
-        rowLayout->addWidget(new QLabel(tr("同期オフセット:"), rowWidget));
+        rowLayout->addWidget(new QLabel(tr("Sync offset:"), rowWidget));
 
         auto *offsetSpin = new QDoubleSpinBox(rowWidget);
         offsetSpin->setObjectName(
@@ -418,7 +418,7 @@ void MultiCamDialog::rebuildAngleList()
         offsetSpin->setSingleStep(10.0);
         offsetSpin->setSuffix(tr(" ms"));
         offsetSpin->setValue(static_cast<double>(a.syncOffsetUs) / 1000.0);
-        offsetSpin->setToolTip(tr("自動同期結果をミリ秒単位で微調整します"));
+        offsetSpin->setToolTip(tr("Fine-tune the auto-sync result in milliseconds"));
         connect(offsetSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 this, [this, angleId = a.id](double value) {
                     onAngleOffsetChanged(angleId, value);

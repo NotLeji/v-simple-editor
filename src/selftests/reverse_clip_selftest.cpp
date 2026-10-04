@@ -134,7 +134,7 @@ int runReverseClipSelftest()
     reversed.outPoint = 8.0;
     reversed.speed = 1.0;
     reversed.reversed = true;
-    check(1, "逆再生の始端と終端を source out/in に写像する",
+    check(1, "Maps reverse playback start/end to source out/in",
           near(reversed.sourceSecondAtLocalTime(0.0), 8.0)
               && near(reversed.sourceSecondAtLocalTime(6.0), 2.0));
 
@@ -151,7 +151,7 @@ int runReverseClipSelftest()
         near(foldedDescending.sourceSecondAtLocalTime(0.0), 2.0)
         && near(foldedDescending.sourceSecondAtLocalTime(1.0), 3.0)
         && !foldedDescending.sourceTimeRunsBackwardAtLocalTime(1.0);
-    check(2, "speed=2 と降順 timeRemap を正しい向きで合成する",
+    check(2, "Composes speed=2 with descending timeRemap in the correct direction",
           fast0 > fast1 && fast1 > fast2 && fast2 > fastEnd
               && near(fastEnd, 2.0) && descendingRemapFoldedForward);
 
@@ -176,7 +176,7 @@ int runReverseClipSelftest()
         && loaded.videoTracks.first().size() == 2
         && !loaded.videoTracks.first().at(0).reversed
         && loaded.videoTracks.first().at(1).reversed;
-    check(3, "非逆再生は既存写像と同一で既定値を保存しない",
+    check(3, "Non-reverse keeps the existing mapping and saves no defaults",
           legacyMapping && persistenceOk);
 
     const QVector<float> reversedPcm = reversedPcmFrames(
@@ -389,7 +389,7 @@ int runReverseClipSelftest()
             parallelReverse.volume + 1.0);
         parallelReverseOk = parallelFlags[i] == expected;
     }
-    check(4, "AudioMixer の逆順 PCM を speed=1/2 で正しく消費する",
+    check(4, "AudioMixer consumes reversed PCM correctly at speed=1/2",
           reversedPcm == QVector<float>{4.0f, 3.0f, 2.0f, 1.0f}
               && reversedStereoPcm
                      == QVector<float>{3.0f, 4.0f, 1.0f, 2.0f}
@@ -591,7 +591,7 @@ int runReverseClipSelftest()
                 .arg(foldedParentVideoSecond.isNull());
         }
     }
-    check(5, "TimelineFrameRenderer の逆再生始端が通常再生の終端フレームと一致する",
+    check(5, "TimelineFrameRenderer's reverse playback start matches the normal playback end frame",
           rendererOk, rendererDetail);
 
     ClipInfo heldLeaf;
@@ -634,7 +634,7 @@ int runReverseClipSelftest()
     const bool heldAudioIntervalOk = heldAudioEntries.size() == 1
         && heldAudioEntries.first().timelineEnd
                > heldAudioEntries.first().timelineStart;
-    check(6, "ネストした1キー time-remap の preview 区間を保持する",
+    check(6, "Keeps the preview range of nested single-key time-remap",
           heldVideoIntervalOk && heldAudioIntervalOk);
 
     std::fprintf(stderr, "summary: %d PASS, %d FAIL\n", passed, failed);

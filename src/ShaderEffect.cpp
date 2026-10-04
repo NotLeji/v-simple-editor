@@ -841,9 +841,9 @@ void ShaderEffectLibrary::registerBuiltins()
 
     {
         ShaderEffectDef d;
-        d.name = "レンズ歪み補正";
-        d.category = "ディストーション";
-        d.description = "径方向のレンズ歪み・拡大率・中心位置を補正";
+        d.name = "Lens Distortion Correction";
+        d.category = "Distortion";
+        d.description = "Corrects radial lens distortion, magnification, and center position";
         d.fragmentShaderSource = kFragLensDistortion;
         d.params = {
             {"uK1", ParamType::Float, -0.5f, 0.5f, 0.0f},
@@ -1002,7 +1002,7 @@ ShaderEffectDef ShaderEffectLibrary::findByName(const QString &name) const
     // RollingShutterRepair is CPU-only: temporal optical flow is dispatched
     // through tlrender::applyRollingShutterFromSource, like Echo.
     if (name == QStringLiteral("RollingShutterRepair")
-        || name == QStringLiteral("ローリングシャッター補正"))
+        || name == QStringLiteral("Rolling Shutter Correction"))
         return {};
     for (const ShaderEffectDef &d : m_effects) {
         if (d.name == name)

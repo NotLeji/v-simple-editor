@@ -321,11 +321,11 @@ int runFrameClipboardSelftest()
 
     QMenu *actionMenu = qobject_cast<QMenu *>(action->parent());
     check(8, "live Edit action has stable accessible identity",
-          actionMenu && actionMenu->title().contains(QStringLiteral("編集"))
+          actionMenu && actionMenu->title().contains(QStringLiteral("Edit"))
               && action->text()
-                     == QStringLiteral("現在のフレームをクリップボードへコピー")
+                     == QStringLiteral("Copy Current Frame to Clipboard")
               && action->property("accessibleName").toString()
-                     == QStringLiteral("現在のフレームをクリップボードへコピー"));
+                     == QStringLiteral("Copy Current Frame to Clipboard"));
 
     const QKeySequence copyFrameShortcut(Qt::CTRL | Qt::ALT | Qt::Key_C);
     const shortcut::Binding registeredBinding =
@@ -350,7 +350,7 @@ int runFrameClipboardSelftest()
     check(11, "empty timeline action preserves clipboard and reports failure",
           clipboardMatchesSentinel(clipboard, sentinel)
               && window.statusBar()->currentMessage().contains(
-                  QStringLiteral("現在のフレームをコピーできませんでした")));
+                  QStringLiteral("Could not copy the current frame")));
 
     timeline->setPlayheadPosition(
         static_cast<double>(kPlayheadUsec) / 1000000.0);
@@ -413,7 +413,7 @@ int runFrameClipboardSelftest()
 
     check(17, "live action reports successful completion",
           window.statusBar()->currentMessage()
-              == QStringLiteral("現在のフレームをクリップボードへコピーしました。"));
+              == QStringLiteral("Copied the current frame to the clipboard."));
 
     qInfo().noquote()
         << QStringLiteral("[frame-clipboard] summary: %1 PASS, %2 FAIL")

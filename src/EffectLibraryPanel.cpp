@@ -77,13 +77,13 @@ protected:
 
 QString categoryLabel(const QString &category)
 {
-    return category.isEmpty() ? QStringLiteral("すべて") : category;
+    return category.isEmpty() ? QStringLiteral("All") : category;
 }
 
 } // namespace
 
 EffectLibraryPanel::EffectLibraryPanel(QWidget *parent)
-    : QDockWidget(QStringLiteral("エフェクトライブラリ"), parent)
+    : QDockWidget(QStringLiteral("Effect Library"), parent)
 {
     setObjectName(QStringLiteral("EffectLibraryDock"));
     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -94,10 +94,10 @@ EffectLibraryPanel::EffectLibraryPanel(QWidget *parent)
     rootLayout->setSpacing(6);
 
     auto *searchRow = new QHBoxLayout();
-    auto *searchLabel = new QLabel(QStringLiteral("検索"), root);
+    auto *searchLabel = new QLabel(QStringLiteral("Search"), root);
     m_search = new QLineEdit(root);
     m_search->setObjectName(QStringLiteral("EffectLibrarySearch"));
-    m_search->setPlaceholderText(QStringLiteral("名前またはタグ"));
+    m_search->setPlaceholderText(QStringLiteral("Name or tag"));
     m_search->setClearButtonEnabled(true);
     searchLabel->setBuddy(m_search);
     searchRow->addWidget(searchLabel);
@@ -105,26 +105,26 @@ EffectLibraryPanel::EffectLibraryPanel(QWidget *parent)
     rootLayout->addLayout(searchRow);
 
     auto *filterRow = new QHBoxLayout();
-    auto *categoryLabelWidget = new QLabel(QStringLiteral("カテゴリ"), root);
+    auto *categoryLabelWidget = new QLabel(QStringLiteral("Category"), root);
     m_category = new QComboBox(root);
     m_category->setObjectName(QStringLiteral("EffectLibraryCategory"));
     categoryLabelWidget->setBuddy(m_category);
     filterRow->addWidget(categoryLabelWidget);
     filterRow->addWidget(m_category, 1);
-    m_favoritesOnly = new QCheckBox(QStringLiteral("★ お気に入りのみ"), root);
+    m_favoritesOnly = new QCheckBox(QStringLiteral("★ Favorites only"), root);
     m_favoritesOnly->setObjectName(QStringLiteral("EffectLibraryFavoritesOnly"));
     filterRow->addWidget(m_favoritesOnly);
     rootLayout->addLayout(filterRow);
 
     auto *actionRow = new QHBoxLayout();
-    m_preview = new QCheckBox(QStringLiteral("プレビュー"), root);
+    m_preview = new QCheckBox(QStringLiteral("Preview"), root);
     m_preview->setObjectName(QStringLiteral("EffectLibraryPreview"));
-    m_preview->setToolTip(QStringLiteral("選択中のエフェクトを確定せず表示します"));
+    m_preview->setToolTip(QStringLiteral("Preview the selected effect without applying it"));
     actionRow->addWidget(m_preview);
     m_filterCount = new QLabel(root);
     m_filterCount->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     actionRow->addWidget(m_filterCount, 1);
-    auto *savePreset = new QPushButton(QStringLiteral("選択スタックをプリセット保存"), root);
+    auto *savePreset = new QPushButton(QStringLiteral("Save selected stack as preset"), root);
     savePreset->setObjectName(QStringLiteral("EffectLibrarySavePreset"));
     actionRow->addWidget(savePreset);
     rootLayout->addLayout(actionRow);
@@ -133,14 +133,14 @@ EffectLibraryPanel::EffectLibraryPanel(QWidget *parent)
     auto *footageEmptyLayout = new QHBoxLayout(m_footageEmptyState);
     footageEmptyLayout->setContentsMargins(8, 6, 8, 6);
     auto *footageEmptyLabel = new QLabel(
-        QStringLiteral("素材フォルダに動画を入れると、ここに VFX 素材として並びます"),
+        QStringLiteral("Put videos in the footage folder to list them here as VFX assets"),
         m_footageEmptyState);
     footageEmptyLabel->setWordWrap(true);
     footageEmptyLayout->addWidget(footageEmptyLabel, 1);
-    m_openFootageFolder = new QPushButton(QStringLiteral("素材フォルダを開く"),
+    m_openFootageFolder = new QPushButton(QStringLiteral("Open footage folder"),
                                           m_footageEmptyState);
     m_openFootageFolder->setObjectName(QStringLiteral("OpenVfxFootageFolder"));
-    m_openFootageFolder->setAccessibleName(QStringLiteral("VFX素材フォルダを開く"));
+    m_openFootageFolder->setAccessibleName(QStringLiteral("Open VFX footage folder"));
     footageEmptyLayout->addWidget(m_openFootageFolder);
     rootLayout->addWidget(m_footageEmptyState);
 
@@ -241,7 +241,7 @@ void EffectLibraryPanel::updateFilterCount()
         if (!m_grid->item(i)->data(kEntryIdRole).toString().isEmpty())
             ++count;
     }
-    m_filterCount->setText(QStringLiteral("%1 件").arg(count));
+    m_filterCount->setText(QStringLiteral("%1 items").arg(count));
 }
 
 void EffectLibraryPanel::refreshItems()
@@ -256,7 +256,7 @@ void EffectLibraryPanel::refreshItems()
     m_category->blockSignals(true);
     const QString categoryBefore = m_category->currentText();
     m_category->clear();
-    m_category->addItem(QStringLiteral("すべて"));
+    m_category->addItem(QStringLiteral("All"));
     for (const QString &category : m_model.categories())
         m_category->addItem(categoryLabel(category));
     int categoryIndex = m_category->findText(categoryBefore);
@@ -270,7 +270,7 @@ void EffectLibraryPanel::refreshItems()
     for (const auto &entry : filtered) {
         if (onlyFavorites && !entry.favorite)
             continue;
-        if (effectiveCategory != QStringLiteral("すべて")
+        if (effectiveCategory != QStringLiteral("All")
             && entry.category != effectiveCategory) {
             continue;
         }
@@ -294,7 +294,7 @@ void EffectLibraryPanel::refreshItems()
         }
     }
     if (visible.isEmpty()) {
-        auto *empty = new QListWidgetItem(QStringLiteral("該当するエフェクトはありません"), m_grid);
+        auto *empty = new QListWidgetItem(QStringLiteral("No matching effects"), m_grid);
         empty->setFlags(empty->flags() & ~Qt::ItemIsEnabled & ~Qt::ItemIsSelectable);
         empty->setSizeHint(QSize(260, 48));
     }
@@ -376,7 +376,7 @@ void EffectLibraryPanel::buildInspector()
 {
     clearInspector();
     if (m_selectedId.isEmpty()) {
-        auto *empty = new QLabel(QStringLiteral("エフェクトを選択するとパラメータを表示します"),
+        auto *empty = new QLabel(QStringLiteral("Select an effect to show its parameters"),
                                  m_inspectorWidget);
         empty->setWordWrap(true);
         m_inspectorLayout->addWidget(empty);
@@ -400,7 +400,7 @@ void EffectLibraryPanel::buildInspector()
     meta->setWordWrap(true);
     m_inspectorLayout->addWidget(meta);
 
-    auto *favorite = new QCheckBox(QStringLiteral("お気に入り"), m_inspectorWidget);
+    auto *favorite = new QCheckBox(QStringLiteral("Favorite"), m_inspectorWidget);
     favorite->setChecked(entry.favorite);
     connect(favorite, &QCheckBox::toggled, this, [this](bool checked) {
         m_model.setFavorite(m_selectedId, checked);
@@ -417,7 +417,7 @@ void EffectLibraryPanel::buildInspector()
 
     const auto specs = m_model.parameters(m_selectedId);
     if (specs.isEmpty()) {
-        auto *info = new QLabel(QStringLiteral("このエントリは既存 API の既定値でプレビューします"),
+        auto *info = new QLabel(QStringLiteral("This entry is previewed with the existing API's default values"),
                                 m_inspectorWidget);
         info->setWordWrap(true);
         m_inspectorLayout->addWidget(info);
@@ -432,7 +432,7 @@ void EffectLibraryPanel::buildInspector()
         layout->addWidget(label);
         if (spec.color) {
             auto *colorButton = new QPushButton(row);
-            colorButton->setText(QStringLiteral("色を選択"));
+            colorButton->setText(QStringLiteral("Select Color"));
             colorButton->setAccessibleName(spec.displayName);
             colorButton->setProperty("color", spec.defaultColor);
             connect(colorButton, &QPushButton::clicked, this,
@@ -474,8 +474,8 @@ void EffectLibraryPanel::buildInspector()
 
         if (!spec.color && supportsClipEffectKeyframes) {
             auto *keyframe = new QPushButton(QStringLiteral("◇"), row);
-            keyframe->setToolTip(QStringLiteral("現在位置にキーフレームを追加"));
-            keyframe->setAccessibleName(QStringLiteral("%1 のキーフレーム").arg(spec.displayName));
+            keyframe->setToolTip(QStringLiteral("Add keyframe at current position"));
+            keyframe->setAccessibleName(QStringLiteral("%1 keyframes").arg(spec.displayName));
             keyframe->setFixedWidth(30);
             connect(keyframe, &QPushButton::clicked, this, [this, spec]() {
                 emit keyframeRequested(m_selectedId, spec.name);
@@ -489,11 +489,11 @@ void EffectLibraryPanel::buildInspector()
         auto *row = new QWidget(m_inspectorWidget);
         auto *layout = new QHBoxLayout(row);
         layout->setContentsMargins(0, 0, 0, 0);
-        auto *label = new QLabel(QStringLiteral("合成モード"), row);
+        auto *label = new QLabel(QStringLiteral("Blend mode"), row);
         label->setMinimumWidth(90);
         layout->addWidget(label);
         auto *blendMode = new QComboBox(row);
-        blendMode->setAccessibleName(QStringLiteral("VFX素材の合成モード"));
+        blendMode->setAccessibleName(QStringLiteral("VFX asset blend mode"));
         for (int i = 0; i <= static_cast<int>(BlendMode::Lighten); ++i) {
             const BlendMode mode = static_cast<BlendMode>(i);
             blendMode->addItem(CompositeLayer::blendModeName(mode),
@@ -517,7 +517,7 @@ void EffectLibraryPanel::buildInspector()
         m_inspectorLayout->addWidget(row);
 
         auto *hint = new QLabel(
-            QStringLiteral("ダブルクリックまたはドラッグでプレイヘッドへ配置"),
+            QStringLiteral("Double-click or drag to place at the playhead"),
             m_inspectorWidget);
         hint->setWordWrap(true);
         m_inspectorLayout->addWidget(hint);
@@ -536,8 +536,8 @@ void EffectLibraryPanel::showContextMenu(const QPoint &position)
         return;
 
     QMenu menu(this);
-    QAction *rename = menu.addAction(QStringLiteral("名前を変更"));
-    QAction *remove = menu.addAction(QStringLiteral("削除"));
+    QAction *rename = menu.addAction(QStringLiteral("Rename"));
+    QAction *remove = menu.addAction(QStringLiteral("Delete"));
     QAction *chosen = menu.exec(m_grid->viewport()->mapToGlobal(position));
     if (chosen == rename)
         emit renamePresetRequested(id);

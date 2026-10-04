@@ -551,7 +551,7 @@ int runDeflickerSelftest()
             outsideParams);
     printGate(14, "out-of-frame analysis region is rejected",
               outsideStats.lumaMean == 0.0
-                  && outsideResult.error.contains(QStringLiteral("範囲")),
+                  && outsideResult.error.contains(QStringLiteral("Range")),
               QStringLiteral("luma=%1 error=%2")
                   .arg(outsideStats.lumaMean, 0, 'f', 3)
                   .arg(outsideResult.error),

@@ -32,24 +32,24 @@ bool validate(const SourceSelection &sel, QString *errorOut)
     };
 
     if (sel.filePath.isEmpty()) {
-        setErr(QObject::tr("ソースのファイルパスが空です。"));
+        setErr(QObject::tr("Source file path is empty."));
         return false;
     }
     if (sel.durationSec <= 0.0) {
-        setErr(QObject::tr("ソースの長さが不正です (0 秒以下)。"));
+        setErr(QObject::tr("Source duration is invalid (0 seconds or less)."));
         return false;
     }
     const double outSec = effectiveOutSec(sel);
     if (sel.sourceInSec < 0.0) {
-        setErr(QObject::tr("イン点が負の値です。"));
+        setErr(QObject::tr("In point is negative."));
         return false;
     }
     if (sel.sourceInSec >= outSec - kEps) {
-        setErr(QObject::tr("イン点がアウト点以上です (選択範囲が空です)。"));
+        setErr(QObject::tr("In point is at or after the out point (selection is empty)."));
         return false;
     }
     if (outSec > sel.durationSec + kEps) {
-        setErr(QObject::tr("アウト点がソースの長さを超えています。"));
+        setErr(QObject::tr("Out point exceeds the source duration."));
         return false;
     }
     if (errorOut) errorOut->clear();

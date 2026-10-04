@@ -16,15 +16,15 @@
 WhisperTranscribeDialog::WhisperTranscribeDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("動画を文字起こし"));
+    setWindowTitle(tr("Transcribe Video"));
     setMinimumWidth(480);
 
     // --- 入力ファイル ---
     m_pathEdit = new QLineEdit(this);
     m_pathEdit->setReadOnly(true);
-    m_pathEdit->setPlaceholderText(tr("動画 / 音声ファイルを選択してください"));
+    m_pathEdit->setPlaceholderText(tr("Please select a video / audio file"));
 
-    m_browseButton = new QPushButton(tr("参照..."), this);
+    m_browseButton = new QPushButton(tr("Browse..."), this);
 
     auto* pathLayout = new QHBoxLayout;
     pathLayout->addWidget(m_pathEdit);
@@ -32,7 +32,7 @@ WhisperTranscribeDialog::WhisperTranscribeDialog(QWidget* parent)
 
     // --- モデル (recognizer) ---
     m_modelCombo = new QComboBox(this);
-    m_cliBrowseButton = new QPushButton(tr("実行ファイルを指定…"), this);
+    m_cliBrowseButton = new QPushButton(tr("Specify Executable…"), this);
 
     const auto recognizers = speech::availableRecognizers();
     for (const auto& r : recognizers) {
@@ -42,27 +42,27 @@ WhisperTranscribeDialog::WhisperTranscribeDialog(QWidget* parent)
     }
 
     m_engineWarningLabel = new QLabel(
-        tr("外部エンジン whisper-cli が見つかりません。サンプル文字起こしになります。"),
+        tr("External engine whisper-cli not found. Using sample transcription."),
         this);
     m_engineWarningLabel->setWordWrap(true);
     m_engineWarningLabel->setStyleSheet(QStringLiteral("color: #b00020; font-weight: 600;"));
 
     m_engineInstallLabel = new QLabel(
-        tr("whisper.cpp の GitHub リリースから whisper-cli を取得し、PATH へ追加してください。"),
+        tr("Get whisper-cli from the whisper.cpp GitHub releases and add it to your PATH."),
         this);
     m_engineInstallLabel->setWordWrap(true);
 
     // --- 言語 ---
     m_languageCombo = new QComboBox(this);
-    m_languageCombo->addItem(tr("自動 (auto)"), QStringLiteral("auto"));
-    m_languageCombo->addItem(tr("日本語 (ja)"), QStringLiteral("ja"));
-    m_languageCombo->addItem(tr("英語 (en)"), QStringLiteral("en"));
+    m_languageCombo->addItem(tr("Auto (auto)"), QStringLiteral("auto"));
+    m_languageCombo->addItem(tr("Japanese (ja)"), QStringLiteral("ja"));
+    m_languageCombo->addItem(tr("English (en)"), QStringLiteral("en"));
 
     // --- フォーム ---
     auto* formLayout = new QFormLayout;
-    formLayout->addRow(tr("入力ファイル:"), pathLayout);
-    formLayout->addRow(tr("モデル:"), m_modelCombo);
-    formLayout->addRow(tr("言語:"), m_languageCombo);
+    formLayout->addRow(tr("Input file:"), pathLayout);
+    formLayout->addRow(tr("Model:"), m_modelCombo);
+    formLayout->addRow(tr("Language:"), m_languageCombo);
 
     // --- 結果表示 ---
     m_resultLabel = new QLabel(QString(), this);
@@ -70,8 +70,8 @@ WhisperTranscribeDialog::WhisperTranscribeDialog(QWidget* parent)
 
     // --- ボタン ---
     m_buttonBox = new QDialogButtonBox(this);
-    auto* acceptButton = m_buttonBox->addButton(tr("文字起こし"), QDialogButtonBox::AcceptRole);
-    m_buttonBox->addButton(tr("キャンセル"), QDialogButtonBox::RejectRole);
+    auto* acceptButton = m_buttonBox->addButton(tr("Transcribe"), QDialogButtonBox::AcceptRole);
+    m_buttonBox->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
     Q_UNUSED(acceptButton);
 
     // --- レイアウト ---
@@ -121,9 +121,9 @@ void WhisperTranscribeDialog::onBrowseClicked()
 {
     const QString path = QFileDialog::getOpenFileName(
         this,
-        tr("動画 / 音声ファイルを選択"),
+        tr("Select video / audio file"),
         QString(),
-        tr("メディアファイル (*.mp4 *.mov *.mkv *.avi *.webm *.wav *.mp3 *.m4a *.aac *.flac);;すべてのファイル (*.*)"));
+        tr("Media files (*.mp4 *.mov *.mkv *.avi *.webm *.wav *.mp3 *.m4a *.aac *.flac);;All files (*.*)"));
 
     if (!path.isEmpty()) {
         m_pathEdit->setText(path);
@@ -134,12 +134,12 @@ void WhisperTranscribeDialog::onCliBrowseClicked()
 {
     const QString path = QFileDialog::getOpenFileName(
         this,
-        tr("whisper-cli 実行ファイルを選択"),
+        tr("Select whisper-cli executable"),
         QString(),
 #ifdef Q_OS_WIN
-        tr("実行ファイル (*.exe);;すべてのファイル (*.*)"));
+        tr("Executables (*.exe);;All files (*.*)"));
 #else
-        tr("すべてのファイル (*)"));
+        tr("All files (*)"));
 #endif
     if (path.isEmpty())
         return;
@@ -179,12 +179,12 @@ void WhisperTranscribeDialog::updateRecognizerWarning()
     const bool found = !resolution.executablePath.isEmpty();
     if (found) {
         m_engineWarningLabel->setText(
-            tr("whisper-cli を検出しました: %1").arg(resolution.executablePath));
+            tr("Detected whisper-cli: %1").arg(resolution.executablePath));
         m_engineWarningLabel->setStyleSheet(
             QStringLiteral("color: #17823b; font-weight: 600;"));
     } else {
         m_engineWarningLabel->setText(
-            tr("外部エンジン whisper-cli が見つかりません。サンプル文字起こしになります。"));
+            tr("External engine whisper-cli not found. Using sample transcription."));
         m_engineWarningLabel->setStyleSheet(
             QStringLiteral("color: #b00020; font-weight: 600;"));
     }

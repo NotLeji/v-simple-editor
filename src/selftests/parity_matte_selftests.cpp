@@ -5200,7 +5200,7 @@ int runParitySelftest()
 }
 
 
-// US-E2E-1: Sprint "実証" real-media end-to-end validation (VEDITOR_E2E_SELFTEST=1).
+// US-E2E-1: Sprint "demonstration" real-media end-to-end validation (VEDITOR_E2E_SELFTEST=1).
 //
 // Unlike the other selftests (which feed synthetic in-memory data), this one
 // drives the Sprint 17-22 FFmpeg / audio code with REAL files on disk:

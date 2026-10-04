@@ -39,21 +39,21 @@ bool stripKnownCdlExtension(QString &path)
 AscCdlExportDialog::AscCdlExportDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("ASC CDL を書き出し (.cc / .ccc / .cdl)"));
+    setWindowTitle(QStringLiteral("Export ASC CDL (.cc / .ccc / .cdl)"));
     setObjectName(QStringLiteral("ascCdlExportDialog"));
 
     auto *root = new QVBoxLayout(this);
 
     // --- 形式 ---
-    auto *fmtGroup = new QGroupBox(QStringLiteral("書き出し形式"), this);
+    auto *fmtGroup = new QGroupBox(QStringLiteral("Export Format"), this);
     auto *fmtLayout = new QVBoxLayout(fmtGroup);
     m_formatCombo = new QComboBox(fmtGroup);
     m_formatCombo->addItem(
-        QStringLiteral("単一補正 ColorCorrection (.cc)"), FormatCc);
+        QStringLiteral("Single ColorCorrection (.cc)"), FormatCc);
     m_formatCombo->addItem(
-        QStringLiteral("コレクション ColorCorrectionCollection (.ccc)"), FormatCcc);
+        QStringLiteral("ColorCorrectionCollection (.ccc)"), FormatCcc);
     m_formatCombo->addItem(
-        QStringLiteral("デシジョンリスト ColorDecisionList (.cdl)"), FormatCdl);
+        QStringLiteral("ColorDecisionList (.cdl)"), FormatCdl);
     fmtLayout->addWidget(m_formatCombo);
     root->addWidget(fmtGroup);
 
@@ -61,13 +61,13 @@ AscCdlExportDialog::AscCdlExportDialog(QWidget *parent)
     auto *infoForm = new QFormLayout();
     m_idEdit = new QLineEdit(this);
     m_idEdit->setText(QStringLiteral("cc0001"));
-    m_idEdit->setPlaceholderText(QStringLiteral("ColorCorrection の id (任意)"));
-    infoForm->addRow(QStringLiteral("補正 ID:"), m_idEdit);
+    m_idEdit->setPlaceholderText(QStringLiteral("ColorCorrection id (optional)"));
+    infoForm->addRow(QStringLiteral("Correction ID:"), m_idEdit);
     root->addLayout(infoForm);
 
     auto *hint = new QLabel(
-        QStringLiteral("現在のカラーグレーディング (Lift/Gamma/Gain + 彩度) を "
-                       "ASC CDL の SOP に変換して書き出します。"),
+        QStringLiteral("Current color grading (Lift/Gamma/Gain + Saturation) "
+                       "Convert to ASC CDL SOP and export."),
         this);
     hint->setWordWrap(true);
     root->addWidget(hint);
@@ -76,18 +76,18 @@ AscCdlExportDialog::AscCdlExportDialog(QWidget *parent)
     auto *outForm = new QFormLayout();
     auto *outRow = new QHBoxLayout();
     m_outputEdit = new QLineEdit(this);
-    m_outputEdit->setPlaceholderText(QStringLiteral("出力先ファイル"));
-    m_browseBtn = new QPushButton(QStringLiteral("参照…"), this);
+    m_outputEdit->setPlaceholderText(QStringLiteral("Output file"));
+    m_browseBtn = new QPushButton(QStringLiteral("Browse…"), this);
     outRow->addWidget(m_outputEdit, 1);
     outRow->addWidget(m_browseBtn);
-    outForm->addRow(QStringLiteral("出力先:"), outRow);
+    outForm->addRow(QStringLiteral("Output:"), outRow);
     root->addLayout(outForm);
 
     // --- 操作ボタン ---
     auto *buttons = new QDialogButtonBox(this);
-    m_exportBtn = buttons->addButton(QStringLiteral("現在のグレーディングから書き出し"),
+    m_exportBtn = buttons->addButton(QStringLiteral("Export from current grading"),
                                      QDialogButtonBox::AcceptRole);
-    m_closeBtn = buttons->addButton(QStringLiteral("閉じる"),
+    m_closeBtn = buttons->addButton(QStringLiteral("Close"),
                                     QDialogButtonBox::RejectRole);
     root->addWidget(buttons);
 
@@ -158,7 +158,7 @@ void AscCdlExportDialog::browseOutputPath()
 
     const QString path = QFileDialog::getSaveFileName(
         this,
-        QStringLiteral("ASC CDL ファイルの保存先"),
+        QStringLiteral("Save location for ASC CDL file"),
         initial,
         filter);
     if (!path.isEmpty())
@@ -173,7 +173,7 @@ void AscCdlExportDialog::doExport()
     QString path = m_outputEdit->text().trimmed();
     if (path.isEmpty()) {
         QMessageBox::warning(this, windowTitle(),
-            QStringLiteral("出力先のファイルを指定してください。"));
+            QStringLiteral("Please specify an output file."));
         return;
     }
     // 選択形式の拡張子を補う。既知の CDL 拡張子が手入力されていれば付け替える。
@@ -203,7 +203,7 @@ void AscCdlExportDialog::doExport()
 
     if (xml.isEmpty()) {
         QMessageBox::critical(this, windowTitle(),
-            QStringLiteral("ASC CDL の生成に失敗しました。"));
+            QStringLiteral("Failed to generate ASC CDL."));
         return;
     }
 
@@ -212,7 +212,7 @@ void AscCdlExportDialog::doExport()
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         QMessageBox::critical(this, windowTitle(),
-            QStringLiteral("ファイルを書き込めませんでした:\n%1\n\n%2")
+            QStringLiteral("Could not write file:\n%1\n\n%2")
                 .arg(path, file.errorString()));
         return;
     }
@@ -223,13 +223,13 @@ void AscCdlExportDialog::doExport()
 
     if (written != bytes.size() || !flushed) {
         QMessageBox::critical(this, windowTitle(),
-            QStringLiteral("ファイルの書き込みが途中で失敗しました:\n%1\n\n%2")
+            QStringLiteral("File write failed partway:\n%1\n\n%2")
                 .arg(path, writeError));
         return;
     }
 
     QMessageBox::information(this, windowTitle(),
-        QStringLiteral("ASC CDL を書き出しました:\n%1")
+        QStringLiteral("Exported ASC CDL:\n%1")
             .arg(QFileInfo(path).absoluteFilePath()));
     accept();
 }

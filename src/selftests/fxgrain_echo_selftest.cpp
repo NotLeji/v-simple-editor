@@ -289,7 +289,7 @@ int runFxGrainEchoSelftest()
     const bool adjustmentEchoNoOp = imagesByteIdentical(pattern, adjustmentResult)
         && delayDef != echoSchema.cend()
         && delayDef->displayLabel.contains(
-            QStringLiteral("調整レイヤーでは無効"));
+            QStringLiteral("Disabled for adjustment layers"));
     reportGate("G11", "adjustment-layer Echo is documented and remains a no-op",
                adjustmentEchoNoOp, passed, failed);
 

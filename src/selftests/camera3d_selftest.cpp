@@ -60,7 +60,7 @@ ClipInfo fixtureClip(const QColor &color, const QSize &canvas)
     rectangle.fill.color = color;
     rectangle.stroke.enabled = false;
     ClipInfo clip;
-    clip.displayName = QStringLiteral("カメラ射影テスト");
+    clip.displayName = QStringLiteral("Camera projection test");
     clip.duration = 2.0;
     clip.outPoint = 2.0;
     clip.shapes = {rectangle};

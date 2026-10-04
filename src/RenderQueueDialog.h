@@ -46,7 +46,7 @@ public:
     void setDefaultTimelineRange(qint64 startUs, qint64 endUs);
 
     // RM-1.4: the live edit-graph Timeline used for queue entries whose
-    // source path is left blank (the "(現在開いているプロジェクト)" /
+    // source path is left blank (the "(Currently open project)" /
     // "current project" case). Without it, a blank-source job has an
     // empty projectFilePath → RenderQueue::resolveTimeline returns
     // nullptr → the entire render (and every track matte) is silently

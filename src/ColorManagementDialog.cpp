@@ -44,17 +44,17 @@ int toByte(double v)
 ColorManagementDialog::ColorManagementDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("カラーマネジメント (ACES)"));
+    setWindowTitle(QStringLiteral("Color Management (ACES)"));
 
     auto *rootLayout = new QVBoxLayout(this);
 
     // --- 有効化チェック ---
     m_enabledCheck = new QCheckBox(
-        QStringLiteral("ACES カラーマネジメントを有効化"), this);
+        QStringLiteral("Enable ACES color management"), this);
     rootLayout->addWidget(m_enabledCheck);
 
     // --- 色空間選択 ---
-    auto *spaceGroup = new QGroupBox(QStringLiteral("色空間"), this);
+    auto *spaceGroup = new QGroupBox(QStringLiteral("Color space"), this);
     auto *formLayout = new QFormLayout(spaceGroup);
 
     m_inputCombo   = new QComboBox(spaceGroup);
@@ -65,14 +65,14 @@ ColorManagementDialog::ColorManagementDialog(QWidget *parent)
     populateColorSpaceCombo(m_workingCombo, aces::ColorSpace::ACEScg);
     populateColorSpaceCombo(m_outputCombo,  aces::ColorSpace::Rec709);
 
-    formLayout->addRow(QStringLiteral("入力色空間"),   m_inputCombo);
-    formLayout->addRow(QStringLiteral("作業色空間"),   m_workingCombo);
-    formLayout->addRow(QStringLiteral("出力色空間"),   m_outputCombo);
+    formLayout->addRow(QStringLiteral("Input color space"),   m_inputCombo);
+    formLayout->addRow(QStringLiteral("Working color space"),   m_workingCombo);
+    formLayout->addRow(QStringLiteral("Output color space"),   m_outputCombo);
     rootLayout->addWidget(spaceGroup);
 
     // --- プレビュー (中間グレーを process した結果) ---
     auto *previewGroup = new QGroupBox(
-        QStringLiteral("プレビュー (中間グレー 18%)"), this);
+        QStringLiteral("Preview (18% middle gray)"), this);
     auto *previewLayout = new QHBoxLayout(previewGroup);
 
     m_previewSwatch = new QLabel(previewGroup);
@@ -171,7 +171,7 @@ void ColorManagementDialog::updatePreview()
     m_previewSwatch->setPalette(pal);
 
     m_previewValue->setText(
-        QStringLiteral("入力 (中間グレー) → 出力 RGB = (%1, %2, %3)")
+        QStringLiteral("Input (middle gray) → Output RGB = (%1, %2, %3)")
             .arg(out[0], 0, 'f', 3)
             .arg(out[1], 0, 'f', 3)
             .arg(out[2], 0, 'f', 3));

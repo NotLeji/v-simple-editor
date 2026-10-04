@@ -433,7 +433,7 @@ StreamingProcessResult processSequenceStreaming(
         return result;
     }
     if (!frameFetcher) {
-        result.error = QStringLiteral("フレーム取得経路が設定されていません。");
+        result.error = QStringLiteral("The frame acquisition path is not set.");
         return result;
     }
 
@@ -450,7 +450,7 @@ StreamingProcessResult processSequenceStreaming(
             return result;
         }
         if (frame.isNull()) {
-            result.error = QStringLiteral("フレーム %1 のデコードに失敗しました。")
+            result.error = QStringLiteral("Failed to decode frame %1.")
                 .arg(frameIndex);
             result.stats.clear();
             return result;
@@ -459,7 +459,7 @@ StreamingProcessResult processSequenceStreaming(
         if (!params.analysisRegion.isEmpty()
             && effectiveAnalysisRegion(frame, params).isEmpty()) {
             result.error = QStringLiteral(
-                "解析領域がフレーム範囲外です。キャンバスとフレームの解像度を確認してください。");
+                "The analysis region is outside the frame. Please check the canvas and frame resolution.");
             result.stats.clear();
             return result;
         }
@@ -478,7 +478,7 @@ StreamingProcessResult processSequenceStreaming(
             return result;
         }
         if (frame.isNull()) {
-            result.error = QStringLiteral("フレーム %1 のデコードに失敗しました。")
+            result.error = QStringLiteral("Failed to decode frame %1.")
                 .arg(frameIndex);
             result.stats.clear();
             return result;
@@ -487,14 +487,14 @@ StreamingProcessResult processSequenceStreaming(
         const QImage corrected = applyCorrection(
             frame, computeCorrection(result.stats, frameIndex, params), params);
         if (corrected.isNull()) {
-            result.error = QStringLiteral("フレーム %1 の補正に失敗しました。")
+            result.error = QStringLiteral("Failed to correct frame %1.")
                 .arg(frameIndex);
             result.stats.clear();
             return result;
         }
         if (frameSink && !frameSink(frameIndex, corrected, &result.error)) {
             if (result.error.isEmpty())
-                result.error = QStringLiteral("補正フレームの出力に失敗しました。");
+                result.error = QStringLiteral("Failed to output the corrected frame.");
             result.stats.clear();
             return result;
         }

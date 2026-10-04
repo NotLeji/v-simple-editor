@@ -2371,7 +2371,7 @@ void AudioMixer::seekTo(int64_t timelineUs) {
     // QAudioSink restart dispatches synchronously on the main thread
     // (~10–20 ms) and audibly clicks. Win #6 overlay rotation +
     // sequenceChanged storm previously produced 256 seek calls in a
-    // 30 s session, the primary source of the "V2 のところでノイズ"
+    // 30 s session, the primary source of the "noise around V2"
     // user report. Skip only when state matches — paused/idle or a
     // pending sink rebuild still needs the full path.
     {
@@ -2556,7 +2556,7 @@ void AudioMixer::seekTo(int64_t timelineUs) {
         // Without this zero-fill, ReverbState comb buffers + allpass
         // delays + pre-delay buffers retain pre-seek samples that
         // recirculate through comb feedback at the new position,
-        // producing a colored "砂嵐" (sandstorm) noise that decays over
+        // producing a colored "sandstorm" (sandstorm) noise that decays over
         // the comb tail (~decaySeconds). EQ biquad histories produce a
         // brief filter transient on the first post-seek sample. The
         // envelope followers (CompState.env / NRState.env) reconverge
@@ -3159,7 +3159,7 @@ bool AudioMixer::prepareReversedPcm(AudioDecoderEntry *e)
         e->reversedTooLong = true;
         e->eof = true;
         qWarning().noquote()
-            << QStringLiteral("AudioMixer: 逆再生クリップが10分の上限を超えたため無音にします: %1 (%2 秒)")
+            << QStringLiteral("AudioMixer: Reversed clip exceeds the 10-minute limit, silencing: %1 (%2 s)")
                    .arg(e->entry.filePath)
                    .arg(sourceDuration, 0, 'f', 3);
         return false;

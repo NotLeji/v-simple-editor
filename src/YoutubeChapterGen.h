@@ -4,7 +4,7 @@
 
 struct ChapterHighlight {
     double startSec = 0;
-    QString title;  // 空なら "シーンN" にフォールバック
+    QString title;  // 空なら "Scene N" にフォールバック
 };
 
 class YoutubeChapterGen {

@@ -195,9 +195,9 @@ QString ShortcutManager::presetDisplayName(Preset p)
 {
     switch (p) {
     case Preset::VEditor:    return QStringLiteral("v-simple-editor");
-    case Preset::Premiere:   return QStringLiteral("Premiere Pro 風");
-    case Preset::FinalCutPro: return QStringLiteral("Final Cut Pro 風");
-    case Preset::DaVinci:    return QStringLiteral("DaVinci Resolve 風");
+    case Preset::Premiere:   return QStringLiteral("Premiere Pro Style");
+    case Preset::FinalCutPro: return QStringLiteral("Final Cut Pro Style");
+    case Preset::DaVinci:    return QStringLiteral("DaVinci Resolve-style");
     }
     return QString();
 }

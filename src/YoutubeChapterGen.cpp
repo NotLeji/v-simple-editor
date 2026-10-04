@@ -51,13 +51,13 @@ QString YoutubeChapterGen::generateChapterText(
     QStringList lines;
 
     if (sorted.first().startSec > 0.0) {
-        lines.append(formatTimestamp(0.0, useHours) + QStringLiteral(" イントロ"));
+        lines.append(formatTimestamp(0.0, useHours) + QStringLiteral("  Intro"));
     }
 
     for (int i = 0; i < sorted.size(); ++i) {
         const ChapterHighlight& h = sorted.at(i);
         const QString title = h.title.isEmpty()
-            ? QStringLiteral("シーン%1").arg(i + 1)
+            ? QStringLiteral("Scene %1").arg(i + 1)
             : h.title;
         lines.append(formatTimestamp(h.startSec, useHours) + QStringLiteral(" ") + title);
     }

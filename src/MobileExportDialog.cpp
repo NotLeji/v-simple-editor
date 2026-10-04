@@ -23,7 +23,7 @@ MobileExportDialog::MobileExportDialog(const QSize& sourceSize,
 {
     setWindowFlags(Qt::Window);
     setObjectName(QStringLiteral("mobileExportDialog"));
-    setWindowTitle(tr("モバイル向けエクスポート"));
+    setWindowTitle(tr("Export for Mobile"));
     resize(560, 360);
 
     setupUI();
@@ -65,25 +65,25 @@ void MobileExportDialog::setupUI()
 
     // --- Output path row --------------------------------------------------
     m_outputEdit = new QLineEdit(this);
-    m_outputEdit->setPlaceholderText(tr("出力ファイルパス…"));
+    m_outputEdit->setPlaceholderText(tr("Output file path..."));
 
-    m_browseBtn = new QPushButton(tr("参照…"), this);
+    m_browseBtn = new QPushButton(tr("Browse…"), this);
 
     auto* pathRow = new QHBoxLayout;
     pathRow->addWidget(m_outputEdit);
     pathRow->addWidget(m_browseBtn);
 
     // --- Export button ----------------------------------------------------
-    m_exportBtn = new QPushButton(tr("エクスポート"), this);
+    m_exportBtn = new QPushButton(tr("Export"), this);
     m_exportBtn->setDefault(true);
 
     // --- Layout -----------------------------------------------------------
     auto* form = new QFormLayout;
-    form->addRow(tr("カテゴリ:"),   m_categoryCombo);
-    form->addRow(tr("デバイス:"),   m_deviceCombo);
-    form->addRow(tr("仕様:"),       m_summaryLabel);
-    form->addRow(tr("縦回転:"),     m_rotateLabel);
-    form->addRow(tr("出力先:"),     pathRow);
+    form->addRow(tr("Category:"),   m_categoryCombo);
+    form->addRow(tr("Device:"),   m_deviceCombo);
+    form->addRow(tr("Specs:"),       m_summaryLabel);
+    form->addRow(tr("Portrait rotation:"),     m_rotateLabel);
+    form->addRow(tr("Output:"),     pathRow);
 
     auto* mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(form);
@@ -124,7 +124,7 @@ void MobileExportDialog::populateDeviceCombo(mobile::Category category)
 void MobileExportDialog::updateSummary()
 {
     if (m_deviceCombo->count() == 0) {
-        m_summaryLabel->setText(tr("デバイスなし"));
+        m_summaryLabel->setText(tr("No device"));
         m_rotateLabel->setText(QString());
         return;
     }
@@ -141,7 +141,7 @@ void MobileExportDialog::updateSummary()
             .arg(dev.maxFrameRate)
             .arg(codecLabel)
             .arg(dev.maxVideoBitrateKbps)
-            .arg(dev.supportsHdr ? tr("対応") : tr("非対応")));
+            .arg(dev.supportsHdr ? tr("Supported") : tr("Not supported")));
 
     // Rotation indicator
     const mobile::rotate::RotateDecision dec =
@@ -149,9 +149,9 @@ void MobileExportDialog::updateSummary()
 
     if (dec.needsRotate) {
         m_rotateLabel->setText(
-            QString(tr("9:16 縦向きに自動回転 (%1°)")).arg(dec.angleDeg));
+            QString(tr("Auto-rotate to 9:16 portrait (%1°)")).arg(dec.angleDeg));
     } else {
-        m_rotateLabel->setText(tr("回転不要"));
+        m_rotateLabel->setText(tr("No rotation needed"));
     }
 }
 
@@ -191,9 +191,9 @@ void MobileExportDialog::onBrowse()
 {
     const QString path = QFileDialog::getSaveFileName(
         this,
-        tr("出力ファイルを選択"),
+        tr("Select Output File"),
         m_outputEdit->text(),
-        tr("MP4 ファイル (*.mp4);;すべてのファイル (*)"));
+        tr("MP4 Files (*.mp4);;All Files (*)"));
 
     if (!path.isEmpty())
         m_outputEdit->setText(path);

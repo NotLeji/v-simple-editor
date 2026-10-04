@@ -256,17 +256,17 @@ int salientKeywordCount(const QString& text)
         QStringLiteral("surprising"),
         QStringLiteral("unexpected"),
         QStringLiteral("win"),
-        QStringLiteral("課題"),
-        QStringLiteral("結論"),
-        QStringLiteral("結果"),
-        QStringLiteral("重要"),
-        QStringLiteral("成功"),
-        QStringLiteral("失敗"),
-        QStringLiteral("発見"),
-        QStringLiteral("発表"),
-        QStringLiteral("理由"),
-        QStringLiteral("解決"),
-        QStringLiteral("驚")
+        QStringLiteral("Problem"),
+        QStringLiteral("Conclusion"),
+        QStringLiteral("Result"),
+        QStringLiteral("Important"),
+        QStringLiteral("Success"),
+        QStringLiteral("Failed"),
+        QStringLiteral("Discovery"),
+        QStringLiteral("Announcement"),
+        QStringLiteral("Reason"),
+        QStringLiteral("Resolution"),
+        QStringLiteral("Surprise")
     };
 
     int count = 0;

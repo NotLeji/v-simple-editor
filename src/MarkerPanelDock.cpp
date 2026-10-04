@@ -32,7 +32,7 @@ enum Column {
 }  // namespace
 
 MarkerPanelDock::MarkerPanelDock(QWidget *parent)
-    : QDockWidget(tr("マーカー"), parent)
+    : QDockWidget(tr("Markers"), parent)
 {
     setObjectName(QStringLiteral("markerPanelDock"));
 
@@ -44,7 +44,7 @@ MarkerPanelDock::MarkerPanelDock(QWidget *parent)
     m_table = new QTableWidget(root);
     m_table->setColumnCount(ColumnCount);
     m_table->setHorizontalHeaderLabels(
-        {tr("時刻"), tr("ラベル"), tr("期間"), tr("色"), tr("ノート")});
+        {tr("Time"), tr("Label"), tr("Duration"), tr("Color"), tr("Note")});
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setSelectionMode(QAbstractItemView::SingleSelection);
     m_table->verticalHeader()->setVisible(false);
@@ -55,7 +55,7 @@ MarkerPanelDock::MarkerPanelDock(QWidget *parent)
 
     auto *btnRow = new QHBoxLayout();
     btnRow->addStretch(1);
-    m_delBtn = new QPushButton(tr("削除"), root);
+    m_delBtn = new QPushButton(tr("Delete"), root);
     btnRow->addWidget(m_delBtn);
     layout->addLayout(btnRow);
 

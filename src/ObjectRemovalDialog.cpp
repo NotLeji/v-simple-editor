@@ -52,7 +52,7 @@ QSpinBox *makePixelSpin(QWidget *parent, int value, int maximum)
 ObjectRemovalDialog::ObjectRemovalDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("オブジェクト除去 / コンテンツに応じた塗りつぶし"));
+    setWindowTitle(QStringLiteral("Remove Objects / Content-Aware Fill"));
     setModal(true);
     resize(980, 700);
 
@@ -60,58 +60,58 @@ ObjectRemovalDialog::ObjectRemovalDialog(QWidget *parent)
     root->setContentsMargins(12, 12, 12, 12);
     root->setSpacing(10);
 
-    auto *scopeGroup = new QGroupBox(QStringLiteral("対象"), this);
+    auto *scopeGroup = new QGroupBox(QStringLiteral("Target"), this);
     auto *scopeForm = new QFormLayout(scopeGroup);
-    m_clipValue = new QLabel(QStringLiteral("未設定"), scopeGroup);
+    m_clipValue = new QLabel(QStringLiteral("Not set"), scopeGroup);
     m_clipValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    scopeForm->addRow(QStringLiteral("クリップ:"), m_clipValue);
+    scopeForm->addRow(QStringLiteral("Clip:"), m_clipValue);
 
     auto *rangeRow = new QHBoxLayout;
     m_startSpin = new QSpinBox(scopeGroup);
     m_endSpin = new QSpinBox(scopeGroup);
     m_startSpin->setSuffix(QStringLiteral(" frame"));
     m_endSpin->setSuffix(QStringLiteral(" frame"));
-    rangeRow->addWidget(new QLabel(QStringLiteral("開始"), scopeGroup));
+    rangeRow->addWidget(new QLabel(QStringLiteral("Start"), scopeGroup));
     rangeRow->addWidget(m_startSpin);
     rangeRow->addSpacing(8);
-    rangeRow->addWidget(new QLabel(QStringLiteral("終了"), scopeGroup));
+    rangeRow->addWidget(new QLabel(QStringLiteral("End"), scopeGroup));
     rangeRow->addWidget(m_endSpin);
     rangeRow->addSpacing(8);
-    rangeRow->addWidget(new QLabel(QStringLiteral("表示"), scopeGroup));
+    rangeRow->addWidget(new QLabel(QStringLiteral("View"), scopeGroup));
     m_previewFrameSpin = new QSpinBox(scopeGroup);
     m_previewFrameSpin->setSuffix(QStringLiteral(" frame"));
     rangeRow->addWidget(m_previewFrameSpin);
     rangeRow->addStretch(1);
-    scopeForm->addRow(QStringLiteral("フレーム範囲:"), rangeRow);
+    scopeForm->addRow(QStringLiteral("Frame Range:"), rangeRow);
 
     m_maskCombo = new QComboBox(scopeGroup);
-    m_maskCombo->addItem(QStringLiteral("クリップマスク"), 0);
-    m_maskCombo->addItem(QStringLiteral("ロトブラシマスク"), 1);
-    scopeForm->addRow(QStringLiteral("マスクソース:"), m_maskCombo);
+    m_maskCombo->addItem(QStringLiteral("Clip Mask"), 0);
+    m_maskCombo->addItem(QStringLiteral("Rotobrush Mask"), 1);
+    scopeForm->addRow(QStringLiteral("Mask source:"), m_maskCombo);
     root->addWidget(scopeGroup);
 
-    auto *previewGroup = new QGroupBox(QStringLiteral("プレビュー"), this);
+    auto *previewGroup = new QGroupBox(QStringLiteral("Preview"), this);
     auto *previewLayout = new QVBoxLayout(previewGroup);
     auto *previewViews = new QHBoxLayout;
     auto *beforeColumn = new QVBoxLayout;
     auto *afterColumn = new QVBoxLayout;
-    beforeColumn->addWidget(new QLabel(QStringLiteral("処理前"), previewGroup));
-    afterColumn->addWidget(new QLabel(QStringLiteral("処理後"), previewGroup));
+    beforeColumn->addWidget(new QLabel(QStringLiteral("Before"), previewGroup));
+    afterColumn->addWidget(new QLabel(QStringLiteral("After"), previewGroup));
     m_beforeView = makePreviewLabel(previewGroup,
-                                    QStringLiteral("プレビューを実行してください"));
+                                    QStringLiteral("Please run the preview"));
     m_afterView = makePreviewLabel(previewGroup,
-                                   QStringLiteral("プレビューを実行してください"));
+                                   QStringLiteral("Please run the preview"));
     beforeColumn->addWidget(m_beforeView, 1);
     afterColumn->addWidget(m_afterView, 1);
     previewViews->addLayout(beforeColumn, 1);
     previewViews->addLayout(afterColumn, 1);
     previewLayout->addLayout(previewViews, 1);
-    m_statusLabel = new QLabel(QStringLiteral("現在フレームを確認できます。"), previewGroup);
+    m_statusLabel = new QLabel(QStringLiteral("You can review the current frame."), previewGroup);
     m_statusLabel->setWordWrap(true);
     previewLayout->addWidget(m_statusLabel);
     root->addWidget(previewGroup, 1);
 
-    auto *parametersGroup = new QGroupBox(QStringLiteral("パラメータ"), this);
+    auto *parametersGroup = new QGroupBox(QStringLiteral("Parameters"), this);
     auto *parametersForm = new QFormLayout(parametersGroup);
     m_temporalRadiusSpin = new QSpinBox(parametersGroup);
     m_temporalRadiusSpin->setRange(0, 240);
@@ -122,10 +122,10 @@ ObjectRemovalDialog::ObjectRemovalDialog(QWidget *parent)
     m_temporalStrideSpin->setValue(1);
     m_temporalStrideSpin->setSuffix(QStringLiteral(" frame"));
     m_trackingCheck = new QCheckBox(
-        QStringLiteral("背景整列（平面トラッキング）"), parametersGroup);
+        QStringLiteral("Background Align (Planar Tracking)"), parametersGroup);
     m_trackingCheck->setChecked(false);
     m_trackingCheck->setToolTip(QStringLiteral(
-        "物体トラッキングの変位は使わず、背景用の平面トラッキングだけを参照します。"));
+        "Uses only the background planar tracking, ignoring object-tracking displacement."));
     m_dilateSpin = makePixelSpin(parametersGroup, 2, 64);
     m_featherSpin = makePixelSpin(parametersGroup, 3, 64);
     m_trustSpin = new QDoubleSpinBox(parametersGroup);
@@ -134,20 +134,20 @@ ObjectRemovalDialog::ObjectRemovalDialog(QWidget *parent)
     m_trustSpin->setDecimals(2);
     m_trustSpin->setValue(0.65);
     m_spatialRadiusSpin = makePixelSpin(parametersGroup, 24, 256);
-    parametersForm->addRow(QStringLiteral("時間参照半径:"), m_temporalRadiusSpin);
-    parametersForm->addRow(QStringLiteral("時間参照間引き:"), m_temporalStrideSpin);
-    parametersForm->addRow(QStringLiteral("位置合わせ:"), m_trackingCheck);
-    parametersForm->addRow(QStringLiteral("マスク膨張:"), m_dilateSpin);
-    parametersForm->addRow(QStringLiteral("羽根:"), m_featherSpin);
-    parametersForm->addRow(QStringLiteral("時間サンプル信頼度:"), m_trustSpin);
-    parametersForm->addRow(QStringLiteral("空間探索半径:"), m_spatialRadiusSpin);
+    parametersForm->addRow(QStringLiteral("Temporal reference radius:"), m_temporalRadiusSpin);
+    parametersForm->addRow(QStringLiteral("Temporal reference stride:"), m_temporalStrideSpin);
+    parametersForm->addRow(QStringLiteral("Alignment:"), m_trackingCheck);
+    parametersForm->addRow(QStringLiteral("Mask dilation:"), m_dilateSpin);
+    parametersForm->addRow(QStringLiteral("Feather:"), m_featherSpin);
+    parametersForm->addRow(QStringLiteral("Temporal sample confidence:"), m_trustSpin);
+    parametersForm->addRow(QStringLiteral("Spatial search radius:"), m_spatialRadiusSpin);
     root->addWidget(parametersGroup);
 
     auto *buttonRow = new QHBoxLayout;
-    m_previewButton = new QPushButton(QStringLiteral("プレビュー"), this);
+    m_previewButton = new QPushButton(QStringLiteral("Preview"), this);
     m_previewButton->setDefault(true);
-    m_applyButton = new QPushButton(QStringLiteral("適用"), this);
-    m_cancelButton = new QPushButton(QStringLiteral("閉じる"), this);
+    m_applyButton = new QPushButton(QStringLiteral("Apply"), this);
+    m_cancelButton = new QPushButton(QStringLiteral("Close"), this);
     m_applyButton->setEnabled(false);
     buttonRow->addWidget(m_previewButton);
     buttonRow->addStretch(1);
@@ -178,7 +178,7 @@ void ObjectRemovalDialog::setContext(
     m_endSpin->setValue(frameCount - 1);
     m_previewFrameSpin->setValue(defaultFrame);
     m_clipValue->setText(context.clipLabel.isEmpty()
-                             ? QStringLiteral("未設定")
+                             ? QStringLiteral("Not set")
                              : context.clipLabel);
 
     if (auto *model = qobject_cast<QStandardItemModel *>(m_maskCombo->model())) {
@@ -199,10 +199,10 @@ void ObjectRemovalDialog::setContext(
                               && (context.clipMaskAvailable
                                   || context.rotoMaskAvailable));
 
-    m_statusLabel->setText(QStringLiteral("フレーム %1 を表示できます。")
+    m_statusLabel->setText(QStringLiteral("Can display frame %1.")
                                .arg(defaultFrame));
-    showImage(m_beforeView, {}, QStringLiteral("プレビューを実行してください"));
-    showImage(m_afterView, {}, QStringLiteral("プレビューを実行してください"));
+    showImage(m_beforeView, {}, QStringLiteral("Please run the preview"));
+    showImage(m_afterView, {}, QStringLiteral("Please run the preview"));
 }
 
 objremoval::ObjectRemovalParams ObjectRemovalDialog::params() const
@@ -288,8 +288,8 @@ void ObjectRemovalDialog::setBusy(bool busy)
     m_previewButton->setEnabled(!busy);
     m_applyButton->setEnabled(!busy);
     m_cancelButton->setEnabled(true);
-    m_cancelButton->setText(busy ? QStringLiteral("中止")
-                                : QStringLiteral("閉じる"));
+    m_cancelButton->setText(busy ? QStringLiteral("Abort")
+                                : QStringLiteral("Close"));
     m_startSpin->setEnabled(!busy);
     m_endSpin->setEnabled(!busy);
     m_previewFrameSpin->setEnabled(!busy);
@@ -329,7 +329,7 @@ QString ObjectRemovalDialog::outputDirectory(QString *error) const
     QDir parent = sourceInfo.absoluteDir();
     if (!parent.exists() && !parent.mkpath(QStringLiteral("."))) {
         if (error)
-            *error = QStringLiteral("クリップのフォルダを作成できません。\n%1")
+            *error = QStringLiteral("Could not create clip folder.\n%1")
                 .arg(parent.absolutePath());
         return {};
     }
@@ -344,7 +344,7 @@ QString ObjectRemovalDialog::outputDirectory(QString *error) const
         path = parent.filePath(folderName + QStringLiteral("_%1").arg(suffix++));
     if (!parent.mkpath(QFileInfo(path).fileName())) {
         if (error)
-            *error = QStringLiteral("出力フォルダを作成できません。\n%1").arg(path);
+            *error = QStringLiteral("Could not create output folder.\n%1").arg(path);
         return {};
     }
     return path;
@@ -356,20 +356,20 @@ void ObjectRemovalDialog::onPreviewClicked()
         return;
     const int frameIndex = m_previewFrameSpin->value();
     setBusy(true);
-    m_statusLabel->setText(QStringLiteral("フレーム %1 を処理中...").arg(frameIndex));
+    m_statusLabel->setText(QStringLiteral("Processing frame %1...").arg(frameIndex));
     QApplication::processEvents();
 
     const QImage before = fetchFrame(frameIndex);
     const QImage after = processFrame(frameIndex);
-    showImage(m_beforeView, before, QStringLiteral("フレームを取得できません"));
-    showImage(m_afterView, after, QStringLiteral("処理できません"));
+    showImage(m_beforeView, before, QStringLiteral("Could not get frame"));
+    showImage(m_afterView, after, QStringLiteral("Could not process"));
     if (m_cancelRequested) {
-        m_statusLabel->setText(QStringLiteral("プレビューを中止しました。"));
+        m_statusLabel->setText(QStringLiteral("Preview aborted."));
     } else if (before.isNull() || after.isNull()) {
         m_statusLabel->setText(QStringLiteral(
-            "フレームまたは選択したマスクを取得できません。マスクソースを確認してください。"));
+            "Could not get the frame or the selected mask. Check the mask source."));
     } else {
-        m_statusLabel->setText(QStringLiteral("フレーム %1 のプレビューを更新しました。")
+        m_statusLabel->setText(QStringLiteral("Updated preview of frame %1.")
                                    .arg(frameIndex));
     }
     setBusy(false);
@@ -381,7 +381,7 @@ void ObjectRemovalDialog::onApplyClicked()
         return;
     if (!m_context.sequenceImporter) {
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("新規クリップを取り込む経路が設定されていません。"));
+                             QStringLiteral("No import path is set for the new clip."));
         return;
     }
 
@@ -389,7 +389,7 @@ void ObjectRemovalDialog::onApplyClicked()
     const int end = m_endSpin->value();
     if (end < start) {
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("終了フレームは開始フレーム以降にしてください。"));
+                             QStringLiteral("End frame must be at or after the start frame."));
         return;
     }
 
@@ -405,15 +405,15 @@ void ObjectRemovalDialog::onApplyClicked()
     paths.reserve(end - start + 1);
     for (int frameIndex = start; frameIndex <= end; ++frameIndex) {
         if (m_cancelRequested) {
-            m_statusLabel->setText(QStringLiteral("適用を中止しました。"));
+            m_statusLabel->setText(QStringLiteral("Application aborted."));
             setBusy(false);
             return;
         }
-        m_statusLabel->setText(QStringLiteral("フレーム %1 / %2 を処理中...")
+        m_statusLabel->setText(QStringLiteral("Processing frame %1 of %2...")
                                    .arg(frameIndex - start + 1).arg(end - start + 1));
         QApplication::processEvents();
         if (m_cancelRequested) {
-            m_statusLabel->setText(QStringLiteral("適用を中止しました。"));
+            m_statusLabel->setText(QStringLiteral("Application aborted."));
             setBusy(false);
             return;
         }
@@ -421,7 +421,7 @@ void ObjectRemovalDialog::onApplyClicked()
         if (result.isNull()) {
             setBusy(false);
             QMessageBox::warning(this, windowTitle(),
-                                 QStringLiteral("フレーム %1 の処理に失敗しました。")
+                                 QStringLiteral("Failed to process frame %1.")
                                      .arg(frameIndex));
             return;
         }
@@ -433,7 +433,7 @@ void ObjectRemovalDialog::onApplyClicked()
                                          frameexport::ImageFormat::Png, &error)) {
             setBusy(false);
             QMessageBox::warning(this, windowTitle(),
-                                 QStringLiteral("PNG の保存に失敗しました。\n%1").arg(error));
+                                 QStringLiteral("Failed to save PNG.\n%1").arg(error));
             return;
         }
         paths.append(path);
@@ -442,12 +442,12 @@ void ObjectRemovalDialog::onApplyClicked()
     if (!m_context.sequenceImporter(paths, qMax(1.0, m_context.fps), &error)) {
         setBusy(false);
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("新規クリップへの取り込みに失敗しました。\n%1")
+                             QStringLiteral("Failed to import as a new clip.\n%1")
                                  .arg(error));
         return;
     }
 
-    m_statusLabel->setText(QStringLiteral("%1 フレームを書き出し、新規クリップへ取り込みました。")
+    m_statusLabel->setText(QStringLiteral("Exported %1 frames and imported them as a new clip.")
                                .arg(paths.size()));
     setBusy(false);
     accept();
@@ -457,7 +457,7 @@ void ObjectRemovalDialog::onCancelClicked()
 {
     if (m_busy) {
         m_cancelRequested = true;
-        m_statusLabel->setText(QStringLiteral("現在のフレーム処理後に中止します。"));
+        m_statusLabel->setText(QStringLiteral("Aborting after the current frame finishes."));
         return;
     }
     reject();

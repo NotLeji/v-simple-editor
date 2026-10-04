@@ -51,7 +51,7 @@ QString formatSeconds(double sec)
 } // namespace
 
 SourceMonitorDock::SourceMonitorDock(QWidget *parent)
-    : QDockWidget(tr("ソースモニター"), parent)
+    : QDockWidget(tr("Source Monitor"), parent)
 {
     setObjectName("SourceMonitorDock");
     setupUI();
@@ -86,9 +86,9 @@ void SourceMonitorDock::setupUI()
     // 位置 / イン / アウト ラベル行。
     auto *labelRow = new QHBoxLayout();
     labelRow->setSpacing(8);
-    m_posLabel = new QLabel(tr("位置 --:--.---"), central);
-    m_inLabel = new QLabel(tr("イン --:--.---"), central);
-    m_outLabel = new QLabel(tr("アウト --:--.---"), central);
+    m_posLabel = new QLabel(tr("Position --:--.---"), central);
+    m_inLabel = new QLabel(tr("In --:--.---"), central);
+    m_outLabel = new QLabel(tr("Out --:--.---"), central);
     labelRow->addWidget(m_posLabel);
     labelRow->addStretch(1);
     labelRow->addWidget(m_inLabel);
@@ -98,8 +98,8 @@ void SourceMonitorDock::setupUI()
     // マークイン / マークアウト ボタン行。
     auto *markRow = new QHBoxLayout();
     markRow->setSpacing(4);
-    m_markInBtn = new QPushButton(tr("マークイン"), central);
-    m_markOutBtn = new QPushButton(tr("マークアウト"), central);
+    m_markInBtn = new QPushButton(tr("Mark In"), central);
+    m_markOutBtn = new QPushButton(tr("Mark Out"), central);
     connect(m_markInBtn, &QPushButton::clicked,
             this, &SourceMonitorDock::onMarkIn);
     connect(m_markOutBtn, &QPushButton::clicked,
@@ -112,8 +112,8 @@ void SourceMonitorDock::setupUI()
     // 挿入 / 上書き ボタン行。
     auto *editRow = new QHBoxLayout();
     editRow->setSpacing(4);
-    m_insertBtn = new QPushButton(tr("挿入 (Insert)"), central);
-    m_overwriteBtn = new QPushButton(tr("上書き (Overwrite)"), central);
+    m_insertBtn = new QPushButton(tr("Insert (Insert)"), central);
+    m_overwriteBtn = new QPushButton(tr("Overwrite (Overwrite)"), central);
     connect(m_insertBtn, &QPushButton::clicked,
             this, &SourceMonitorDock::onInsertClicked);
     connect(m_overwriteBtn, &QPushButton::clicked,
@@ -290,18 +290,18 @@ void SourceMonitorDock::updateControls()
 
     if (m_posLabel) {
         m_posLabel->setText(enabled
-            ? tr("位置 %1").arg(formatSeconds(m_scrubSec))
-            : tr("位置 --:--.---"));
+            ? tr("Position %1").arg(formatSeconds(m_scrubSec))
+            : tr("Position --:--.---"));
     }
     if (m_inLabel) {
         m_inLabel->setText(enabled
-            ? tr("イン %1").arg(formatSeconds(m_sourceInSec))
-            : tr("イン --:--.---"));
+            ? tr("In %1").arg(formatSeconds(m_sourceInSec))
+            : tr("In --:--.---"));
     }
     if (m_outLabel) {
         const bool hasOut = enabled && m_sourceOutSec > 0.0;
         m_outLabel->setText(hasOut
-            ? tr("アウト %1").arg(formatSeconds(m_sourceOutSec))
-            : tr("アウト --:--.---"));
+            ? tr("Out %1").arg(formatSeconds(m_sourceOutSec))
+            : tr("Out --:--.---"));
     }
 }

@@ -1253,7 +1253,7 @@ int runMcpSelftest()
     const QJsonObject saveWithoutPathResult = toolResult(saveWithoutPath);
     const bool g42 = saveWithoutPathResult.value(QStringLiteral("isError")).toBool(false)
         && toolErrorText(saveWithoutPath)
-               == QStringLiteral("保存先のパスを指定してください");
+               == QStringLiteral("Please specify a destination path");
     g42 ? pass("G42 save without path is rejected non-interactively")
         : fail("G42 save without path is rejected non-interactively",
                QStringLiteral("save_project opened a dialog or returned a wrong error"));
@@ -1273,7 +1273,7 @@ int runMcpSelftest()
         && toolResult(missingProjectResponse).value(QStringLiteral("isError"))
                .toBool(false)
         && toolErrorText(missingProjectResponse)
-               == QStringLiteral("ファイルが見つかりません: %1").arg(missingProjectPath);
+               == QStringLiteral("File not found: %1").arg(missingProjectPath);
     g81 ? pass("G81 open_project missing file is rejected")
         : fail("G81 open_project missing file is rejected",
                QStringLiteral("missing project was accepted or returned a wrong error"));
@@ -1325,7 +1325,7 @@ int runMcpSelftest()
         });
     const bool g43 = toolResult(missingImport).value(QStringLiteral("isError")).toBool(false)
         && toolErrorText(missingImport)
-               == QStringLiteral("ファイルが見つかりません: /definitely/missing/mcp-selftest-media.mp4");
+               == QStringLiteral("File not found: /definitely/missing/mcp-selftest-media.mp4");
     g43 ? pass("G43 missing media import is rejected")
         : fail("G43 missing media import is rejected",
                QStringLiteral("missing media was accepted or changed the error text"));
@@ -2480,7 +2480,7 @@ int runMcpSelftest()
                    .value(QStringLiteral("keyframeCount")).toInt(-1) == 8
             && toolPayload(customResponse).value(QStringLiteral("warning"))
                    .toString().contains(
-                       QStringLiteral("h はキャンバス比に固定"))
+                       QStringLiteral("h is fixed to the canvas aspect ratio"))
             && customScaleX && customScaleX->count() == 2
             && qAbs(customScaleX->keyframes().last().value - 2.0) < 1e-9;
         if (validCustomApplied)
@@ -2527,7 +2527,7 @@ int runMcpSelftest()
                    QStringLiteral("cannot be combined"))
             && !dynamicZoomInputSchema.contains(QStringLiteral("oneOf"))
             && dynamicZoomInputSchema.value(QStringLiteral("description"))
-                   .toString().contains(QStringLiteral("どちらか一方"))
+                   .toString().contains(QStringLiteral("Either one"))
             && !dynamicZoomTrack->clips().first().keyframes
                     .hasTrack(QStringLiteral("scaleX"))
             && !projectTimeline->undoManager()->canUndo();
@@ -2642,7 +2642,7 @@ int runMcpSelftest()
         const bool g136 = toolResult(invalidRelinkResponse)
                                 .value(QStringLiteral("isError")).toBool(false)
             && toolErrorText(invalidRelinkResponse).contains(
-                   QStringLiteral("ファイルが見つかりません"))
+                   QStringLiteral("File not found"))
             && relinkVideoTrack->clips().first().filePath == relinkNewPath
             && relinkAudioTrack->clips().first().filePath == relinkNewPath;
         g136 ? pass("G136 relink_media rejects a missing destination")
@@ -2897,7 +2897,7 @@ int runMcpSelftest()
         const bool g131 = toolResult(missingReplaceResponse)
                                 .value(QStringLiteral("isError")).toBool(false)
             && toolErrorText(missingReplaceResponse).contains(
-                   QStringLiteral("ファイルが見つかりません"))
+                   QStringLiteral("File not found"))
             && replaceVideoTrack->clips().first().filePath
                    == replacementMediaPath
             && replaceAudioTrack->clips().first().filePath
@@ -3155,7 +3155,7 @@ int runMcpSelftest()
         const auto ignored = toolPayload(callProjectInfoTool(352, QStringLiteral("set_transition"), args));
         const auto ignoredEdge = getEdge();
         const bool g151 = ignored.value("ok").toBool()
-            && ignored.value("warning").toString() == QStringLiteral("この type ではソフトネスは無視されます")
+            && ignored.value("warning").toString() == QStringLiteral("Softness is ignored for this type")
             && ignoredEdge.value("softness").toDouble(-1.0) == 0.0
             && ignoredEdge.value("borderWidth").toDouble(-1.0) == 0.0
             && ignoredEdge.value("borderColor").toString() == QStringLiteral("#ffffff")
@@ -3686,7 +3686,7 @@ int runMcpSelftest()
             && toolResult(nestedWriteResponse).value(QStringLiteral("isError"))
                    .toBool(false)
             && toolErrorText(nestedWriteResponse)
-                   .contains(QStringLiteral("別の操作を実行中"))
+                   .contains(QStringLiteral("Another operation is in progress"))
             && !toolResult(readDuringWriteResponse).value(QStringLiteral("isError"))
                    .toBool(true)
             && toolPayload(writeAfterReleaseResponse)
@@ -3701,7 +3701,7 @@ int runMcpSelftest()
             .value(QStringLiteral("commands")).toArray();
         QAction *undoAction = nullptr;
         for (QAction *action : projectInfoWindow.findChildren<QAction*>()) {
-            if (action && action->text() == QStringLiteral("元に戻す(&U)")) {
+            if (action && action->text() == QStringLiteral("Undo(&U)")) {
                 undoAction = action;
                 break;
             }
@@ -3710,7 +3710,7 @@ int runMcpSelftest()
         for (const QJsonValue &value : undoCommands) {
             const QJsonObject command = value.toObject();
             if (command.value(QStringLiteral("label")).toString()
-                    == QStringLiteral("元に戻す(&U)")) {
+                    == QStringLiteral("Undo(&U)")) {
                 undoCommandId = command.value(QStringLiteral("id")).toString();
                 break;
             }
@@ -3744,7 +3744,7 @@ int runMcpSelftest()
             && toolResult(nestedRunCommandResponse)
                    .value(QStringLiteral("isError")).toBool(false)
             && toolErrorText(nestedRunCommandResponse)
-                   .contains(QStringLiteral("別の操作を実行中"));
+                   .contains(QStringLiteral("Another operation is in progress"));
         g63 ? pass("G63 run_command nests through the guard")
             : fail("G63 run_command nests through the guard",
                    QStringLiteral("run_command did not reject a nested write through the guard"));
@@ -4409,7 +4409,7 @@ int runMcpSelftest()
         {
             const QJsonObject aboutList = toolPayload(callProjectInfoTool(
                 113, QStringLiteral("list_commands"),
-                QJsonObject{{QStringLiteral("query"), QStringLiteral("バージョン情報")}}));
+                QJsonObject{{QStringLiteral("query"), QStringLiteral("Version info")}}));
             const QJsonArray aboutCommands = aboutList.value(QStringLiteral("commands")).toArray();
             bool aboutBlocking = !aboutCommands.isEmpty();
             for (const QJsonValue& value : aboutCommands) {
@@ -4454,7 +4454,7 @@ int runMcpSelftest()
                 importRejected = toolResult(rejected).value(QStringLiteral("isError")).toBool(false)
                     && toolResult(rejected).value(QStringLiteral("content")).toArray()
                            .first().toObject().value(QStringLiteral("text")).toString()
-                           .contains(QStringLiteral("開けません"))
+                           .contains(QStringLiteral("Cannot open"))
                     && captionVideo0->clipCount() == videoBefore
                     && !projectTimeline->canUndo();
             }
@@ -4482,7 +4482,7 @@ int runMcpSelftest()
             const bool g105 = toolResult(emptyExport).value(QStringLiteral("isError")).toBool(false)
                 && toolResult(emptyExport).value(QStringLiteral("content")).toArray()
                        .first().toObject().value(QStringLiteral("text")).toString()
-                       .contains(QStringLiteral("空"))
+                       .contains(QStringLiteral("Empty"))
                 && !QFileInfo::exists(exportArgsPath);
             g105 ? pass("G105 export_video rejects an empty timeline")
                  : fail("G105 export_video rejects an empty timeline",
@@ -4606,12 +4606,12 @@ int runMcpSelftest()
                 }
                 return nullptr;
             };
-            QAction *mcpToggle = actionByText(QStringLiteral("MCP サーバを有効にする"));
-            QAction *aiChatAction = actionByText(QStringLiteral("AI チャット"));
+            QAction *mcpToggle = actionByText(QStringLiteral("Enable MCP Server"));
+            QAction *aiChatAction = actionByText(QStringLiteral("AI Chat"));
             auto *assistantButton = projectInfoWindow.findChild<QToolButton *>(
                 QStringLiteral("LlmAssistantButton"));
             const bool buttonPresent = assistantButton
-                && assistantButton->text() == QStringLiteral("LLM に指示を出す")
+                && assistantButton->text() == QStringLiteral("Instruct LLM")
                 && assistantButton->parentWidget() == projectInfoWindow.statusBar()
                 && !assistantButton->isHidden();
             bool assistantOpened = false;
@@ -4633,7 +4633,7 @@ int runMcpSelftest()
                  : fail("G109 status bar LLM button starts the MCP server and opens the AI chat",
                         QStringLiteral("present=%1 opened=%2").arg(buttonPresent).arg(assistantOpened));
 
-            QAction *toggle = actionByText(QStringLiteral("「LLM に指示を出す」ボタンを表示"));
+            QAction *toggle = actionByText(QStringLiteral("Show \"Instruct LLM\" Button"));
             bool toggleWorks = toggle && toggle->isCheckable() && toggle->isChecked()
                 && assistantButton && !assistantButton->isHidden();
             if (toggleWorks) {
@@ -4660,9 +4660,9 @@ int runMcpSelftest()
                 auto *server = projectInfoWindow.findChild<mcp::McpHttpServer *>();
                 const bool stoppedShown = connectionLabel && connectButton
                     && !(server && server->isRunning())
-                    && connectionLabel->text().contains(QStringLiteral("停止中"))
+                    && connectionLabel->text().contains(QStringLiteral("Stopped"))
                     && connectionLabel->text().contains(QStringLiteral("CLI"))
-                    && connectButton->text() == QStringLiteral("接続");
+                    && connectButton->text() == QStringLiteral("Connect");
                 bool connected = false;
                 bool disconnected = false;
                 if (stoppedShown) {
@@ -4670,12 +4670,12 @@ int runMcpSelftest()
                     server = projectInfoWindow.findChild<mcp::McpHttpServer *>();
                     connected = server && server->isRunning()
                         && connectionLabel->text().contains(QString::number(server->port()))
-                        && connectButton->text() == QStringLiteral("切断")
+                        && connectButton->text() == QStringLiteral("Disconnect")
                         && mcpToggle && mcpToggle->isChecked();
                     connectButton->click();
                     disconnected = !(server && server->isRunning())
-                        && connectionLabel->text().contains(QStringLiteral("停止中"))
-                        && connectButton->text() == QStringLiteral("接続")
+                        && connectionLabel->text().contains(QStringLiteral("Stopped"))
+                        && connectButton->text() == QStringLiteral("Connect")
                         && mcpToggle && !mcpToggle->isChecked();
                 }
                 if (aiChatAction)
@@ -4758,10 +4758,10 @@ int runMcpSelftest()
             blockingId = id;
         if (risk == QStringLiteral("quit"))
             quitId = id;
-        if (label.startsWith(QStringLiteral("終了")))
+        if (label.startsWith(QStringLiteral("End")))
             exitIsQuit = risk == QStringLiteral("quit");
         if (command.value(QStringLiteral("menuPath")).toString()
-                == QStringLiteral("検索")
+                == QStringLiteral("Search")
             && id.startsWith(QStringLiteral("search."))) {
             searchMenuCommandFound = true;
         }
@@ -4814,7 +4814,7 @@ int runMcpSelftest()
     const bool g40 = !quitId.isEmpty()
         && quitResult.value(QStringLiteral("isError")).toBool(false)
         && quitErrorText
-               == QStringLiteral("このコマンドはエディタを終了させるため MCP からは実行できません。");
+               == QStringLiteral("This command quits the editor and cannot be run via MCP.");
     g40 ? pass("G40 quit command is always rejected")
         : fail("G40 quit command is always rejected",
                QStringLiteral("quit was accepted with allowBlocking"));
@@ -4822,7 +4822,7 @@ int runMcpSelftest()
     const bool g41 = searchMenuCommandFound;
     g41 ? pass("G41 search menu command is listed")
         : fail("G41 search menu command is listed",
-               QStringLiteral("the 検索 menu command was not returned by list_commands"));
+               QStringLiteral("the search menu command was not returned by list_commands"));
 
     const QHash<QString, QJsonObject> nullWindowWriteArguments{
         {QStringLiteral("split_clip"), QJsonObject{
@@ -4928,7 +4928,7 @@ int runMcpSelftest()
         projectTimeline->restoreFromProject(QVector<QVector<ClipInfo>>{{original}},
             QVector<QVector<ClipInfo>>{}, 0, -1, -1, 10);
         projectTimeline->undoManager()->clear();
-        projectTimeline->saveUndoState(QStringLiteral("MCP焼き込み初期状態"));
+        projectTimeline->saveUndoState(QStringLiteral("MCP bake initial state"));
         const QSize size(640, 360);
         const QImage before = tlrender::renderFrameAt(projectTimeline, 500000, size);
         // Same independent queue control as render-in-place G1, at the MCP
@@ -4956,7 +4956,7 @@ int runMcpSelftest()
         bool controlOk = false;
         QString controlError;
         if (controlOutput.isValid() && !nativeSize.isEmpty() && controlFps > 0.0 && silent.save(silentPath)) {
-            RenderPreset preset{QStringLiteral("対照書き出し"), nativeSize.width(), nativeSize.height(),
+            RenderPreset preset{QStringLiteral("Reference Export"), nativeSize.width(), nativeSize.height(),
                 QStringLiteral("h264"), 100000000, QStringLiteral("mp4")};
             RenderJob job = RenderQueue::jobFromPreset(preset, controlPath, 0, 1000000);
             job.uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
@@ -5062,7 +5062,7 @@ int runMcpSelftest()
             && undone.value(QStringLiteral("filePath")).toString() == original.filePath
             && undone.value(QStringLiteral("effects")) == restored.value(QStringLiteral("effects"));
         g153 ? pass("G153 decompose and undo restore media and effects")
-             : fail("G153 decompose and undo restore media and effects", QStringLiteral("復元または取り消しに失敗"));
+             : fail("G153 decompose and undo restore media and effects", QStringLiteral("Restore or undo failed"));
         projectTimeline->restoreState(savedState);
         if (g152 && rendered.value(QStringLiteral("ok")).toBool() && path != original.filePath)
             QFile::remove(path);

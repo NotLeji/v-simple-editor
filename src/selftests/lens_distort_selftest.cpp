@@ -144,8 +144,8 @@ int runLensDistortSelftest()
         && warped.pixelColor(int(std::round(expectedX)), 199).green() > 200);
 
     bool roundTrip = true;
-    const QStringList names{QStringLiteral("GoPro 広角"), QStringLiteral("DJI"),
-                            QStringLiteral("一眼 24mm")};
+    const QStringList names{QStringLiteral("GoPro Wide"), QStringLiteral("DJI"),
+                            QStringLiteral("DSLR 24mm")};
     const double expectedK1[] = {-0.30, -0.18, -0.08};
     const double expectedK2[] = {0.08, 0.04, 0.01};
     for (int i = 0; i < names.size(); ++i) {

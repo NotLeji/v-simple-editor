@@ -11,7 +11,7 @@ namespace { constexpr double pi = 3.14159265358979323846; }
 HueSatWarpWidget::HueSatWarpWidget(QWidget *parent) : QWidget(parent)
 {
     setMinimumSize(240, 240);
-    setToolTip(tr("ノードをドラッグして色相・彩度を調整。ダブルクリックでノードをリセット。"));
+    setToolTip(tr("Drag nodes to adjust hue/saturation. Double-click a node to reset it."));
 }
 void HueSatWarpWidget::setValue(const HueSatWarp &value) { m_value = value; update(); }
 double HueSatWarpWidget::baseRadius(int ring) const
@@ -95,7 +95,7 @@ void HueSatWarpWidget::mouseDoubleClickEvent(QMouseEvent *event)
 void HueSatWarpWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
-    QAction *reset=menu.addAction(tr("すべてリセット"));
+    QAction *reset=menu.addAction(tr("Reset All"));
     if (menu.exec(event->globalPos())==reset) {
         m_value=HueSatWarp{}; update(); emit valueChanged(); emit editingFinished();
     }

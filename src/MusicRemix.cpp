@@ -79,37 +79,37 @@ Plan planRemix(const QVector<double> &beatTimes,
     plan.crossfadeSec = config.crossfadeSec;
 
     if (beatTimes.size() < 2) {
-        plan.error = QStringLiteral("ビート境界が 2 個未満です");
+        plan.error = QStringLiteral("Fewer than 2 beat boundaries");
         return plan;
     }
     if (!std::isfinite(clipDuration) || clipDuration <= 0.0) {
-        plan.error = QStringLiteral("クリップ尺が不正です");
+        plan.error = QStringLiteral("Invalid clip duration");
         return plan;
     }
     if (!std::isfinite(targetDuration) || targetDuration <= 0.0) {
-        plan.error = QStringLiteral("目標尺は 0 より大きい有限値で指定してください");
+        plan.error = QStringLiteral("Target duration must be a finite value greater than 0");
         return plan;
     }
     if (targetDuration > kMaxTargetSec) {
-        plan.error = QStringLiteral("目標尺が上限を超えています");
+        plan.error = QStringLiteral("Target duration exceeds the maximum");
         return plan;
     }
     if (!std::isfinite(plan.crossfadeSec) || plan.crossfadeSec < 0.0) {
-        plan.error = QStringLiteral("クロスフェード時間が不正です");
+        plan.error = QStringLiteral("Crossfade duration is invalid");
         return plan;
     }
 
     const QVector<double> normalizedBeats =
         normalizedBeatTimes(beatTimes, clipDuration);
     if (normalizedBeats.size() < 2) {
-        plan.error = QStringLiteral("有効なビート境界が 2 個未満です");
+        plan.error = QStringLiteral("Fewer than 2 valid beat boundaries");
         return plan;
     }
     const QVector<double> boundaries =
         boundariesFromBeats(normalizedBeats, clipDuration);
     const QVector<Interval> intervals = makeIntervals(boundaries);
     if (intervals.isEmpty()) {
-        plan.error = QStringLiteral("クリップのビート区間を作成できません");
+        plan.error = QStringLiteral("Could not create beat sections for the clip");
         return plan;
     }
 
@@ -147,7 +147,7 @@ Plan planRemix(const QVector<double> &beatTimes,
         while (remainingToAdd > kEpsilon) {
             if (intervals.size() + repeatedIntervals.size()
                 >= kMaxSegments) {
-                plan.error = QStringLiteral("リミックス区間数が上限 (%1) を超えます")
+                plan.error = QStringLiteral("Remix segment count exceeds the limit (%1)")
                                  .arg(kMaxSegments);
                 return plan;
             }
@@ -181,7 +181,7 @@ Plan planRemix(const QVector<double> &beatTimes,
     }
 
     if (selectedIntervals.size() > kMaxSegments) {
-        plan.error = QStringLiteral("リミックス区間数が上限 (%1) を超えます")
+        plan.error = QStringLiteral("Remix segment count exceeds the limit (%1)")
                          .arg(kMaxSegments);
         return plan;
     }
@@ -194,7 +194,7 @@ Plan planRemix(const QVector<double> &beatTimes,
     if (plan.segments.isEmpty() || plan.resultDuration <= 0.0) {
         plan.segments.clear();
         plan.resultDuration = 0.0;
-        plan.error = QStringLiteral("リミックス区間を作成できません");
+        plan.error = QStringLiteral("Could not create remix sections");
         return plan;
     }
 
@@ -207,7 +207,7 @@ Plan planRemix(const QVector<double> &beatTimes,
         plan.segments.clear();
         plan.resultDuration = 0.0;
         plan.error = QStringLiteral(
-                         "目標尺 %1 秒はビート境界で実現できません (到達可能: %2 秒)")
+                         "Target duration of %1 s is not achievable with beat boundaries (reachable: %2 s)")
                          .arg(targetDuration, 0, 'f', 3)
                          .arg(reachableDuration, 0, 'f', 3);
         return plan;

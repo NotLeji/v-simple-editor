@@ -549,17 +549,17 @@ void VideoStabilizer::stabilize(const QString &inputPath, const QString &outputP
             QFile::remove(outputPath);
             const auto err = s_lastDeshakeError;
             if (m_cancelled) {
-                emit stabilizeComplete(false, tr("スタビライズを中断しました"));
+                emit stabilizeComplete(false, tr("Stabilization was interrupted"));
             } else if (err.has_value()) {
                 emit stabilizeComplete(false,
-                    tr("スタビライズに失敗しました: %1").arg(QString::fromStdString(*err)));
+                    tr("Stabilization failed: %1").arg(QString::fromStdString(*err)));
             } else {
-                emit stabilizeComplete(false, tr("スタビライズに失敗しました: %1").arg(tr("不明なエラー")));
+                emit stabilizeComplete(false, tr("Stabilization failed: %1").arg(tr("Unknown error")));
             }
             return;
         }
 
-        emit stabilizeComplete(true, tr("スタビライズが完了しました"));
+        emit stabilizeComplete(true, tr("Stabilization completed"));
     });
 
     connect(thread, &QThread::finished, thread, &QThread::deleteLater);

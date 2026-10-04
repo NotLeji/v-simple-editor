@@ -16,7 +16,7 @@
 ProxyManagementDialog::ProxyManagementDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("プロキシ管理"));
+    setWindowTitle(QStringLiteral("Proxy Management"));
     resize(800, 500);
 
     auto *layout = new QVBoxLayout(this);
@@ -24,13 +24,13 @@ ProxyManagementDialog::ProxyManagementDialog(QWidget *parent)
     m_table = new QTableWidget(this);
     m_table->setColumnCount(7);
     m_table->setHorizontalHeaderLabels({
-        QStringLiteral("クリップ名"),
-        QStringLiteral("元ファイル"),
-        QStringLiteral("Proxy パス"),
-        QStringLiteral("サイズ"),
-        QStringLiteral("ステータス"),
-        QStringLiteral("削除"),
-        QStringLiteral("再生成"),
+        QStringLiteral("Clip Name"),
+        QStringLiteral("Source File"),
+        QStringLiteral("Proxy Path"),
+        QStringLiteral("Size"),
+        QStringLiteral("Status"),
+        QStringLiteral("Delete"),
+        QStringLiteral("Regenerate"),
     });
     m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     m_table->horizontalHeader()->setStretchLastSection(false);
@@ -43,7 +43,7 @@ ProxyManagementDialog::ProxyManagementDialog(QWidget *parent)
     m_totalSizeLabel = new QLabel(this);
     bottomRow->addWidget(m_totalSizeLabel);
     bottomRow->addStretch(1);
-    auto *deleteAllBtn = new QPushButton(QStringLiteral("全削除"), this);
+    auto *deleteAllBtn = new QPushButton(QStringLiteral("Delete All"), this);
     bottomRow->addWidget(deleteAllBtn);
     layout->addLayout(bottomRow);
 
@@ -54,8 +54,8 @@ ProxyManagementDialog::ProxyManagementDialog(QWidget *parent)
     connect(deleteAllBtn, &QPushButton::clicked, this, [this]() {
         const auto reply = QMessageBox::question(
             this,
-            QStringLiteral("プロキシ管理"),
-            QStringLiteral("全てのプロキシを削除しますか? この操作は取り消せません。"),
+            QStringLiteral("Proxy Management"),
+            QStringLiteral("Delete all proxies? This action cannot be undone."),
             QMessageBox::Yes | QMessageBox::No,
             QMessageBox::No);
         if (reply != QMessageBox::Yes)
@@ -121,7 +121,7 @@ void ProxyManagementDialog::refreshTable()
         }
         m_table->setItem(row, 4, statusItem);
 
-        auto *delBtn = new QPushButton(QStringLiteral("削除"), m_table);
+        auto *delBtn = new QPushButton(QStringLiteral("Delete"), m_table);
         // Capture origPath by value so the lambda survives table rebuild.
         connect(delBtn, &QPushButton::clicked, this, [this, origPath]() {
             ProxyManager::instance().deleteProxy(origPath);
@@ -132,20 +132,20 @@ void ProxyManagementDialog::refreshTable()
         // file orphaned on disk. Use the cancel dialog to abort instead.
         if (entry.status == ProxyStatus::Generating) {
             delBtn->setEnabled(false);
-            delBtn->setToolTip(QStringLiteral("生成中はキャンセルダイアログから停止してください"));
+            delBtn->setToolTip(QStringLiteral("To stop, use the cancel dialog while generating"));
         }
         m_table->setCellWidget(row, 5, delBtn);
 
-        auto *regenBtn = new QPushButton(QStringLiteral("再生成"), m_table);
+        auto *regenBtn = new QPushButton(QStringLiteral("Regenerate"), m_table);
         const bool regenAllowed = stale || entry.status == ProxyStatus::Stale
                                   || entry.status == ProxyStatus::Error
                                   || entry.status == ProxyStatus::None;
         if (!regenAllowed) {
             regenBtn->setEnabled(false);
-            regenBtn->setToolTip(QStringLiteral("現状のプロキシは最新です"));
+            regenBtn->setToolTip(QStringLiteral("Proxies are up to date"));
         } else if (entry.status == ProxyStatus::Generating) {
             regenBtn->setEnabled(false);
-            regenBtn->setToolTip(QStringLiteral("生成中"));
+            regenBtn->setToolTip(QStringLiteral("Generating..."));
         }
         connect(regenBtn, &QPushButton::clicked, this, [this, origPath]() {
             // generateProxy is a no-op when status is already Generating or
@@ -160,6 +160,6 @@ void ProxyManagementDialog::refreshTable()
     }
 
     m_table->resizeColumnsToContents();
-    m_totalSizeLabel->setText(QStringLiteral("合計サイズ: %1 MB")
+    m_totalSizeLabel->setText(QStringLiteral("Total size: %1 MB")
         .arg(QString::number(totalReadyBytes / (1024.0 * 1024.0), 'f', 1)));
 }

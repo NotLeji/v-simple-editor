@@ -75,9 +75,9 @@ const QStringList &interpNames()
         QStringLiteral("EaseInOut"),
         QStringLiteral("Hold"),
         QStringLiteral("Bezier"),
-        QStringLiteral("エラスティック"),
-        QStringLiteral("バウンス"),
-        QStringLiteral("バック(オーバーシュート)")
+        QStringLiteral("Elastic"),
+        QStringLiteral("Bounce"),
+        QStringLiteral("Back (Overshoot)")
     };
     return kInterp;
 }
@@ -104,7 +104,7 @@ enum PresetIndex {
 CameraMotionDialog::CameraMotionDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("カメラモーション設定"));
+    setWindowTitle(QStringLiteral("Camera motion settings"));
     buildUi();
     refreshFromCamera();   // initialise widgets from default Camera3D
 }
@@ -175,22 +175,22 @@ void CameraMotionDialog::buildUi()
     // ---- Preset combo ----
     {
         auto *row = new QHBoxLayout;
-        row->addWidget(new QLabel(QStringLiteral("プリセット:")));
+        row->addWidget(new QLabel(QStringLiteral("Preset:")));
         m_presetCombo = new QComboBox(this);
-        m_presetCombo->addItem(QStringLiteral("なし"));
-        m_presetCombo->addItem(QStringLiteral("ドリーズーム"));
-        m_presetCombo->addItem(QStringLiteral("パン"));
-        m_presetCombo->addItem(QStringLiteral("オービット"));
-        m_presetCombo->addItem(QStringLiteral("手持ち"));
-        m_presetCombo->addItem(QStringLiteral("地震"));
-        m_presetCombo->addItem(QStringLiteral("微ドリフト"));
+        m_presetCombo->addItem(QStringLiteral("None"));
+        m_presetCombo->addItem(QStringLiteral("Dolly zoom"));
+        m_presetCombo->addItem(QStringLiteral("Pan"));
+        m_presetCombo->addItem(QStringLiteral("Orbit"));
+        m_presetCombo->addItem(QStringLiteral("Handheld"));
+        m_presetCombo->addItem(QStringLiteral("Earthquake"));
+        m_presetCombo->addItem(QStringLiteral("Subtle drift"));
         row->addWidget(m_presetCombo);
         row->addStretch();
         mainLayout->addLayout(row);
     }
 
     // ---- Base camera group ----
-    m_baseCameraGroup = new QGroupBox(QStringLiteral("基本カメラ"), this);
+    m_baseCameraGroup = new QGroupBox(QStringLiteral("Base camera"), this);
     {
         auto *fl = new QFormLayout(m_baseCameraGroup);
 
@@ -212,31 +212,31 @@ void CameraMotionDialog::buildUi()
         m_fov  = makeSpinBox(10.0, 170.0, 1.0, 60.0);
         m_roll = makeSpinBox(-360.0, 360.0, 1.0, 0.0);
 
-        fl->addRow(QStringLiteral("位置 X"), m_posX);
-        fl->addRow(QStringLiteral("位置 Y"), m_posY);
-        fl->addRow(QStringLiteral("位置 Z"), m_posZ);
-        fl->addRow(QStringLiteral("ターゲット X"), m_tgtX);
-        fl->addRow(QStringLiteral("ターゲット Y"), m_tgtY);
-        fl->addRow(QStringLiteral("ターゲット Z"), m_tgtZ);
-        fl->addRow(QStringLiteral("焦点距離 (px)"), m_fov);
-        fl->addRow(QStringLiteral("ロール (度)"), m_roll);
+        fl->addRow(QStringLiteral("Position X"), m_posX);
+        fl->addRow(QStringLiteral("Position Y"), m_posY);
+        fl->addRow(QStringLiteral("Position Z"), m_posZ);
+        fl->addRow(QStringLiteral("Target X"), m_tgtX);
+        fl->addRow(QStringLiteral("Target Y"), m_tgtY);
+        fl->addRow(QStringLiteral("Target Z"), m_tgtZ);
+        fl->addRow(QStringLiteral("Focal length (px)"), m_fov);
+        fl->addRow(QStringLiteral("Roll (deg)"), m_roll);
         m_trueProjection = new QCheckBox(
-            QStringLiteral("真の透視投影 (回転・注視点・ロールを反映)"), m_baseCameraGroup);
+            QStringLiteral("True perspective projection (applies rotation, look-at, and roll)"), m_baseCameraGroup);
         fl->addRow(m_trueProjection);
     }
     mainLayout->addWidget(m_baseCameraGroup);
 
     // ---- Keyframes group ----
-    m_kfGroup = new QGroupBox(QStringLiteral("キーフレーム"), this);
+    m_kfGroup = new QGroupBox(QStringLiteral("Keyframes"), this);
     {
         auto *vl = new QVBoxLayout(m_kfGroup);
 
         m_kfTable = new QTableWidget(0, 4, this);
         m_kfTable->setHorizontalHeaderLabels({
-            QStringLiteral("時刻(s)"),
-            QStringLiteral("プロパティ"),
-            QStringLiteral("値"),
-            QStringLiteral("補間")
+            QStringLiteral("Time (s)"),
+            QStringLiteral("Property"),
+            QStringLiteral("Value"),
+            QStringLiteral("Interpolation")
         });
         m_kfTable->horizontalHeader()->setStretchLastSection(true);
         m_kfTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -244,8 +244,8 @@ void CameraMotionDialog::buildUi()
         vl->addWidget(m_kfTable);
 
         auto *btnRow = new QHBoxLayout;
-        m_addKfBtn    = new QPushButton(QStringLiteral("追加"), this);
-        m_removeKfBtn = new QPushButton(QStringLiteral("削除"), this);
+        m_addKfBtn    = new QPushButton(QStringLiteral("Add"), this);
+        m_removeKfBtn = new QPushButton(QStringLiteral("Delete"), this);
         btnRow->addWidget(m_addKfBtn);
         btnRow->addWidget(m_removeKfBtn);
         btnRow->addStretch();
@@ -254,11 +254,11 @@ void CameraMotionDialog::buildUi()
     mainLayout->addWidget(m_kfGroup);
 
     // ---- Shake group ----
-    m_shakeGroup = new QGroupBox(QStringLiteral("シェイク"), this);
+    m_shakeGroup = new QGroupBox(QStringLiteral("Shake"), this);
     {
         auto *fl = new QFormLayout(m_shakeGroup);
 
-        m_shakeEnabled = new QCheckBox(QStringLiteral("有効"), this);
+        m_shakeEnabled = new QCheckBox(QStringLiteral("Enabled"), this);
         fl->addRow(m_shakeEnabled);
 
         auto makeD = [this](double min, double max, double step, double def) {
@@ -281,19 +281,19 @@ void CameraMotionDialog::buildUi()
         m_shakeSeed->setRange(0, 2000000000);
         m_shakeSeed->setValue(1);
 
-        fl->addRow(QStringLiteral("周波数"),          m_shakeFreq);
-        fl->addRow(QStringLiteral("位置振幅 X"),      m_shakePosX);
-        fl->addRow(QStringLiteral("位置振幅 Y"),      m_shakePosY);
-        fl->addRow(QStringLiteral("位置振幅 Z"),      m_shakePosZ);
-        fl->addRow(QStringLiteral("回転振幅 (度)"),   m_shakeRotDeg);
-        fl->addRow(QStringLiteral("シード"),          m_shakeSeed);
-        fl->addRow(QStringLiteral("スムーズネス"),    m_shakeSmooth);
+        fl->addRow(QStringLiteral("Frequency"),          m_shakeFreq);
+        fl->addRow(QStringLiteral("Position amplitude X"),      m_shakePosX);
+        fl->addRow(QStringLiteral("Position amplitude Y"),      m_shakePosY);
+        fl->addRow(QStringLiteral("Position amplitude Z"),      m_shakePosZ);
+        fl->addRow(QStringLiteral("Rotation amplitude (deg)"),   m_shakeRotDeg);
+        fl->addRow(QStringLiteral("Seed"),          m_shakeSeed);
+        fl->addRow(QStringLiteral("Smoothness"),    m_shakeSmooth);
     }
     mainLayout->addWidget(m_shakeGroup);
 
     // ---- Preview area ----
     {
-        auto *previewGroup = new QGroupBox(QStringLiteral("プレビュー"), this);
+        auto *previewGroup = new QGroupBox(QStringLiteral("Preview"), this);
         auto *pvl = new QVBoxLayout(previewGroup);
 
         m_previewLabel = new QLabel(this);
@@ -303,7 +303,7 @@ void CameraMotionDialog::buildUi()
         pvl->addWidget(m_previewLabel, 0, Qt::AlignHCenter);
 
         auto *sliderRow = new QHBoxLayout;
-        sliderRow->addWidget(new QLabel(QStringLiteral("プレビュー時刻:")));
+        sliderRow->addWidget(new QLabel(QStringLiteral("Preview Time:")));
         m_previewSlider = new QSlider(Qt::Horizontal, this);
         m_previewSlider->setRange(0, kSliderMax);
         m_previewSlider->setValue(0);

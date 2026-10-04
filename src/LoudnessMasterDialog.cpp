@@ -95,7 +95,7 @@ void LoudnessMasterDialog::onMeasureClicked()
     if (std::isnan(m_measuredLufs)) {
         m_measuredLabel->setText(tr("Measured: --- LUFS"));
         m_gainLabel->setText(
-            tr("計測不可: .raw/.pcm のみ対応 (このファイルはデコード未対応)"));
+            tr("Cannot measure: only .raw/.pcm supported (this file cannot be decoded)"));
         return;
     }
 
@@ -122,7 +122,7 @@ void LoudnessMasterDialog::onPresetChanged(int index)
 
     if (std::isnan(m_measuredLufs)) {
         m_gainLabel->setText(
-            tr("計測不可: .raw/.pcm のみ対応 (このファイルはデコード未対応)"));
+            tr("Cannot measure: only .raw/.pcm supported (this file cannot be decoded)"));
         return;
     }
 

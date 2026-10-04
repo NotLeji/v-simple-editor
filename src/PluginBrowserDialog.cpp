@@ -19,15 +19,15 @@
 PluginBrowserDialog::PluginBrowserDialog(const QString& pluginRootDir, QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("プラグインブラウザ"));
+    setWindowTitle(tr("Plugin Browser"));
     resize(800, 500);
 
     // ---- top row ----
     auto* topLayout = new QHBoxLayout;
-    auto* dirLabel  = new QLabel(tr("プラグインフォルダ:"), this);
+    auto* dirLabel  = new QLabel(tr("Plugin folder:"), this);
     m_dirEdit       = new QLineEdit(pluginRootDir, this);
-    m_browseBtn     = new QPushButton(tr("参照..."), this);
-    m_rescanBtn     = new QPushButton(tr("再スキャン"), this);
+    m_browseBtn     = new QPushButton(tr("Browse..."), this);
+    m_rescanBtn     = new QPushButton(tr("Rescan"), this);
     topLayout->addWidget(dirLabel);
     topLayout->addWidget(m_dirEdit, 1);
     topLayout->addWidget(m_browseBtn);
@@ -42,7 +42,7 @@ PluginBrowserDialog::PluginBrowserDialog(const QString& pluginRootDir, QWidget* 
 
     m_detailEdit = new QTextEdit(this);
     m_detailEdit->setReadOnly(true);
-    m_detailEdit->setPlaceholderText(tr("プラグインを選択すると manifest JSON が表示されます"));
+    m_detailEdit->setPlaceholderText(tr("Select a plugin to view its manifest JSON"));
 
     auto* splitter = new QSplitter(Qt::Horizontal, this);
     splitter->addWidget(m_tree);
@@ -51,11 +51,11 @@ PluginBrowserDialog::PluginBrowserDialog(const QString& pluginRootDir, QWidget* 
     splitter->setStretchFactor(1, 1);
 
     // ---- bottom row ----
-    m_runBtn = new QPushButton(tr("プラグイン実行"), this);
+    m_runBtn = new QPushButton(tr("Run Plugin"), this);
     m_runBtn->setEnabled(false);
-    m_runBtn->setToolTip(tr("次の Sprint で対応"));
+    m_runBtn->setToolTip(tr("Planned for a future sprint"));
 
-    m_closeBtn = new QPushButton(tr("閉じる"), this);
+    m_closeBtn = new QPushButton(tr("Close"), this);
 
     auto* bottomLayout = new QHBoxLayout;
     bottomLayout->addWidget(m_runBtn);
@@ -95,7 +95,7 @@ QString PluginBrowserDialog::currentPluginManifestPath() const
 void PluginBrowserDialog::onBrowseDir()
 {
     QString dir = QFileDialog::getExistingDirectory(
-        this, tr("プラグインフォルダ"), m_dirEdit->text());
+        this, tr("Plugin Folder"), m_dirEdit->text());
     if (!dir.isEmpty()) {
         m_dirEdit->setText(dir);
         rescan();

@@ -64,13 +64,13 @@ RecognizeResult StubRecognizer::recognize(const RecognizeParams& params)
     Segment s1;
     s1.startMs = 0;
     s1.endMs = 2000;
-    s1.text = QStringLiteral("これは Stub 認識結果のサンプル 1 です。");
+    s1.text = QStringLiteral("This is stub recognition sample 1.");
     s1.confidence = 0.9;
 
     Segment s2;
     s2.startMs = 2000;
     s2.endMs = 4000;
-    s2.text = QStringLiteral("Stub 認識結果のサンプル 2。実 ASR エンジン未統合。");
+    s2.text = QStringLiteral("Stub recognition sample 2. No real ASR engine integrated.");
     s2.confidence = 0.85;
 
     Segment s3;

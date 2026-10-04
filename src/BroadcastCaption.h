@@ -4,7 +4,7 @@
 // SCC (Scenarist Closed Caption) サイドカー生成を担う純粋エンジン (CC-1)。
 //
 // 既存の字幕系 (src/SubtitleIO.h の SRT/VTT、CaptionTrack の焼き込み、字幕翻訳) は
-// "見える字幕" 止まりで、放送規格の CC データ (CEA-608 line-21 / CEA-708 DTVCC) を
+// "visible subtitles" 止まりで、放送規格の CC データ (CEA-608 line-21 / CEA-708 DTVCC) を
 // 持たなかった。放送局・配信プラットフォームへの納品では SCC サイドカーや 608/708
 // バイトストリームが要求されるため、本エンジンでそのロウレベル生成を提供する。
 //

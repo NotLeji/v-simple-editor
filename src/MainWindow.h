@@ -655,7 +655,7 @@ private slots:
     // 連番 PNG を TimelineSequence として取り込み、新規クリップにする。
     void openObjectRemoval();
 
-    // User-customizable "お気に入り" menu — opens FavoritesEditDialog, then
+    // User-customizable "Favorite" menu — opens FavoritesEditDialog, then
     // persists the chosen action ids to QSettings and rebuilds the menu.
     void editFavorites();
     void showMcpConnectionInfo();
@@ -1031,7 +1031,7 @@ private:
     // Beginner-friendly hover help: pairs of (menu action, Japanese
     // explanation). Populated in setupMenuBar() as each action is created;
     // applied/cleared by applyMenuHelpTooltips() and toggled via the
-    // "メニューの説明を表示" preference.
+    // "Show Menu Descriptions" preference.
     QVector<QPair<QAction *, QString>> m_menuHelpEntries;
 
     // US-CP-4: コマンドパレットの id→QAction マップ。openCommandPalette() の
@@ -1039,7 +1039,7 @@ private:
     // 対応する QAction を trigger() する。
     QHash<QString, QAction *> m_commandActions;
 
-    // User-customizable "お気に入り" menu support.
+    // User-customizable "Favorite" menu support.
     // FavoritableAction::id は menuKey とメニュー内 index の文字列
     // (例: "file.0", "edit.1") で、翻訳後の表示文字列からは生成しない。
     // そのため UI 文言の変更ではお気に入り設定を維持できるが、メニュー途中への

@@ -14,12 +14,12 @@
 BroadcastCaptionDialog::BroadcastCaptionDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("放送用クローズドキャプション (CEA-608/708)"));
+    setWindowTitle(QStringLiteral("Broadcast closed captions (CEA-608/708)"));
 
     auto *rootLayout = new QVBoxLayout(this);
 
     // --- 規格 / チャンネル / フレームレート ---
-    auto *headerGroup = new QGroupBox(QStringLiteral("規格設定"), this);
+    auto *headerGroup = new QGroupBox(QStringLiteral("Standard settings"), this);
     auto *headerForm = new QFormLayout(headerGroup);
 
     m_standardCombo = new QComboBox(headerGroup);
@@ -40,25 +40,25 @@ BroadcastCaptionDialog::BroadcastCaptionDialog(QWidget *parent)
     m_frameRateCombo->addItem(QStringLiteral("30 fps"),     30.0);
     m_frameRateCombo->addItem(QStringLiteral("59.94 fps (drop-frame)"), 59.94);
 
-    headerForm->addRow(QStringLiteral("規格"),           m_standardCombo);
-    headerForm->addRow(QStringLiteral("CC チャンネル"),  m_channelSpin);
-    headerForm->addRow(QStringLiteral("フレームレート"), m_frameRateCombo);
+    headerForm->addRow(QStringLiteral("Standard"),           m_standardCombo);
+    headerForm->addRow(QStringLiteral("CC channel"),  m_channelSpin);
+    headerForm->addRow(QStringLiteral("Frame rate"), m_frameRateCombo);
     rootLayout->addWidget(headerGroup);
 
     // --- 取り込み済み字幕 cue の状況 ---
-    auto *cueGroup = new QGroupBox(QStringLiteral("字幕 cue"), this);
+    auto *cueGroup = new QGroupBox(QStringLiteral("Subtitle cues"), this);
     auto *cueForm = new QFormLayout(cueGroup);
 
     m_cueCountLabel = new QLabel(cueGroup);
 
-    cueForm->addRow(QStringLiteral("cue 数"), m_cueCountLabel);
+    cueForm->addRow(QStringLiteral("Cue count"), m_cueCountLabel);
     rootLayout->addWidget(cueGroup);
 
     // --- SCC エクスポート + OK / キャンセル ---
     auto *buttonBox = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     auto *exportButton = buttonBox->addButton(
-        QStringLiteral("SCC をエクスポート..."), QDialogButtonBox::ActionRole);
+        QStringLiteral("Export SCC..."), QDialogButtonBox::ActionRole);
     rootLayout->addWidget(buttonBox);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);

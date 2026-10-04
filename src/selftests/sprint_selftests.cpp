@@ -401,11 +401,11 @@ int runShortcutSelftest()
 
         shortcut::ShortcutManager mgr;
         mgr.registerAction(&dummyA, "file.open",
-                           QStringLiteral("ファイルを開く"),
-                           QStringLiteral("ファイル"));
+                           QStringLiteral("Open File"),
+                           QStringLiteral("File"));
         mgr.registerAction(&dummyB, "file.save",
-                           QStringLiteral("保存"),
-                           QStringLiteral("ファイル"));
+                           QStringLiteral("Save"),
+                           QStringLiteral("File"));
 
         // 1. registerAction → bindings() に entry
         if (!requireSelftest(mgr.bindings().size() == 2,
@@ -1773,7 +1773,7 @@ int runMultiCamSelftest()
                     && silentReport.offsetsUs[2] == 0
                     && legacy.sources()[2].syncOffset == 0.0
                     && qAbs(legacy.sources()[1].syncOffset * 1000.0 - 250.0) <= 10.0
-                    && silentReport.message == QStringLiteral("3 本中 2 本を同期しました (音声なし 1 本)"),
+                    && silentReport.message == QStringLiteral("Synced 2 of 3 (1 without audio)"),
                 QStringLiteral("MULTICAM G10: silent WAV counted with zero offset"), &error))
             return 1;
         const auto missingReport = multicam::estimateOffsetsForFiles(

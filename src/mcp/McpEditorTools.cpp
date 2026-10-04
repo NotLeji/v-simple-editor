@@ -390,20 +390,20 @@ QJsonObject clipSelectorProperties()
             }},
             {QStringLiteral("default"), QStringLiteral("video")},
             {QStringLiteral("description"),
-             QStringLiteral("video または audio。省略時は video")}
+             QStringLiteral("video or audio. Defaults to video")}
         }},
         {QStringLiteral("trackIndex"), QJsonObject{
             {QStringLiteral("type"), QStringLiteral("integer")},
             {QStringLiteral("minimum"), 0},
             {QStringLiteral("default"), 0},
             {QStringLiteral("description"),
-             QStringLiteral("0-based のトラック番号。省略時は 0")}
+             QStringLiteral("0-based track number. Defaults to 0")}
         }},
         {QStringLiteral("clipIndex"), QJsonObject{
             {QStringLiteral("type"), QStringLiteral("integer")},
             {QStringLiteral("minimum"), 0},
             {QStringLiteral("description"),
-             QStringLiteral("トラック内の 0-based のクリップ番号。get_timeline の index に対応する。必須")}
+             QStringLiteral("0-based clip number within the track. Corresponds to get_timeline index. Required")}
         }}
     };
 }
@@ -417,13 +417,13 @@ QJsonObject trackSelectorProperties()
                 QStringLiteral("video"), QStringLiteral("audio")
             }},
             {QStringLiteral("description"),
-             QStringLiteral("video または audio")}
+             QStringLiteral("video or audio")}
         }},
         {QStringLiteral("trackIndex"), QJsonObject{
             {QStringLiteral("type"), QStringLiteral("integer")},
             {QStringLiteral("minimum"), 0},
             {QStringLiteral("description"),
-             QStringLiteral("0-based のトラック番号")}
+             QStringLiteral("0-based track number")}
         }}
     };
 }
@@ -464,7 +464,7 @@ bool finiteNumberForMcp(const QJsonObject& args, const QString& name,
 {
     const QJsonValue value = args.value(name);
     if (!value.isDouble() || !std::isfinite(value.toDouble()))
-        return setError(err, QStringLiteral("%1 は有限な数で指定してください").arg(name));
+        return setError(err, QStringLiteral("Please specify %1 as a finite number").arg(name));
     if (out)
         *out = value.toDouble();
     return true;
@@ -504,12 +504,12 @@ bool positiveInteger(const QJsonObject& args, const QString& name,
 
     const QJsonValue value = args.value(name);
     if (!value.isDouble())
-        return setError(err, QStringLiteral("%1 は正の整数で指定してください").arg(name));
+        return setError(err, QStringLiteral("Specify %1 as a positive integer").arg(name));
     const double number = value.toDouble();
     if (!std::isfinite(number) || number <= 0.0
         || std::floor(number) != number
         || number > static_cast<double>(std::numeric_limits<int>::max())) {
-        return setError(err, QStringLiteral("%1 は正の整数で指定してください").arg(name));
+        return setError(err, QStringLiteral("Specify %1 as a positive integer").arg(name));
     }
     if (out)
         *out = static_cast<int>(number);
@@ -528,7 +528,7 @@ bool positiveFiniteNumber(const QJsonObject& args, const QString& name,
     if (!finiteNumberForMcp(args, name, &number, err))
         return false;
     if (number <= 0.0)
-        return setError(err, QStringLiteral("%1 は 0 より大きい数で指定してください").arg(name));
+        return setError(err, QStringLiteral("Please specify %1 as a number greater than 0").arg(name));
     if (out)
         *out = number;
     return true;
@@ -601,11 +601,11 @@ bool readClipTarget(const QJsonObject& args, MainWindow* window,
         const int trackCount = kind == QStringLiteral("audio")
             ? currentTimeline->audioTracks().size()
             : currentTimeline->videoTracks().size();
-        return setError(err, QStringLiteral("track index is out of range (%1 トラックは %2 本: 0..%3)")
+        return setError(err, QStringLiteral("track index is out of range (%1: %2 tracks, 0..%3)")
                                  .arg(kind).arg(trackCount).arg(trackCount - 1));
     }
     if (clipIndex >= track->clipCount()) {
-        return setError(err, QStringLiteral("clip index is out of range (%1 トラック %2 のクリップは %3 個: 0..%4)")
+        return setError(err, QStringLiteral("clip index is out of range (%1 track %2 has %3 clips: 0..%4)")
                                  .arg(kind).arg(trackIndex).arg(track->clipCount())
                                  .arg(track->clipCount() - 1));
     }
@@ -647,14 +647,14 @@ bool detectMusicRemixBeats(const ClipInfo &clip, QVector<double> *beatTimes,
     int sampleRate = 0;
     if (!WaveformGenerator::decodeAudio(clip.filePath, samples, sampleRate)
         || samples.isEmpty() || sampleRate <= 0) {
-        return setError(err, QStringLiteral("音声のデコードに失敗しました。"));
+        return setError(err, QStringLiteral("Failed to decode audio."));
     }
     const double sourceOut = clip.outPoint > 0.0 ? clip.outPoint : clip.duration;
     const double totalSourceSec = static_cast<double>(samples.size()) / sampleRate;
     const double activeStart = qMax(0.0, clip.inPoint);
     const double activeEnd = qMin(sourceOut, totalSourceSec);
     if (activeEnd <= activeStart)
-        return setError(err, QStringLiteral("クリップの有効な音声範囲がありません。"));
+        return setError(err, QStringLiteral("Clip has no valid audio range."));
 
     const int sampleCount = static_cast<int>(samples.size());
     const int startSample = qBound(
@@ -665,12 +665,12 @@ bool detectMusicRemixBeats(const ClipInfo &clip, QVector<double> *beatTimes,
         samples.mid(startSample, endSample - startSample),
         sampleRate, beatdetect::Config{});
     if (detected.beatTimesSec.size() < 2)
-        return setError(err, QStringLiteral("ビートが 2 個未満のため適用できません。"));
+        return setError(err, QStringLiteral("Cannot apply: fewer than 2 beats."));
 
     const double speed = clip.speed > 0.0 ? clip.speed : 1.0;
     const double clipDuration = clip.effectiveDuration();
     if (!std::isfinite(clipDuration) || clipDuration <= 0.0)
-        return setError(err, QStringLiteral("対象クリップの尺が不正です"));
+        return setError(err, QStringLiteral("Target clip has an invalid duration"));
     QVector<double> localBeats;
     localBeats.reserve(detected.beatTimesSec.size());
     for (double beat : detected.beatTimesSec) {
@@ -681,7 +681,7 @@ bool detectMusicRemixBeats(const ClipInfo &clip, QVector<double> *beatTimes,
         }
     }
     if (localBeats.size() < 2)
-        return setError(err, QStringLiteral("ビート境界を作成できませんでした。"));
+        return setError(err, QStringLiteral("Could not create beat boundaries."));
     if (beatTimes)
         *beatTimes = localBeats;
     if (bpm)
@@ -698,7 +698,7 @@ bool analyzeDialogueClip(const ClipInfo &clip, const leveler::Config &config,
     int sampleRate = 0;
     if (!WaveformGenerator::decodeAudio(clip.filePath, samples, sampleRate)
         || samples.isEmpty() || sampleRate <= 0) {
-        return setError(err, QStringLiteral("音声のデコードに失敗しました。"));
+        return setError(err, QStringLiteral("Failed to decode audio."));
     }
 
     const double sourceOut = clip.outPoint > 0.0 ? clip.outPoint : clip.duration;
@@ -712,7 +712,7 @@ bool analyzeDialogueClip(const ClipInfo &clip, const leveler::Config &config,
         firstSample, static_cast<int>(std::ceil(activeEnd * sampleRate)),
         sampleCount);
     if (lastSample <= firstSample)
-        return setError(err, QStringLiteral("クリップの有効な音声範囲がありません。"));
+        return setError(err, QStringLiteral("Clip has no valid audio range."));
 
     QVector<float> activeSamples =
         samples.mid(firstSample, lastSample - firstSample);
@@ -721,7 +721,7 @@ bool analyzeDialogueClip(const ClipInfo &clip, const leveler::Config &config,
     leveler::Analysis computed = leveler::analyze(
         activeSamples, sampleRate, config);
     if (computed.envelope.isEmpty())
-        return setError(err, QStringLiteral("音量エンベロープを生成できませんでした。"));
+        return setError(err, QStringLiteral("Could not generate volume envelope."));
 
     const double speed = clip.speed > 0.0 ? clip.speed : 1.0;
     const double clipDuration = clip.effectiveDuration();
@@ -753,13 +753,13 @@ QJsonObject dynamicZoomRectSchema()
         {QStringLiteral("h"), QJsonObject{
             {QStringLiteral("type"), QStringLiteral("number")},
             {QStringLiteral("description"),
-             QStringLiteral("互換入力。値は無視され、可視領域はキャンバスのアスペクト比に固定される")}
+             QStringLiteral("Compatibility input. The value is ignored; the visible area is fixed to the canvas aspect ratio")}
         }}
     }, {QStringLiteral("cx"), QStringLiteral("cy"),
         QStringLiteral("w")});
     schema.insert(
         QStringLiteral("description"),
-        QStringLiteral("正規化された枠。h は省略可能で、指定しても無視されキャンバス比に固定される"));
+        QStringLiteral("Normalized frame. h is optional and ignored if specified; fixed to the canvas aspect ratio"));
     return schema;
 }
 
@@ -872,7 +872,7 @@ bool readTrackTarget(const QJsonObject& args, MainWindow* window,
         const int trackCount = trackKind == TrackKind::Audio
             ? currentTimeline->audioTrackCount()
             : currentTimeline->videoTrackCount();
-        return setError(err, QStringLiteral("track index is out of range (%1 トラックは %2 本: 0..%3)")
+        return setError(err, QStringLiteral("track index is out of range (%1: %2 tracks, 0..%3)")
                                  .arg(kind).arg(trackCount).arg(trackCount - 1));
     }
     if (out) {
@@ -1043,7 +1043,7 @@ bool McpEditorTools::beginExclusiveWrite(const QString& toolName, QString* err)
 {
     if (!m_activeWriteTool.isEmpty()) {
         return setError(err,
-                        QStringLiteral("別の操作を実行中です (%1)。完了を待ってから再試行してください。")
+                        QStringLiteral("Another operation is in progress (%1). Please wait for it to finish and try again.")
                             .arg(m_activeWriteTool));
     }
     m_activeWriteTool = toolName;
@@ -1091,7 +1091,7 @@ ToolHandler McpEditorTools::guardedWrite(const QString& toolName, ToolHandler in
                 if (job.status != RenderJobStatus::Rendering)
                     continue;
                 return setError(err,
-                                QStringLiteral("書き出し中 (jobId %1) はタイムラインを変更できません。get_export_status で done / failed になるのを待ってから再試行してください。")
+                                QStringLiteral("Cannot modify the timeline while exporting (jobId %1). Wait until get_export_status reports done / failed, then try again.")
                                     .arg(job.uuid)),
                        QJsonObject();
             }
@@ -1271,7 +1271,7 @@ QJsonObject McpEditorTools::exportStatus(const QString& jobId, QString* err)
                     result.insert(QStringLiteral("error"), observation->error);
                 else
                     result.insert(QStringLiteral("error"),
-                                  QStringLiteral("書き出しに失敗しました"));
+                                  QStringLiteral("Export failed"));
             }
             return result;
         }
@@ -1293,12 +1293,12 @@ QJsonObject McpEditorTools::exportStatus(const QString& jobId, QString* err)
             result.insert(QStringLiteral("error"), observation->error);
         } else if (observation->status == QStringLiteral("failed")) {
             result.insert(QStringLiteral("error"),
-                          QStringLiteral("書き出しに失敗しました"));
+                          QStringLiteral("Export failed"));
         }
         return result;
     }
 
-    return setError(err, QStringLiteral("不明な jobId: %1").arg(jobId)), QJsonObject();
+    return setError(err, QStringLiteral("Unknown jobId: %1").arg(jobId)), QJsonObject();
 }
 
 void McpEditorTools::registerReadTools()
@@ -1308,7 +1308,7 @@ void McpEditorTools::registerReadTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("compare_project"),
-        QStringLiteral("保存版と現在のタイムラインの映像・音声クリップとトラック設定を比較する。読み取り専用。変更前は保存版、変更後は現在。Removed の場所は保存版、それ以外は現在のクリップ番号。"),
+        QStringLiteral("Compares the saved version with the current timeline's video/audio clips and track settings. Read-only. Before = saved version, after = current. Removed items use the saved version's clip numbers; all others use the current clip numbers."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("filePath"), QJsonObject{{QStringLiteral("type"), QStringLiteral("string")}}}
         }, {QStringLiteral("filePath")}),
@@ -1318,10 +1318,10 @@ void McpEditorTools::registerReadTools()
             if (!requiredString(args, QStringLiteral("filePath"), &filePath, err)) return {};
             const Timeline *currentTimeline = timeline();
             if (!currentTimeline)
-                return setError(err, QStringLiteral("エディターを利用できません")), QJsonObject();
+                return setError(err, QStringLiteral("Editor is unavailable")), QJsonObject();
             ProjectData saved;
             if (!ProjectFile::load(filePath, saved))
-                return setError(err, QStringLiteral("プロジェクトを読み込めませんでした: %1").arg(filePath)), QJsonObject();
+                return setError(err, QStringLiteral("Could not load project: %1").arg(filePath)), QJsonObject();
             ProjectData current;
             current.videoTracks = currentTimeline->allVideoTracks();
             current.audioTracks = currentTimeline->allAudioTracks();
@@ -1366,7 +1366,7 @@ void McpEditorTools::registerReadTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("get_project_info"),
-        QStringLiteral("プロジェクトの設定、尺、再生ヘッド位置、トラック数を秒単位で返す。編集前の現状確認に使う。"),
+        QStringLiteral("Returns project settings, duration, playhead position, and track counts in seconds. Use to check the current state before editing."),
         objectSchema(),
         [this](const QJsonObject& args, QString* err) -> QJsonObject {
             if (!rejectUnknownArguments(args, {}, err))
@@ -1427,7 +1427,7 @@ void McpEditorTools::registerReadTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("get_frame"),
-        QStringLiteral("指定したタイムライン時刻の合成フレームを PNG 画像として返す。maxWidth 省略時は 640px 以下に縮小し、LLM のコンテキストを圧迫しないよう応答を 1MB 以内に抑える。"),
+        QStringLiteral("Returns the composited frame at the specified timeline time as a PNG image. If maxWidth is omitted, scales down to 640px or less and keeps the response under 1MB so it does not pressure the LLM's context."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("timeSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")}
@@ -1445,16 +1445,16 @@ void McpEditorTools::registerReadTools()
                                          QStringLiteral("maxWidth")}, err))
                 return {};
             if (!m_window || !timeline())
-                return setError(err, QStringLiteral("エディタまたはタイムラインを利用できません")),
+                return setError(err, QStringLiteral("Editor or timeline is not available")),
                        QJsonObject();
             if (!content)
-                return setError(err, QStringLiteral("画像コンテンツの出力先を利用できません")),
+                return setError(err, QStringLiteral("Image content output destination is unavailable")),
                        QJsonObject();
 
             double timeSec = 0.0;
             if (!args.contains(QStringLiteral("timeSec"))) {
                 if (err)
-                    *err = QStringLiteral("timeSec は必須です");
+                    *err = QStringLiteral("timeSec is required");
                 return {};
             }
             if (!finiteNumberForMcp(args, QStringLiteral("timeSec"),
@@ -1466,7 +1466,7 @@ void McpEditorTools::registerReadTools()
             // 有効範囲を [0, duration) として終端も明示的に拒否する。
             if (durationSec <= 0.0 || timeSec < 0.0 || timeSec >= durationSec) {
                 return setError(err,
-                                QStringLiteral("timeSec がタイムライン範囲外です: %1 (範囲 0-%2 未満)")
+                                QStringLiteral("timeSec is out of timeline range: %1 (range 0 to under %2)")
                                     .arg(timeSec, 0, 'f', 6)
                                     .arg(durationSec, 0, 'f', 6)),
                        QJsonObject();
@@ -1487,7 +1487,7 @@ void McpEditorTools::registerReadTools()
             QImage image = tlrender::renderFrameAt(
                 timeline(), usec, QSize(renderWidth, renderHeight));
             if (image.isNull())
-                return setError(err, QStringLiteral("指定時刻のフレームをレンダリングできませんでした")),
+                return setError(err, QStringLiteral("Could not render the frame at the specified time")),
                        QJsonObject();
             if (image.format() != QImage::Format_RGBA8888)
                 image = image.convertToFormat(QImage::Format_RGBA8888);
@@ -1499,7 +1499,7 @@ void McpEditorTools::registerReadTools()
             bool fitsResponseLimit = false;
             for (int attempt = 0; attempt < 16; ++attempt) {
                 if (!encodePng(image, &png))
-                    return setError(err, QStringLiteral("フレームを PNG にエンコードできませんでした")),
+                    return setError(err, QStringLiteral("Could not encode frame as PNG")),
                            QJsonObject();
                 base64 = png.toBase64();
                 if (base64.size() + kFrameResponseOverhead
@@ -1523,14 +1523,14 @@ void McpEditorTools::registerReadTools()
             // 参照するよう最後の画像を必ず再エンコードして判定する。
             if (!fitsResponseLimit) {
                 if (!encodePng(image, &png))
-                    return setError(err, QStringLiteral("フレームを PNG にエンコードできませんでした")),
+                    return setError(err, QStringLiteral("Could not encode frame as PNG")),
                            QJsonObject();
                 base64 = png.toBase64();
                 fitsResponseLimit = base64.size() + kFrameResponseOverhead
                     <= kMaxFrameResponseBytes;
             }
             if (!fitsResponseLimit)
-                return setError(err, QStringLiteral("PNG 応答を 1MB 以内に縮小できませんでした")),
+                return setError(err, QStringLiteral("Could not shrink the PNG response to under 1MB")),
                        QJsonObject();
 
             content->append(QJsonObject{
@@ -1565,7 +1565,7 @@ void McpEditorTools::registerReadTools()
     };
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("get_export_status"),
-        QStringLiteral("非同期 export_video ジョブの状態と進捗を返す。status は queued / running / done / failed。失敗時は error を含める。"),
+        QStringLiteral("Returns the status and progress of an async export_video job. status is queued / running / done / failed. Includes error on failure."),
         schemaWithRequired(exportStatusProperties, {QStringLiteral("jobId")}),
         [this](const QJsonObject& args, QString* err) -> QJsonObject {
             if (!rejectUnknownArguments(args, {QStringLiteral("jobId")}, err))
@@ -1573,11 +1573,11 @@ void McpEditorTools::registerReadTools()
             QString jobId;
             if (!requiredString(args, QStringLiteral("jobId"), &jobId, err)) {
                 if (err)
-                    *err = QStringLiteral("jobId は必須です");
+                    *err = QStringLiteral("jobId is required");
                 return {};
             }
             if (jobId.trimmed().isEmpty())
-                return setError(err, QStringLiteral("jobId は必須です")), QJsonObject();
+                return setError(err, QStringLiteral("jobId is required")), QJsonObject();
             return exportStatus(jobId, err);
         }
     }, outputSchemaOf(QJsonObject{
@@ -1598,12 +1598,12 @@ void McpEditorTools::registerReadTools()
             }},
             {QStringLiteral("default"), QStringLiteral("all")},
             {QStringLiteral("description"),
-             QStringLiteral("video、audio、all のいずれか。省略時は all")}
+             QStringLiteral("One of video, audio, all. Defaults to all")}
         }}
     };
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("get_timeline"),
-        QStringLiteral("タイムライン上の全クリップをトラック別に秒単位で返す。kind: video / audio / all (省略時は all)。編集前の現状確認に使う。"),
+        QStringLiteral("Returns all clips on the timeline by track in seconds. kind: video / audio / all (defaults to all). Use to check the current state before editing."),
         objectSchema(timelineProperties),
         [this](const QJsonObject& args, QString* err) -> QJsonObject {
             if (!rejectUnknownArguments(args, {QStringLiteral("kind")}, err))
@@ -1656,7 +1656,7 @@ void McpEditorTools::registerReadTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("get_captions"),
-        QStringLiteral("captions は字幕エディタの内容、timelineCaptions はタイムラインに適用済みの1語字幕 (undo で戻るのは後者だけ) を秒単位で返す。"),
+        QStringLiteral("captions is the subtitle editor's content; timelineCaptions is the one-word subtitles already applied to the timeline (only the latter is undone by undo), returned in seconds."),
         objectSchema(),
         [this](const QJsonObject& args, QString* err) -> QJsonObject {
             if (!rejectUnknownArguments(args, {}, err))
@@ -1724,12 +1724,12 @@ void McpEditorTools::registerReadTools()
         {QStringLiteral("query"), QJsonObject{
             {QStringLiteral("type"), QStringLiteral("string")},
             {QStringLiteral("description"),
-             QStringLiteral("id / 表示名 / メニュー階層に対する大文字小文字を区別しない部分一致フィルタ。省略時は全件")}
+             QStringLiteral("Case-insensitive partial-match filter on id / display name / menu hierarchy. Omit for all")}
         }}
     };
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("list_commands"),
-        QStringLiteral("エディタで利用できるお気に入り登録可能なコマンドを列挙する。query を指定すると id / 表示名 / メニュー階層を大文字小文字を区別せず部分一致で絞り込む。query 省略時は全件 (約 230 件、JSON で約 60KB) を返すので、通常は query で絞り込むこと。id、表示名、メニュー階層、危険度 (safe / blocking / quit)、有効状態を返す。blocking のコマンドは run_command で既定では実行を拒否される。"),
+        QStringLiteral("Lists the favorite-registerable commands available in the editor. Specifying query filters by case-insensitive partial match on id / display name / menu hierarchy. Omitting query returns everything (about 230 entries, ~60KB of JSON), so normally filter with query. Returns id, display name, menu hierarchy, risk level (safe / blocking / quit), and enabled state. blocking commands are refused by run_command by default."),
         objectSchema(commandProperties),
         [this](const QJsonObject& args, QString* err) -> QJsonObject {
             if (!rejectUnknownArguments(args, {QStringLiteral("query")}, err))
@@ -1771,7 +1771,7 @@ void McpEditorTools::registerReadTools()
         {QStringLiteral("total"), QJsonObject{
             {QStringLiteral("type"), QStringLiteral("integer")},
             {QStringLiteral("description"),
-             QStringLiteral("フィルタ前の全コマンド数 (commands の件数ではない)")}
+             QStringLiteral("Total command count before filtering (not the number of commands)")}
         }}
     }, {QStringLiteral("commands"), QStringLiteral("total")})));
 }
@@ -2062,7 +2062,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("set_project_option"),
-        QStringLiteral("プロジェクト全体の設定を変更する。現在は option=timecodeBurnIn を受け付け、プレビューと以後の書き出しへ即時反映する。undo 対象外。"),
+        QStringLiteral("Changes project-wide settings. Currently accepts option=timecodeBurnIn, applied immediately to the preview and subsequent exports. Not undoable."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("option"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
@@ -2181,7 +2181,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("export_video"),
-        QStringLiteral("現在のタイムラインを動画ファイルへ非同期で書き出す。tools/call はジョブ投入後すぐに jobId を返し、完了は get_export_status で確認する。width / height / fps の省略時は現在のプロジェクト設定を使い、videoBitrate / audioBitrate は kbps (既定 10000 / 192)、videoCodec / audioCodec は ffmpeg のエンコーダ名 (既定 libx264 / aac)。音声はトリム・分割・並べ替え・音量・ミュートを反映したタイムラインのミックスを ffmpeg で作ってから多重化する (ffmpeg が PATH に無いと単純な 1 クリップ構成以外は failed になる)。"),
+        QStringLiteral("Exports the current timeline to a video file asynchronously. tools/call returns a jobId immediately after submission; check completion with get_export_status. width / height / fps default to the current project settings; videoBitrate / audioBitrate are in kbps (defaults 10000 / 192); videoCodec / audioCodec are ffmpeg encoder names (defaults libx264 / aac). Audio is mixed from the timeline reflecting trim, split, reorder, volume, and mute via ffmpeg before muxing (fails for anything beyond a simple single-clip composition if ffmpeg is not on PATH)."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("outputPath"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")}
@@ -2208,12 +2208,12 @@ void McpEditorTools::registerWriteTools()
             }},
             {QStringLiteral("audioCodec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
-                {QStringLiteral("description"), QStringLiteral("ffmpeg の音声エンコーダ名。既定 aac")}
+                {QStringLiteral("description"), QStringLiteral("ffmpeg audio encoder name. Default aac")}
             }},
             {QStringLiteral("audioBitrate"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("integer")},
                 {QStringLiteral("minimum"), 1},
-                {QStringLiteral("description"), QStringLiteral("kbps。既定 192")}
+                {QStringLiteral("description"), QStringLiteral("kbps. Default 192")}
             }}
         }, {QStringLiteral("outputPath")}),
         guardedWrite(QStringLiteral("export_video"),
@@ -2233,26 +2233,26 @@ void McpEditorTools::registerWriteTools()
             if (!requiredString(args, QStringLiteral("outputPath"),
                                 &outputPath, err)) {
                 if (err)
-                    *err = QStringLiteral("outputPath は必須です");
+                    *err = QStringLiteral("outputPath is required");
                 return {};
             }
             outputPath = outputPath.trimmed();
             if (outputPath.isEmpty())
-                return setError(err, QStringLiteral("outputPath は必須です")),
+                return setError(err, QStringLiteral("outputPath is required")),
                        QJsonObject();
 
             const QFileInfo outputInfo(outputPath);
             if (!outputInfo.absoluteDir().exists()) {
                 return setError(err,
-                                QStringLiteral("出力先の親ディレクトリが存在しません: %1")
+                                QStringLiteral("Output parent directory does not exist: %1")
                                     .arg(outputInfo.absoluteDir().absolutePath())),
                        QJsonObject();
             }
             if (!m_window || !timeline())
-                return setError(err, QStringLiteral("エディタまたはタイムラインを利用できません")),
+                return setError(err, QStringLiteral("Editor or timeline is not available")),
                        QJsonObject();
             if (timeline()->totalDuration() <= 0.0)
-                return setError(err, QStringLiteral("タイムラインが空です。import_media で素材を追加してください")),
+                return setError(err, QStringLiteral("Timeline is empty. Add media with import_media")),
                        QJsonObject();
 
             const int defaultWidth = qMax(2, m_window->m_projectConfig.width);
@@ -2266,7 +2266,7 @@ void McpEditorTools::registerWriteTools()
                                     &height, err))
                 return {};
             if (width < 2 || height < 2)
-                return setError(err, QStringLiteral("width と height は 2 以上で指定してください")),
+                return setError(err, QStringLiteral("Please specify width and height as 2 or greater")),
                        QJsonObject();
 
             double fps = defaultFps;
@@ -2280,7 +2280,7 @@ void McpEditorTools::registerWriteTools()
             if (args.contains(QStringLiteral("videoCodec"))) {
                 const QJsonValue value = args.value(QStringLiteral("videoCodec"));
                 if (!value.isString() || value.toString().trimmed().isEmpty())
-                    return setError(err, QStringLiteral("videoCodec は空でない文字列で指定してください")),
+                    return setError(err, QStringLiteral("Please specify videoCodec as a non-empty string")),
                            QJsonObject();
                 videoCodec = value.toString().trimmed();
             }
@@ -2294,7 +2294,7 @@ void McpEditorTools::registerWriteTools()
             if (args.contains(QStringLiteral("audioCodec"))) {
                 const QJsonValue value = args.value(QStringLiteral("audioCodec"));
                 if (!value.isString() || value.toString().trimmed().isEmpty())
-                    return setError(err, QStringLiteral("audioCodec は空でない文字列で指定してください")),
+                    return setError(err, QStringLiteral("Please specify audioCodec as a non-empty string")),
                            QJsonObject();
                 audioCodec = value.toString().trimmed();
             }
@@ -2402,7 +2402,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("import_media"),
-        QStringLiteral("ダイアログを開かずに素材を指定トラックへ取り込む。trackIndex は映像・音声で同じ番号のトラックペアを指し、存在しなければ両方を作成する (0-based、既定 0)。startSec 省略時は指定した映像トラックの末尾に追記し、音声も同じ開始時刻に置く。startSec 指定時は既存クリップと重なる位置には配置せずエラーで拒否する (丸めない)。kind 既定 auto はファイルのストリーム構成で決め、映像の無いファイル (BGM / ナレーション) は音声トラックだけへ置く。video / audio で片側だけ取り込める。映像と音声の組は既存のGUI経路と同じlinkGroupでリンクし、Undo 1 回で取り消せる。動画/音声として開けないファイルはエラー。"),
+        QStringLiteral("Imports media to the specified track without opening a dialog. trackIndex refers to the video/audio track pair with the same number; creates both if missing (0-based, default 0). If startSec is omitted, appends to the end of the specified video track and places audio at the same start time. If startSec is specified, refuses with an error instead of placing at a position overlapping existing clips (no rounding). kind defaults to auto, decided by the file's stream layout; files without video (BGM / narration) go to the audio track only. video / audio imports one side only. Video/audio pairs are linked with the same linkGroup as the existing GUI path and can be undone with a single undo. Files that cannot be opened as video/audio are an error."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("filePath"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")}
@@ -2414,19 +2414,19 @@ void McpEditorTools::registerWriteTools()
                 }},
                 {QStringLiteral("default"), QStringLiteral("auto")},
                 {QStringLiteral("description"),
-                 QStringLiteral("auto: 映像があれば V/A の組、無ければ音声だけ。video: 映像だけ。audio: 音声だけ (BGM やナレーションの追加)。省略時は auto")}
+                 QStringLiteral("auto: V/A pair if video exists, audio only otherwise. video: video only. audio: audio only (for BGM or narration). Defaults to auto")}
             }},
             {QStringLiteral("trackIndex"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("integer")},
                 {QStringLiteral("minimum"), 0},
                 {QStringLiteral("default"), 0},
                 {QStringLiteral("description"),
-                 QStringLiteral("映像・音声で同じ番号の 0-based トラック番号。存在しなければ両方を作成する。省略時は 0")}
+                 QStringLiteral("0-based track number shared by video and audio. Creates both if missing. Defaults to 0")}
             }},
             {QStringLiteral("startSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("description"),
-                 QStringLiteral("タイムライン絶対時刻 (秒)。省略時は指定映像トラックの末尾に追記し、音声も同じ開始時刻に置く。既存クリップと重なる場合はエラーで拒否する (丸めない)")}
+                 QStringLiteral("Timeline absolute time (sec). If omitted, appends to the end of the specified video track and places audio at the same start time. Refuses with an error if it would overlap existing clips (no rounding)")}
             }}
         }, {QStringLiteral("filePath")}),
         guardedWrite(QStringLiteral("import_media"),
@@ -2441,7 +2441,7 @@ void McpEditorTools::registerWriteTools()
             if (!requiredString(args, QStringLiteral("filePath"), &filePath, err))
                 return {};
             if (filePath.isEmpty())
-                return setError(err, QStringLiteral("ファイルが見つかりません: %1").arg(filePath)),
+                return setError(err, QStringLiteral("File not found: %1").arg(filePath)),
                        QJsonObject();
             Timeline::ImportMediaKind importKind = Timeline::ImportMediaKind::Auto;
             if (args.contains(QStringLiteral("kind"))) {
@@ -2527,7 +2527,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("save_project"),
-        QStringLiteral("プロジェクトを指定パスへ保存する。path 省略時は既存の保存先へ上書きし、未保存プロジェクトではエラーを返す。ダイアログは開かない。"),
+        QStringLiteral("Saves the project to the specified path. If path is omitted, overwrites the existing save location; returns an error for unsaved projects. No dialog is opened."),
         objectSchema(QJsonObject{
             {QStringLiteral("path"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")}
@@ -2545,7 +2545,7 @@ void McpEditorTools::registerWriteTools()
                     return {};
             }
             if (path.trimmed().isEmpty())
-                return setError(err, QStringLiteral("保存先のパスを指定してください")),
+                return setError(err, QStringLiteral("Please specify a destination path")),
                        QJsonObject();
 
             QString saveError;
@@ -2560,7 +2560,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("open_project"),
-        QStringLiteral("指定パスのプロジェクトを読み込む。ダイアログや未保存変更の確認は行わない。"),
+        QStringLiteral("Loads the project at the specified path. No dialog and no unsaved-changes confirmation."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("path"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")}
@@ -2589,12 +2589,12 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("set_track_locked"),
-        QStringLiteral("指定トラックの編集ロックを設定する。ロック中は split_clip / delete_clip / move_clip などのクリップ編集を拒否する。ロック変更は Undo 対象外。"),
+        QStringLiteral("Sets the edit lock for the specified track. While locked, clip edits such as split_clip / delete_clip / move_clip are refused. Lock changes are not undoable."),
         schemaWithRequired(mergedProperties(trackSelectorProperties(), QJsonObject{
             {QStringLiteral("locked"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("boolean")},
                 {QStringLiteral("description"),
-                 QStringLiteral("true でロック、false で解除")}
+                 QStringLiteral("true to lock, false to unlock")}
             }}
         }), {QStringLiteral("kind"), QStringLiteral("trackIndex"),
              QStringLiteral("locked")}),
@@ -2636,7 +2636,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("select_clip"),
-        QStringLiteral("指定クリップを選択する。kind / trackIndex 省略時は video トラック 0 (他のクリップ系ツールと同じ既定)。clipIndex は get_timeline の index。Timeline と MainWindow の両方の選択状態を GUI クリックと同じ規則で更新する。"),
+        QStringLiteral("Selects the specified clip. kind / trackIndex default to video track 0 (same default as other clip tools). clipIndex is the get_timeline index. Updates the selection state of both Timeline and MainWindow using the same rules as a GUI click."),
         schemaWithRequired(clipProperties, {QStringLiteral("clipIndex")}),
         guardedWrite(QStringLiteral("select_clip"),
                      [this](const QJsonObject& args, QString* err) -> QJsonObject {
@@ -2687,7 +2687,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("clear_selection"),
-        QStringLiteral("タイムライン上の選択をすべて解除する。"),
+        QStringLiteral("Clears all selection on the timeline."),
         objectSchema(),
         guardedWrite(QStringLiteral("clear_selection"),
                      [this](const QJsonObject& args, QString* err) -> QJsonObject {
@@ -2705,7 +2705,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("run_command"),
-        QStringLiteral("お気に入り登録可能なコマンドを id で実行する。危険度を返し、blocking のコマンドは allowBlocking:true のときだけ実行する。quit のコマンドは MCP から常に実行できない。タイムラインを変更する操作は、コマンド自身が undo を記録する場合だけ Ctrl+Z / undo ツールで戻せる。応答の undoRecorded で判定すること (ダイアログを開くコマンドは応答時点では false になり得る)。"),
+        QStringLiteral("Runs a favorite-registerable command by id. Returns the risk level; blocking commands only run when allowBlocking:true. quit commands can never run from MCP. Timeline-modifying operations can only be reverted with Ctrl+Z / the undo tool if the command itself recorded undo; judge by undoRecorded in the response (commands that open dialogs may report false at response time)."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("id"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")}
@@ -2729,7 +2729,7 @@ void McpEditorTools::registerWriteTools()
                 const QJsonValue allowBlockingValue =
                     args.value(QStringLiteral("allowBlocking"));
                 if (!allowBlockingValue.isBool()) {
-                    setError(err, QStringLiteral("allowBlocking は boolean で指定してください"));
+                    setError(err, QStringLiteral("Please specify allowBlocking as a boolean"));
                     return {};
                 }
                 allowBlocking = allowBlockingValue.toBool();
@@ -2745,11 +2745,11 @@ void McpEditorTools::registerWriteTools()
                 // 危険度の拒否は enabled 判定より先に行う。終了は常に拒否し、
                 // Blocking はユーザーが明示的に許可した場合だけ QAction を trigger する。
                 if (command.risk == FavoritableActionRisk::Quit) {
-                    setError(err, QStringLiteral("このコマンドはエディタを終了させるため MCP からは実行できません。"));
+                    setError(err, QStringLiteral("This command quits the editor and cannot be run via MCP."));
                     return {};
                 }
                 if (command.risk == FavoritableActionRisk::Blocking && !allowBlocking) {
-                    setError(err, QStringLiteral("このコマンドはモーダルダイアログを開くため既定では実行しません。ユーザが画面で操作する必要があります。どうしても実行する場合は allowBlocking:true を指定してください。"));
+                    setError(err, QStringLiteral("This command opens a modal dialog, so it is not run by default. The user must operate it on screen. If you must run it anyway, specify allowBlocking:true."));
                     return {};
                 }
                 if (!command.action || !command.action->isEnabled()) {
@@ -2790,12 +2790,12 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("split_clip"),
-        QStringLiteral("指定クリップを指定時刻で 2 つに分割する。timeSec はタイムライン絶対時刻 (秒、クリップ内オフセットではない)。クリップの開始・終了から 0.05 秒以内は拒否される。分割後は左側が元の clipIndex、右側が clipIndex+1 になり、後続クリップの index が 1 ずれる。linkGroup が同じクリップ (例: 対になる音声) も同時に同じ時刻で分割される。範囲カットは split_clip(開始) → split_clip(終了, clipIndex+1) → delete_clip(中央, ripple:true) の順で呼び出し、各操作後に get_timeline で index を再確認する。kind/trackIndex 省略時は video トラック 0。clipIndex は get_timeline の index。タイムラインを変更する破壊的操作で、Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Splits the specified clip into two at the given time. timeSec is the timeline absolute time (sec, not a clip-local offset). Positions within 0.05 sec of the clip start/end are refused. After splitting, the left side keeps the original clipIndex and the right side becomes clipIndex+1, shifting later clip indexes by 1. Clips with the same linkGroup (e.g. paired audio) are split at the same time. For range cuts, call split_clip(start) → split_clip(end, clipIndex+1) → delete_clip(middle, ripple:true) in order, re-checking indexes with get_timeline after each operation. kind/trackIndex default to video track 0. clipIndex is the get_timeline index. Destructive timeline operation, revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(mergedProperties(clipProperties, QJsonObject{
             {QStringLiteral("timeSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("description"),
-                 QStringLiteral("分割位置。タイムライン絶対時刻 (秒)、クリップ相対ではない。クリップの開始・終了から 0.05 秒以内の位置は 'split point is outside the clip' で拒否される。")}
+                 QStringLiteral("Split position. Timeline absolute time (sec), not clip-relative. Positions within 0.05 sec of the clip start/end are refused with 'split point is outside the clip'.")}
             }}
         }), {QStringLiteral("clipIndex"), QStringLiteral("timeSec")}),
         guardedWrite(QStringLiteral("split_clip"),
@@ -2834,13 +2834,13 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("delete_clip"),
-        QStringLiteral("指定クリップを削除し、必要なら後続クリップを詰める。linkGroup が同じクリップ (例: 対になる音声) も同時に削除される。削除後は後続クリップの index が 1 ずれる。ripple:true で後続クリップを前に詰める (既定 false)。詰まるのは削除したクリップと同じ linkGroup を持つトラックだけで、他のトラック (V2 の B ロールや A2 の BGM) はずれない。kind/trackIndex 省略時は video トラック 0。clipIndex は get_timeline の index。タイムラインを変更する破壊的操作で、Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Deletes the specified clip, closing the gap with later clips if needed. Clips with the same linkGroup (e.g. paired audio) are deleted together. Later clip indexes shift by 1 after deletion. ripple:true closes the gap with later clips (default false). Only tracks sharing the deleted clip's linkGroup close the gap; other tracks (B-roll on V2, BGM on A2) do not shift. kind/trackIndex default to video track 0. clipIndex is the get_timeline index. Destructive timeline operation, revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(mergedProperties(clipProperties, QJsonObject{
             {QStringLiteral("ripple"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("boolean")},
                 {QStringLiteral("default"), false},
                 {QStringLiteral("description"),
-                 QStringLiteral("true で削除後の後続クリップを詰める (既定 false)")}
+                 QStringLiteral("true to close the gap with later clips after deletion (default false)")}
             }}
         }), {QStringLiteral("clipIndex")}),
         guardedWrite(QStringLiteral("delete_clip"),
@@ -2876,18 +2876,18 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("move_clip"),
-        QStringLiteral("指定クリップを指定開始時刻へ移動する。newStartSec はタイムライン絶対時刻 (秒)。必要なら別トラックへ移し、連続配置でも並べ替える。置けない要求はok:falseで理由と実際に置ける時刻を返す。kind/trackIndex 省略時は video トラック 0。clipIndex は get_timeline の index。タイムラインを変更する破壊的操作で、Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Moves the specified clip to the given start time. newStartSec is the timeline absolute time (sec). Moves to another track if needed and reorders even in contiguous layouts. Unplaceable requests return ok:false with the reason and the actually placeable time. kind/trackIndex default to video track 0. clipIndex is the get_timeline index. Destructive timeline operation, revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(mergedProperties(clipProperties, QJsonObject{
             {QStringLiteral("newStartSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("description"),
-                 QStringLiteral("移動先のタイムライン絶対時刻 (秒)。クリップ内相対時刻ではない。")}
+                 QStringLiteral("Destination timeline absolute time (sec). Not a clip-local time.")}
             }},
             {QStringLiteral("newTrackIndex"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("integer")},
                 {QStringLiteral("minimum"), 0},
                 {QStringLiteral("description"),
-                 QStringLiteral("移動先の 0-based トラック番号。省略時は現在のトラック")}
+                 QStringLiteral("Destination 0-based track number. Defaults to the current track")}
             }}
         }), {QStringLiteral("clipIndex"), QStringLiteral("newStartSec")}),
         guardedWrite(QStringLiteral("move_clip"),
@@ -2922,12 +2922,12 @@ void McpEditorTools::registerWriteTools()
                 // 手段 (run_command のトラック追加コマンド) をエラー文で案内する。
                 if (err && err->contains(QStringLiteral("newTrackIndex"))) {
                     const QString needle = target.audio
-                        ? QStringLiteral("オーディオトラックを追加")
-                        : QStringLiteral("ビデオトラックを追加");
+                        ? QStringLiteral("Add Audio Track")
+                        : QStringLiteral("Add Video Track");
                     for (const auto& command : m_window->m_favoritableActions) {
                         if (!command.label.contains(needle))
                             continue;
-                        *err += QStringLiteral("。トラックを追加するには run_command で id \"%1\" (%2) を実行してください")
+                        *err += QStringLiteral(". To add a track, run id \"%1\" (%2) via run_command")
                                     .arg(command.id, command.label);
                         break;
                     }
@@ -2961,13 +2961,13 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("match_frame"),
-        QStringLiteral("再生ヘッド位置 (または timeSec) の動画クリップを、speed・逆再生・リマップを反映したソース時刻でソースモニターに開く。選択中の動画トラックを優先し、該当しなければ V1 を使う。"),
+        QStringLiteral("Opens the video clip at the playhead position (or timeSec) in the source monitor at the source time reflecting speed, reverse playback, and remapping. Prefers the selected video track; uses V1 if none applies."),
         objectSchema(QJsonObject{
             {QStringLiteral("timeSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("minimum"), 0},
                 {QStringLiteral("description"),
-                 QStringLiteral("タイムライン絶対時刻 (秒)。省略時は現在の再生ヘッド位置")}
+                 QStringLiteral("Timeline absolute time (sec). Defaults to the current playhead position")}
             }}
         }),
         guardedWrite(QStringLiteral("match_frame"),
@@ -3004,11 +3004,11 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("replace_clip"),
-        QStringLiteral("指定クリップの素材を filePath のメディアへ置き換える。位置・inPoint・長さを可能な限り維持し、同じ linkGroup の音声も新素材に音声があれば置き換える。新素材が短い場合は warning を返す。変更は Ctrl+Z / undo 1 回で戻せる。"),
+        QStringLiteral("Replaces the specified clip's media with the media at filePath. Preserves position, inPoint, and length as much as possible; audio in the same linkGroup is also replaced if the new media has audio. Returns a warning if the new media is shorter. Revertible with a single Ctrl+Z / undo."),
         schemaWithRequired(mergedProperties(clipProperties, QJsonObject{
             {QStringLiteral("filePath"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
-                {QStringLiteral("description"), QStringLiteral("置き換え先のメディアファイル")}
+                {QStringLiteral("description"), QStringLiteral("Replacement media file")}
             }}
         }), {QStringLiteral("clipIndex"), QStringLiteral("filePath")}),
         guardedWrite(QStringLiteral("replace_clip"),
@@ -3025,7 +3025,7 @@ void McpEditorTools::registerWriteTools()
             if (!requiredString(args, QStringLiteral("filePath"), &filePath, err))
                 return {};
             if (filePath.isEmpty()) {
-                return setError(err, QStringLiteral("ファイルが見つかりません: %1")
+                return setError(err, QStringLiteral("File not found: %1")
                                          .arg(filePath)),
                        QJsonObject();
             }
@@ -3041,7 +3041,7 @@ void McpEditorTools::registerWriteTools()
                     target.trackIndex, target.clipIndex, filePath,
                     QFileInfo(filePath).fileName(), 0.0, &message)) {
                 return setError(err, message.isEmpty()
-                                         ? QStringLiteral("クリップを置き換えられません")
+                                         ? QStringLiteral("Cannot replace the clip")
                                          : message),
                        QJsonObject();
             }
@@ -3057,7 +3057,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("relink_media"),
-        QStringLiteral("見つからないメディアまたは LUT のパスを一括で再リンクする。mapping の全 to が実在するファイルの場合だけ変更し、active / nested sequence を 1 回の undo で更新する。"),
+        QStringLiteral("Relinks missing media or LUT paths in bulk. Only changes when every mapping 'to' is an existing file; updates the active / nested sequence in a single undo."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("mapping"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("array")},
@@ -3127,7 +3127,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("set_clip_property"),
-        QStringLiteral("指定クリップのプロパティを設定する。property と有効範囲: volume 0..2、opacity 0..1、speed 0.25..4、pan -1..1、videoScale 0.1..10、reversed true/false、autoOrient true/false。speed と reversed は同じ linkGroup の映像・音声にも同時に適用する (応答の linkedApplied)。現在値は get_timeline で確認でき、Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Sets the specified clip's properties. property and valid ranges: volume 0..2, opacity 0..1, speed 0.25..4, pan -1..1, videoScale 0.1..10, reversed true/false, autoOrient true/false. speed and reversed also apply simultaneously to video and audio in the same linkGroup (linkedApplied in the response). Check current values with get_timeline; revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(mergedProperties(clipProperties, QJsonObject{
             {QStringLiteral("property"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
@@ -3139,7 +3139,7 @@ void McpEditorTools::registerWriteTools()
                     QStringLiteral("autoOrient")
                 }},
                 {QStringLiteral("description"),
-                 QStringLiteral("設定対象。volume / opacity / speed / pan / videoScale / reversed / autoOrient")}
+                 QStringLiteral("Target. volume / opacity / speed / pan / videoScale / reversed / autoOrient")}
             }},
             {QStringLiteral("value"), QJsonObject{
                 {QStringLiteral("oneOf"), QJsonArray{
@@ -3147,7 +3147,7 @@ void McpEditorTools::registerWriteTools()
                     QJsonObject{{QStringLiteral("type"), QStringLiteral("boolean")}}
                 }},
                 {QStringLiteral("description"),
-                 QStringLiteral("property に応じた値。reversed / autoOrient は boolean、それ以外は number。")}
+                 QStringLiteral("Value for the property. reversed / autoOrient are boolean, others are number.")}
             }}
         }), {QStringLiteral("clipIndex"), QStringLiteral("property"), QStringLiteral("value")}),
         guardedWrite(QStringLiteral("set_clip_property"),
@@ -3221,7 +3221,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("music_remix"),
-        QStringLiteral("音声クリップをビート境界のセグメントで再構成し、目標尺へ自動調整する。kind は audio のみ。beatTimes が 2 個未満の素材は変更せずエラーにする。変更は Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Reconstructs the audio clip in segments at beat boundaries and auto-adjusts to the target duration. kind is audio only. Media with fewer than 2 beatTimes is left unchanged and treated as an error. Revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("kind"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
@@ -3252,7 +3252,7 @@ void McpEditorTools::registerWriteTools()
             }
             if (args.value(QStringLiteral("kind")).toString()
                     != QStringLiteral("audio")) {
-                return setError(err, QStringLiteral("music_remix は audio のみ対応しています")),
+                return setError(err, QStringLiteral("music_remix supports audio only")),
                        QJsonObject();
             }
             double targetSec = 0.0;
@@ -3261,17 +3261,17 @@ void McpEditorTools::registerWriteTools()
                 return {};
             }
             if (targetSec <= 0.0)
-                return setError(err, QStringLiteral("targetSec は 0 より大きい有限値で指定してください")),
+                return setError(err, QStringLiteral("Please specify targetSec as a finite value greater than 0")),
                        QJsonObject();
             if (targetSec > remix::kMaxTargetSec)
-                return setError(err, QStringLiteral("targetSec は 86400 秒以下で指定してください")),
+                return setError(err, QStringLiteral("Please specify targetSec as 86400 seconds or less")),
                        QJsonObject();
 
             ClipTarget target;
             if (!readClipTarget(args, m_window, timeline(), &target, err))
                 return {};
             if (!target.audio)
-                return setError(err, QStringLiteral("music_remix は audio のみ対応しています")),
+                return setError(err, QStringLiteral("music_remix supports audio only")),
                        QJsonObject();
 
             QVector<double> beatTimes;
@@ -3305,7 +3305,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("dialogue_level"),
-        QStringLiteral("音声クリップの短時間ラウドネスを解析し、会話音量を平準化する音量エンベロープを生成する。kind は audio のみ。変更は Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Analyzes the audio clip's short-term loudness and generates a volume envelope that levels dialogue volume. kind is audio only. Revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("kind"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
@@ -3336,7 +3336,7 @@ void McpEditorTools::registerWriteTools()
             if (args.value(QStringLiteral("kind")).toString()
                     != QStringLiteral("audio")) {
                 return setError(
-                           err, QStringLiteral("dialogue_level は audio のみ対応しています")),
+                           err, QStringLiteral("dialogue_level supports audio only")),
                        QJsonObject();
             }
 
@@ -3353,7 +3353,7 @@ void McpEditorTools::registerWriteTools()
                 return {};
             if (!target.audio) {
                 return setError(
-                           err, QStringLiteral("dialogue_level は audio のみ対応しています")),
+                           err, QStringLiteral("dialogue_level supports audio only")),
                        QJsonObject();
             }
 
@@ -3396,7 +3396,7 @@ void McpEditorTools::registerWriteTools()
                     QStringLiteral("panUp"), QStringLiteral("panDown")
                 }},
                 {QStringLiteral("description"),
-                 QStringLiteral("プリセット。start/end と同時には指定できない")}
+                 QStringLiteral("Preset. Cannot be specified together with start/end")}
             }},
             {QStringLiteral("start"), dynamicZoomRectSchema()},
             {QStringLiteral("end"), dynamicZoomRectSchema()},
@@ -3410,10 +3410,10 @@ void McpEditorTools::registerWriteTools()
         }), {QStringLiteral("clipIndex")});
     dynamicZoomInputSchema.insert(
         QStringLiteral("description"),
-        QStringLiteral("preset か start/end のどちらか一方を指定する。両方の指定はエラー。start/end の h は省略可能で、指定しても無視されキャンバス比に固定される"));
+        QStringLiteral("Specify either preset or start/end. Specifying both is an error. h for start/end is optional and ignored if specified; fixed to the canvas aspect ratio"));
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("dynamic_zoom"),
-        QStringLiteral("指定動画クリップへダイナミックズームを適用し、位置とスケールに開始・終了キーフレームを生成する。preset か start/end のどちらか一方を指定し、両方の指定はエラー。start/end の h は省略可能で、指定しても無視されキャンバス比に固定される。1 回の undo で元に戻せる。"),
+        QStringLiteral("Applies dynamic zoom to the specified video clip, generating start/end keyframes for position and scale. Specify either preset or start/end; specifying both is an error. h for start/end is optional and ignored if specified; fixed to the canvas aspect ratio. Revertible with a single undo."),
         dynamicZoomInputSchema,
         guardedWrite(QStringLiteral("dynamic_zoom"),
                      [this](const QJsonObject& args, QString* err) -> QJsonObject {
@@ -3519,7 +3519,7 @@ void McpEditorTools::registerWriteTools()
             if (ignoredHeight) {
                 response.insert(
                     QStringLiteral("warning"),
-                    QStringLiteral("h はキャンバス比に固定されるため指定値を無視しました"));
+                    QStringLiteral("Ignored the specified h value since h is fixed to the canvas aspect ratio"));
             }
             return response;
         })
@@ -3527,13 +3527,13 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("set_clip_label"),
-        QStringLiteral("指定クリップのラベルカラーを設定する。label は none / red / orange / yellow / green / cyan / blue / purple / pink。kind/trackIndex 省略時は video トラック 0。clipIndex は get_timeline の index。変更後の値は get_timeline の label で確認でき、Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Sets the specified clip's label color. label is one of none / red / orange / yellow / green / cyan / blue / purple / pink. kind/trackIndex default to video track 0. clipIndex is the get_timeline index. Check the new value with get_timeline's label; revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(mergedProperties(clipProperties, QJsonObject{
             {QStringLiteral("label"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
                 {QStringLiteral("enum"), clipLabelEnum()},
                 {QStringLiteral("description"),
-                 QStringLiteral("ラベルカラー。none で解除")}
+                 QStringLiteral("Label color. none to clear")}
             }}
         }), {QStringLiteral("clipIndex"), QStringLiteral("label")}),
         guardedWrite(QStringLiteral("set_clip_label"),
@@ -3582,7 +3582,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("trim_clip"),
-        QStringLiteral("指定した映像クリップを、タイムライン絶対時刻 (秒) の timeSec でトリムする。edge=in はクリップの開始位置を保ったまま timeSec 時点の内容を新しい先頭にし、以降が (timeSec−開始) だけ左へ詰まる (RippleIn)。edge=out は末尾を timeSec にし後続が詰まる (RippleOut)。kind は video のみ対応し、同じ linkGroup の音声クリップ (A1 など) も同じ量だけトリムして映像と同期を保つ。ripple は既定 true。現在のトリムエンジンに非リップル種別がないため ripple:false は拒否する。タイムラインを変更する破壊的操作で、Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Trims the specified video clip at the timeline absolute time (sec) timeSec. edge=in keeps the clip start position and makes the content at timeSec the new head, closing the following part leftward by (timeSec − start) (RippleIn). edge=out sets the tail to timeSec and closes the gap with following clips (RippleOut). kind supports video only; audio clips in the same linkGroup (e.g. A1) are trimmed by the same amount to stay in sync with video. ripple defaults to true. ripple:false is refused since the current trim engine has no non-ripple types. Destructive timeline operation, revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(mergedProperties(clipProperties, QJsonObject{
             {QStringLiteral("edge"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
@@ -3590,19 +3590,19 @@ void McpEditorTools::registerWriteTools()
                     QStringLiteral("in"), QStringLiteral("out")
                 }},
                 {QStringLiteral("description"),
-                 QStringLiteral("トリムする端。in は先頭、out は末尾")}
+                 QStringLiteral("Edge to trim. in is the head, out is the tail")}
             }},
             {QStringLiteral("timeSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("minimum"), 0},
                 {QStringLiteral("description"),
-                 QStringLiteral("目標位置。タイムライン絶対時刻 (秒)、クリップ内相対時刻ではない")}
+                 QStringLiteral("Target position. Timeline absolute time (sec), not clip-relative time")}
             }},
             {QStringLiteral("ripple"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("boolean")},
                 {QStringLiteral("default"), true},
                 {QStringLiteral("description"),
-                 QStringLiteral("後続クリップを詰めるリップル。既定 true。false は現在未対応")}
+                 QStringLiteral("Ripple that closes the gap with following clips. Default true. false is currently unsupported")}
             }}
         }), {QStringLiteral("clipIndex"), QStringLiteral("edge"),
             QStringLiteral("timeSec")}),
@@ -3655,7 +3655,7 @@ void McpEditorTools::registerWriteTools()
             // Timeline::applyTrimLinked (TimelineTrack::applyTrim) emits modified()
             // but deliberately does not push an undo state; keep this MCP
             // operation (video + linked audio) as one undo step.
-            currentTimeline->saveUndoState(QStringLiteral("トリム"));
+            currentTimeline->saveUndoState(QStringLiteral("Trim"));
             syncSelectionAfterEdit();
 
             const ClipInfo& trimmed = target.track->clips().at(target.clipIndex);
@@ -3700,8 +3700,8 @@ void McpEditorTools::registerWriteTools()
             requiredOutput << QStringLiteral("outputPath") << QStringLiteral("replaced") << QStringLiteral("linkedAudioReplaced");
         }
         m_registry->registerTool(withOutputSchema({name,
-            decompose ? QStringLiteral("焼き込み前の映像とリンク音声を1回の操作で復元する。取り消し可能。")
-                      : QStringLiteral("映像の効果とリンク音声を焼き込み、差し替える。完了まで待機する。取り消し可能。"),
+            decompose ? QStringLiteral("Restores the pre-bake video and linked audio in a single operation. Revertible.")
+                      : QStringLiteral("Bakes effects into the video and linked audio, then replaces them. Waits for completion. Revertible."),
             schemaWithRequired(properties, decompose
                 ? QStringList{QStringLiteral("trackIndex"), QStringLiteral("clipIndex")}
                 : QStringList{QStringLiteral("kind"), QStringLiteral("trackIndex"), QStringLiteral("clipIndex")}),
@@ -3712,14 +3712,14 @@ void McpEditorTools::registerWriteTools()
                                   QStringLiteral("codec"), QStringLiteral("handlesSec")};
                 if (!rejectUnknownArguments(args, allowed, err)) return {};
                 if (!args.contains(QStringLiteral("trackIndex")))
-                    return setError(err, QStringLiteral("trackIndex が必要です")), QJsonObject();
+                    return setError(err, QStringLiteral("trackIndex is required")), QJsonObject();
                 if (!decompose && args.value(QStringLiteral("kind")).toString() != QStringLiteral("video"))
-                    return setError(err, QStringLiteral("kind は video を指定してください")), QJsonObject();
+                    return setError(err, QStringLiteral("Please specify video for kind")), QJsonObject();
                 ClipTarget target;
                 if (!readClipTarget(args, m_window, timeline(), &target, err)) return {};
                 if (decompose) {
                     if (!renderinplace::decomposeRenderInPlace(*timeline(), target.trackIndex, target.clipIndex))
-                        return setError(err, QStringLiteral("元のクリップに戻せません")), QJsonObject();
+                        return setError(err, QStringLiteral("Cannot restore the original clip")), QJsonObject();
                     syncSelectionAfterEdit();
                     return QJsonObject{{QStringLiteral("ok"), true}};
                 }
@@ -3746,13 +3746,13 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("set_transition"),
-        QStringLiteral("video は V1、audio は指定音声トラックのクリップにトランジションを設定する。video の type は TransitionType の識別子で None は解除する。audio では CrossDissolve (コンスタントパワーの隣接クロスフェード)、FadeIn、FadeOut のみ許可し、None を含む他の type はエラー。audio の変更は映像側へミラーしない。durationSec は秒、既定 0.5、範囲 0.1..5.0。alignment は Center / Start / End (既定 Center)、easing は Linear / EaseIn / EaseOut / EaseInOut (既定 Linear)。タイムラインを変更する破壊的操作で、Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("video sets a transition on the V1 clip; audio sets one on the clip of the specified audio track. video's type is a TransitionType identifier; None clears it. For audio, only CrossDissolve (adjacent crossfade with constant power), FadeIn, and FadeOut are allowed; other types including None are an error. Audio changes are not mirrored to the video side. durationSec is in seconds, default 0.5, range 0.1..5.0. alignment is Center / Start / End (default Center); easing is Linear / EaseIn / EaseOut / EaseInOut (default Linear). Destructive timeline operation, revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(mergedProperties(clipProperties, QJsonObject{
             {QStringLiteral("type"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
                 {QStringLiteral("enum"), transitionTypeEnum()},
                 {QStringLiteral("description"),
-                 QStringLiteral("TransitionType の識別子。video は None で解除。kind=audio では CrossDissolve / FadeIn / FadeOut のみ許可")}
+                 QStringLiteral("TransitionType identifier. None clears it for video. For kind=audio, only CrossDissolve / FadeIn / FadeOut are allowed")}
             }},
             {QStringLiteral("alignment"), transitionIdentifierSchema(transitionAlignmentNames())},
             {QStringLiteral("easing"), transitionIdentifierSchema(transitionEasingNames())},
@@ -3771,7 +3771,7 @@ void McpEditorTools::registerWriteTools()
                 {QStringLiteral("maximum"), 5.0},
                 {QStringLiteral("default"), 0.5},
                 {QStringLiteral("description"),
-                 QStringLiteral("トランジション長 (秒)。0.1..5.0、既定 0.5。None では無視")}
+                 QStringLiteral("Transition duration (sec). 0.1..5.0, default 0.5. Ignored for None")}
             }}
         }), {QStringLiteral("clipIndex"), QStringLiteral("type")}),
         guardedWrite(QStringLiteral("set_transition"),
@@ -3800,7 +3800,7 @@ void McpEditorTools::registerWriteTools()
                 QString name;
                 if (!requiredString(args, key, &name, err)) return false;
                 *index = names.indexOf(name);
-                return *index >= 0 || setError(err, key + QStringLiteral(" の識別子が不正です"));
+                return *index >= 0 || setError(err, key + QStringLiteral(" identifier is invalid"));
             };
             if (!parseIdentifier(QStringLiteral("alignment"), transitionAlignmentNames(), &alignmentIndex)
                 || !parseIdentifier(QStringLiteral("easing"), transitionEasingNames(), &easingIndex))
@@ -3813,7 +3813,7 @@ void McpEditorTools::registerWriteTools()
             if (args.contains(QStringLiteral("borderWidth"))
                 && !finiteNumberForMcp(args, QStringLiteral("borderWidth"), &borderWidth, err)) return {};
             if (softness < 0.0 || softness > 1.0 || borderWidth < 0.0 || borderWidth > 50.0)
-                return setError(err, QStringLiteral("ソフトネスは0..1、境界線の幅は0..50で指定してください")), QJsonObject();
+                return setError(err, QStringLiteral("Please specify softness as 0..1 and border width as 0..50")), QJsonObject();
             QColor borderColor = Qt::white;
             if (args.contains(QStringLiteral("borderColor"))) {
                 QString color;
@@ -3823,15 +3823,15 @@ void McpEditorTools::registerWriteTools()
                     const ushort c = color.at(i).unicode();
                     valid = valid && ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
                 }
-                if (!valid) return setError(err, QStringLiteral("境界線の色は #RRGGBB で指定してください")), QJsonObject();
+                if (!valid) return setError(err, QStringLiteral("Please specify the border color as #RRGGBB")), QJsonObject();
                 borderColor = QColor(color);
             }
             const bool ignoredEdges = !supportsEdgeParams(type)
                 && (args.contains(QStringLiteral("softness")) || args.contains(QStringLiteral("borderWidth"))
                     || args.contains(QStringLiteral("borderColor")));
             const QString edgeWarning = args.contains(QStringLiteral("softness"))
-                ? QStringLiteral("この type ではソフトネスは無視されます")
-                : QStringLiteral("この type では境界線は無視されます");
+                ? QStringLiteral("Softness is ignored for this type")
+                : QStringLiteral("Borders are ignored for this type");
 
             double durationSec = 0.5;
             if (!positiveFiniteNumber(args, QStringLiteral("durationSec"), 0.5,
@@ -3892,9 +3892,9 @@ void McpEditorTools::registerWriteTools()
                 currentTimeline->setTrackMatteEntries(mattes);
                 currentTimeline->setClipParentEntries(parents);
                 currentTimeline->saveUndoState(type == TransitionType::CrossDissolve
-                    ? QStringLiteral("音声クロスフェード")
-                    : type == TransitionType::FadeIn ? QStringLiteral("音声フェードイン")
-                                                     : QStringLiteral("音声フェードアウト"));
+                    ? QStringLiteral("Audio Crossfade")
+                    : type == TransitionType::FadeIn ? QStringLiteral("Audio Fade In")
+                                                     : QStringLiteral("Audio Fade Out"));
                 emit target.track->modified();
 
                 const ClipInfo& updated = target.track->clips().at(target.clipIndex);
@@ -4001,47 +4001,47 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("add_text_overlay"),
-        QStringLiteral("V1 に通常のテキスト／テロップを追加する。startSec と endSec はタイムライン絶対時刻 (秒) で、endSec は startSec より後にする。区間と重なる V1 の全クリップに付くので、クリップ境界をまたいでも表示される (重なるクリップが無ければエラー。応答の clipIndices が付いたクリップ)。x / y は正規化座標 0..1、fontSize はポイント単位で 6..256 (既定 32)、color は QColor/CSS 形式 (既定 #ffffff)。この操作は Ctrl+Z / undo ツールで戻せる。"),
+        QStringLiteral("Adds normal text/telop to V1. startSec and endSec are timeline absolute times (sec); endSec must be after startSec. It attaches to all V1 clips overlapping the range, so it still shows across clip boundaries (error if no overlapping clip; the response's clipIndices lists the attached clips). x / y are normalized coordinates 0..1, fontSize is 6..256 in points (default 32), color is QColor/CSS format (default #ffffff). Revertible with Ctrl+Z / the undo tool."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("text"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
-                {QStringLiteral("description"), QStringLiteral("表示するテキスト。空文字列は不可")}
+                {QStringLiteral("description"), QStringLiteral("Text to display. Empty string is not allowed")}
             }},
             {QStringLiteral("startSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("minimum"), 0},
-                {QStringLiteral("description"), QStringLiteral("表示開始位置 (秒、タイムライン絶対時刻)")}
+                {QStringLiteral("description"), QStringLiteral("Display start position (sec, timeline absolute time)")}
             }},
             {QStringLiteral("endSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("minimum"), 0},
-                {QStringLiteral("description"), QStringLiteral("表示終了位置 (秒、タイムライン絶対時刻)")}
+                {QStringLiteral("description"), QStringLiteral("Display end position (sec, timeline absolute time)")}
             }},
             {QStringLiteral("x"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("minimum"), 0.0},
                 {QStringLiteral("maximum"), 1.0},
                 {QStringLiteral("default"), 0.5},
-                {QStringLiteral("description"), QStringLiteral("中心 X の正規化座標 0..1、既定 0.5")}
+                {QStringLiteral("description"), QStringLiteral("Center X normalized coordinate 0..1, default 0.5")}
             }},
             {QStringLiteral("y"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("minimum"), 0.0},
                 {QStringLiteral("maximum"), 1.0},
                 {QStringLiteral("default"), 0.85},
-                {QStringLiteral("description"), QStringLiteral("中心 Y の正規化座標 0..1、既定 0.85")}
+                {QStringLiteral("description"), QStringLiteral("Center Y normalized coordinate 0..1, default 0.85")}
             }},
             {QStringLiteral("fontSize"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("integer")},
                 {QStringLiteral("minimum"), 6},
                 {QStringLiteral("maximum"), 256},
                 {QStringLiteral("default"), 32},
-                {QStringLiteral("description"), QStringLiteral("フォントサイズ (pt)、6..256、既定 32")}
+                {QStringLiteral("description"), QStringLiteral("Font size (pt), 6..256, default 32")}
             }},
             {QStringLiteral("color"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")},
                 {QStringLiteral("default"), QStringLiteral("#ffffff")},
-                {QStringLiteral("description"), QStringLiteral("文字色。QColor/CSS 形式、既定 #ffffff")}
+                {QStringLiteral("description"), QStringLiteral("Text color. QColor/CSS format, default #ffffff")}
             }}
         }, {QStringLiteral("text"), QStringLiteral("startSec"), QStringLiteral("endSec")}),
         guardedWrite(QStringLiteral("add_text_overlay"),
@@ -4125,7 +4125,7 @@ void McpEditorTools::registerWriteTools()
             const QVector<int> touchedClips =
                 currentTimeline->addTextOverlayToVideoClipsInRange(overlay, startSec, endSec);
             if (touchedClips.isEmpty()) {
-                return setError(err, QStringLiteral("V1 に startSec..endSec (%1..%2 秒) と重なるクリップがありません。get_timeline でクリップの時間帯を確認してください")
+                return setError(err, QStringLiteral("V1 has no clip overlapping startSec..endSec (%1..%2 sec). Check clip time ranges with get_timeline")
                                          .arg(startSec).arg(endSec)),
                        QJsonObject();
             }
@@ -4154,8 +4154,8 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("add_caption"),
-        QStringLiteral("字幕エディタが未オープンなら内部で生成する (画面には出さない)。字幕エディタの字幕一覧に 1 件追加し、"
-                       "タイムラインへの反映は apply_captions を呼ぶ。この操作自体は undo 対象外。"),
+        QStringLiteral("Generates it internally if the subtitle editor is not open (not shown on screen). Adds 1 entry to the subtitle editor's subtitle list,"
+                       "Call apply_captions to reflect it on the timeline. This operation itself is not undoable."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("text"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("string")}
@@ -4232,34 +4232,34 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("apply_captions"),
-        QStringLiteral("字幕エディタに保持されている字幕を V1 の1語字幕オーバーレイとしてタイムラインへ適用する (字幕エディタの「1語字幕をタイムラインに適用」と同じ経路)。既存の生成済み1語字幕は置き換える。Ctrl+Z / undo ツールで戻せる (戻るのはタイムライン側だけで、字幕エディタの一覧は戻らない)。"),
+        QStringLiteral("Applies the subtitles held in the subtitle editor to the timeline as a V1 one-word subtitle overlay (same path as the subtitle editor's \"Apply one-word subtitles to timeline\"). Existing generated one-word subtitles are replaced. Revertible with Ctrl+Z / the undo tool (only the timeline side is reverted; the subtitle editor's list is not)."),
         objectSchema(),
         guardedWrite(QStringLiteral("apply_captions"),
                      [this](const QJsonObject& args, QString* err) -> QJsonObject {
             if (!rejectUnknownArguments(args, {}, err))
                 return {};
             if (!m_window || !timeline())
-                return setError(err, QStringLiteral("エディタまたはタイムラインを利用できません")),
+                return setError(err, QStringLiteral("Editor or timeline is not available")),
                        QJsonObject();
 
             CaptionEditorDialog* dialog = m_window->ensureCaptionEditorDialog();
             if (!dialog)
-                return setError(err, QStringLiteral("エディタまたはタイムラインを利用できません")),
+                return setError(err, QStringLiteral("Editor or timeline is not available")),
                        QJsonObject();
             const caption::Track track = dialog->track();
             if (track.clipCount() <= 0)
                 return setError(err,
-                                QStringLiteral("適用できる字幕がありません。add_caption で追加してください。")),
+                                QStringLiteral("No subtitles to apply. Please add some with add_caption.")),
                        QJsonObject();
 
             for (const caption::Clip& clip : track.clips()) {
                 if (clip.text.trimmed().isEmpty())
                     return setError(err,
-                                    QStringLiteral("空の字幕はタイムラインへ適用できません。")),
+                                    QStringLiteral("Empty captions cannot be applied to the timeline.")),
                            QJsonObject();
                 if (clip.endMs <= clip.startMs)
                     return setError(err,
-                                    QStringLiteral("字幕の終了時刻は開始時刻より後にしてください。")),
+                                    QStringLiteral("Caption end time must be after start time.")),
                            QJsonObject();
             }
 
@@ -4287,7 +4287,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("remove_caption"),
-        QStringLiteral("字幕エディタの一覧から index (get_captions の captions[].index) の字幕を 1 件削除する。タイムラインへ反映するには apply_captions を呼ぶ。この操作自体は undo 対象外。"),
+        QStringLiteral("Deletes 1 subtitle at index (captions[].index from get_captions) from the subtitle editor's list. Call apply_captions to reflect it on the timeline. This operation itself is not undoable."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("index"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("integer")},
@@ -4309,7 +4309,7 @@ void McpEditorTools::registerWriteTools()
                 return setError(err, QStringLiteral("editor not available")), QJsonObject();
             caption::Track track = dialog->track();
             if (index < 0 || index >= track.clipCount()) {
-                return setError(err, QStringLiteral("index is out of range (字幕は %1 件: 0..%2)")
+                return setError(err, QStringLiteral("index is out of range (%1 subtitles: 0..%2)")
                                          .arg(track.clipCount()).arg(track.clipCount() - 1)),
                        QJsonObject();
             }
@@ -4324,7 +4324,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("clear_captions"),
-        QStringLiteral("字幕エディタの一覧を空にする。タイムライン上の生成済み字幕はそのままなので、消したい場合は続けて apply_captions を呼べないことに注意 (空の一覧は適用できない)。undo ツールでタイムライン側を戻す。この操作自体は undo 対象外。"),
+        QStringLiteral("Empties the subtitle editor's list. Generated subtitles already on the timeline stay as-is, so note that you cannot then call apply_captions to remove them (an empty list cannot be applied). Revert the timeline side with the undo tool. This operation itself is not undoable."),
         objectSchema(),
         guardedWrite(QStringLiteral("clear_captions"),
                      [this](const QJsonObject& args, QString* err) -> QJsonObject {
@@ -4346,12 +4346,12 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("set_playhead"),
-        QStringLiteral("再生ヘッドを指定時刻へ移動する。timeSec が範囲外の場合はエラーにせず [0, タイムライン総尺] に丸め、実際に設定した位置を playheadSec で返す。VideoPlayer もシークし、停止中はプレビューが指定時刻のフレームに更新される (描画はイベントループ後)。応答の playing は呼び出し前に再生中だったか、previewSeekRequested は VideoPlayer にシークを要求したかを示す。編集状態を変える操作ではなく、タイムライン編集の Undo / redo には影響しない。"),
+        QStringLiteral("Moves the playhead to the specified time. If timeSec is out of range, it is clamped to [0, total timeline duration] without error, and the actually set position is returned as playheadSec. Also seeks VideoPlayer; while stopped, the preview updates to the frame at the specified time (rendered after the event loop). playing in the response indicates whether it was playing before the call; previewSeekRequested indicates whether a seek was requested to VideoPlayer. Does not change edit state and does not affect timeline edit Undo / redo."),
         schemaWithRequired(QJsonObject{
             {QStringLiteral("timeSec"), QJsonObject{
                 {QStringLiteral("type"), QStringLiteral("number")},
                 {QStringLiteral("description"),
-                 QStringLiteral("タイムライン絶対時刻 (秒)。範囲外は [0, タイムライン総尺] に丸める。")}
+                 QStringLiteral("Timeline absolute time (sec). Out-of-range values are clamped to [0, total timeline duration].")}
             }}
         }, {QStringLiteral("timeSec")}),
         guardedWrite(QStringLiteral("set_playhead"),
@@ -4383,7 +4383,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("undo"),
-        QStringLiteral("直前のタイムライン変更を取り消す破壊的操作。Ctrl+Z / undo ツールで記録済みの変更を戻せる。"),
+        QStringLiteral("Destructive operation that undoes the last timeline change. Recorded changes can be reverted with Ctrl+Z / the undo tool."),
         objectSchema(),
         guardedWrite(QStringLiteral("undo"),
                      [this](const QJsonObject& args, QString* err) -> QJsonObject {
@@ -4402,7 +4402,7 @@ void McpEditorTools::registerWriteTools()
 
     m_registry->registerTool(withOutputSchema({
         QStringLiteral("redo"),
-        QStringLiteral("直前に取り消したタイムライン変更を再適用する破壊的操作。Ctrl+Y / redo ツールで変更を戻し直せる。"),
+        QStringLiteral("Destructive operation that reapplies the last undone timeline change. Changes can be re-redone with Ctrl+Y / the redo tool."),
         objectSchema(),
         guardedWrite(QStringLiteral("redo"),
                      [this](const QJsonObject& args, QString* err) -> QJsonObject {

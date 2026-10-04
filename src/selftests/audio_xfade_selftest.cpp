@@ -498,7 +498,7 @@ int runAudioXfadeSelftest()
         children[1].leadIn = mirrorTransition;
         TimelineSequence childSequence;
         childSequence.id = QStringLiteral("audio-child");
-        childSequence.name = QStringLiteral("音声子シーケンス");
+        childSequence.name = QStringLiteral("Audio sub-sequence");
         childSequence.audioTracks = {children};
         nestedOk &= nestedTimeline.addSequence(childSequence);
         auto parent = nestedTimeline.makeSequenceClip(childSequence.id);

@@ -67,7 +67,7 @@ protected:
         if (m_before.isEmpty() && m_after.isEmpty()) {
             painter.setPen(QColor(QStringLiteral("#8f98a5")));
             painter.drawText(plot, Qt::AlignCenter,
-                             QStringLiteral("解析ボタンで輝度推移を表示"));
+                             QStringLiteral("Show luminance transition with the Analyze button"));
             return;
         }
 
@@ -153,14 +153,14 @@ protected:
                          QPointF(legend.left() + 20.0, legend.center().y()));
         painter.setPen(QColor(QStringLiteral("#c8cdd5")));
         painter.drawText(QRectF(legend.left() + 28.0, legend.top(), 70.0, legend.height()),
-                         Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("処理前"));
+                         Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("Before"));
         const double secondX = legend.left() + 112.0;
         painter.setPen(QPen(QColor(QStringLiteral("#4da3ff")), 2.0));
         painter.drawLine(QPointF(secondX, legend.center().y()),
                          QPointF(secondX + 20.0, legend.center().y()));
         painter.setPen(QColor(QStringLiteral("#c8cdd5")));
         painter.drawText(QRectF(secondX + 28.0, legend.top(), 70.0, legend.height()),
-                         Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("補正後"));
+                         Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("After correction"));
     }
 
 private:
@@ -194,7 +194,7 @@ QDoubleSpinBox *makeGainSpin(QWidget *parent, double value)
 DeflickerDialog::DeflickerDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("フリッカー除去"));
+    setWindowTitle(QStringLiteral("Deflicker"));
     setModal(true);
     resize(980, 760);
 
@@ -202,54 +202,54 @@ DeflickerDialog::DeflickerDialog(QWidget *parent)
     root->setContentsMargins(12, 12, 12, 12);
     root->setSpacing(10);
 
-    auto *scopeGroup = new QGroupBox(QStringLiteral("対象"), this);
+    auto *scopeGroup = new QGroupBox(QStringLiteral("Target"), this);
     auto *scopeForm = new QFormLayout(scopeGroup);
-    m_clipValue = new QLabel(QStringLiteral("未設定"), scopeGroup);
+    m_clipValue = new QLabel(QStringLiteral("Not set"), scopeGroup);
     m_clipValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    scopeForm->addRow(QStringLiteral("クリップ:"), m_clipValue);
+    scopeForm->addRow(QStringLiteral("Clip:"), m_clipValue);
 
     auto *rangeRow = new QHBoxLayout;
     m_startSpin = new QSpinBox(scopeGroup);
     m_endSpin = new QSpinBox(scopeGroup);
     m_startSpin->setSuffix(QStringLiteral(" frame"));
     m_endSpin->setSuffix(QStringLiteral(" frame"));
-    rangeRow->addWidget(new QLabel(QStringLiteral("開始"), scopeGroup));
+    rangeRow->addWidget(new QLabel(QStringLiteral("Start"), scopeGroup));
     rangeRow->addWidget(m_startSpin);
     rangeRow->addSpacing(8);
-    rangeRow->addWidget(new QLabel(QStringLiteral("終了"), scopeGroup));
+    rangeRow->addWidget(new QLabel(QStringLiteral("End"), scopeGroup));
     rangeRow->addWidget(m_endSpin);
     rangeRow->addStretch(1);
-    scopeForm->addRow(QStringLiteral("フレーム範囲:"), rangeRow);
+    scopeForm->addRow(QStringLiteral("Frame Range:"), rangeRow);
     root->addWidget(scopeGroup);
 
-    auto *graphGroup = new QGroupBox(QStringLiteral("輝度推移"), this);
+    auto *graphGroup = new QGroupBox(QStringLiteral("Luminance transition"), this);
     auto *graphLayout = new QVBoxLayout(graphGroup);
     m_graph = new DeflickerGraphWidget(graphGroup);
     graphLayout->addWidget(m_graph, 1);
     m_statusLabel = new QLabel(
-        QStringLiteral("解析前。範囲と設定を確認して解析を実行してください。"),
+        QStringLiteral("Not analyzed yet. Check the range and settings, then run analysis."),
         graphGroup);
     m_statusLabel->setWordWrap(true);
     graphLayout->addWidget(m_statusLabel);
     root->addWidget(graphGroup, 1);
 
-    auto *settingsGroup = new QGroupBox(QStringLiteral("補正設定"), this);
+    auto *settingsGroup = new QGroupBox(QStringLiteral("Correction settings"), this);
     auto *settingsForm = new QFormLayout(settingsGroup);
     m_modeCombo = new QComboBox(settingsGroup);
-    m_modeCombo->addItem(QStringLiteral("全体輝度"),
+    m_modeCombo->addItem(QStringLiteral("Overall luminance"),
                          static_cast<int>(deflicker::Mode::GlobalLuma));
-    m_modeCombo->addItem(QStringLiteral("RGB 個別"),
+    m_modeCombo->addItem(QStringLiteral("Per-channel RGB"),
                          static_cast<int>(deflicker::Mode::GlobalRgb));
-    m_modeCombo->addItem(QStringLiteral("ローリングバンド"),
+    m_modeCombo->addItem(QStringLiteral("Rolling band"),
                          static_cast<int>(deflicker::Mode::RollingBands));
-    settingsForm->addRow(QStringLiteral("モード:"), m_modeCombo);
+    settingsForm->addRow(QStringLiteral("Mode:"), m_modeCombo);
 
     m_windowSpin = new QSpinBox(settingsGroup);
     m_windowSpin->setRange(1, 99);
     m_windowSpin->setSingleStep(2);
     m_windowSpin->setValue(9);
     m_windowSpin->setSuffix(QStringLiteral(" frame"));
-    settingsForm->addRow(QStringLiteral("時間窓:"), m_windowSpin);
+    settingsForm->addRow(QStringLiteral("Time window:"), m_windowSpin);
 
     auto *strengthRow = new QHBoxLayout;
     m_strengthSlider = new QSlider(Qt::Horizontal, settingsGroup);
@@ -259,20 +259,20 @@ DeflickerDialog::DeflickerDialog(QWidget *parent)
     m_strengthValue->setMinimumWidth(52);
     strengthRow->addWidget(m_strengthSlider, 1);
     strengthRow->addWidget(m_strengthValue);
-    settingsForm->addRow(QStringLiteral("補正強度:"), strengthRow);
+    settingsForm->addRow(QStringLiteral("Correction strength:"), strengthRow);
 
     auto *gainRow = new QHBoxLayout;
     m_minGainSpin = makeGainSpin(settingsGroup, 0.5);
     m_maxGainSpin = makeGainSpin(settingsGroup, 2.0);
-    gainRow->addWidget(new QLabel(QStringLiteral("下限"), settingsGroup));
+    gainRow->addWidget(new QLabel(QStringLiteral("Lower limit"), settingsGroup));
     gainRow->addWidget(m_minGainSpin);
     gainRow->addSpacing(8);
-    gainRow->addWidget(new QLabel(QStringLiteral("上限"), settingsGroup));
+    gainRow->addWidget(new QLabel(QStringLiteral("Ceiling"), settingsGroup));
     gainRow->addWidget(m_maxGainSpin);
     gainRow->addStretch(1);
-    settingsForm->addRow(QStringLiteral("ゲイン:"), gainRow);
+    settingsForm->addRow(QStringLiteral("Gain:"), gainRow);
 
-    m_medianCheck = new QCheckBox(QStringLiteral("目標値に中央値を使う"), settingsGroup);
+    m_medianCheck = new QCheckBox(QStringLiteral("Use median for target value"), settingsGroup);
     m_medianCheck->setChecked(true);
     settingsForm->addRow(QString(), m_medianCheck);
 
@@ -280,7 +280,7 @@ DeflickerDialog::DeflickerDialog(QWidget *parent)
     m_bandHeightSpin->setRange(1, 2048);
     m_bandHeightSpin->setValue(8);
     m_bandHeightSpin->setSuffix(QStringLiteral(" px"));
-    settingsForm->addRow(QStringLiteral("帯の高さ:"), m_bandHeightSpin);
+    settingsForm->addRow(QStringLiteral("Band height:"), m_bandHeightSpin);
 
     auto *bandSmoothRow = new QHBoxLayout;
     m_bandSmoothingSlider = new QSlider(Qt::Horizontal, settingsGroup);
@@ -290,12 +290,12 @@ DeflickerDialog::DeflickerDialog(QWidget *parent)
     m_bandSmoothingValue->setMinimumWidth(52);
     bandSmoothRow->addWidget(m_bandSmoothingSlider, 1);
     bandSmoothRow->addWidget(m_bandSmoothingValue);
-    settingsForm->addRow(QStringLiteral("帯間平滑化:"), bandSmoothRow);
+    settingsForm->addRow(QStringLiteral("Inter-band smoothing:"), bandSmoothRow);
     root->addWidget(settingsGroup);
 
-    auto *regionGroup = new QGroupBox(QStringLiteral("解析領域"), this);
+    auto *regionGroup = new QGroupBox(QStringLiteral("Analysis region"), this);
     auto *regionLayout = new QVBoxLayout(regionGroup);
-    m_useMaskCheck = new QCheckBox(QStringLiteral("現在のマスクを使う"), regionGroup);
+    m_useMaskCheck = new QCheckBox(QStringLiteral("Use current mask"), regionGroup);
     m_useMaskCheck->setEnabled(false);
     regionLayout->addWidget(m_useMaskCheck);
     auto *regionRow = new QHBoxLayout;
@@ -307,27 +307,27 @@ DeflickerDialog::DeflickerDialog(QWidget *parent)
     regionRow->addWidget(m_regionXSpin);
     regionRow->addWidget(new QLabel(QStringLiteral("Y"), regionGroup));
     regionRow->addWidget(m_regionYSpin);
-    regionRow->addWidget(new QLabel(QStringLiteral("幅"), regionGroup));
+    regionRow->addWidget(new QLabel(QStringLiteral("Width"), regionGroup));
     regionRow->addWidget(m_regionWidthSpin);
-    regionRow->addWidget(new QLabel(QStringLiteral("高さ"), regionGroup));
+    regionRow->addWidget(new QLabel(QStringLiteral("Height"), regionGroup));
     regionRow->addWidget(m_regionHeightSpin);
     regionRow->addStretch(1);
     regionLayout->addLayout(regionRow);
     auto *regionHint = new QLabel(
-        QStringLiteral("幅または高さが 0 のときは全画面を解析します。"
-                       "マスクはキャンバス座標からフレーム解像度へ自動変換します。"),
+        QStringLiteral("When width or height is 0, the full frame is analyzed."
+                       "The mask is automatically converted from canvas coordinates to frame resolution."),
         regionGroup);
     regionHint->setStyleSheet(QStringLiteral("color: #8f98a5;"));
     regionLayout->addWidget(regionHint);
     root->addWidget(regionGroup);
 
     auto *buttonRow = new QHBoxLayout;
-    m_analyzeButton = new QPushButton(QStringLiteral("解析"), this);
+    m_analyzeButton = new QPushButton(QStringLiteral("Analyze"), this);
     m_analyzeButton->setDefault(true);
-    m_applyButton = new QPushButton(QStringLiteral("適用"), this);
-    m_cancelButton = new QPushButton(QStringLiteral("中止"), this);
+    m_applyButton = new QPushButton(QStringLiteral("Apply"), this);
+    m_cancelButton = new QPushButton(QStringLiteral("Abort"), this);
     m_cancelButton->setVisible(false);
-    m_closeButton = new QPushButton(QStringLiteral("閉じる"), this);
+    m_closeButton = new QPushButton(QStringLiteral("Close"), this);
     m_applyButton->setEnabled(false);
     buttonRow->addWidget(m_analyzeButton);
     buttonRow->addStretch(1);
@@ -395,7 +395,7 @@ void DeflickerDialog::setContext(
     m_startSpin->setValue(0);
     m_endSpin->setValue(frameCount - 1);
     m_clipValue->setText(context.clipLabel.isEmpty()
-                             ? QStringLiteral("未設定") : context.clipLabel);
+                             ? QStringLiteral("Not set") : context.clipLabel);
 
     m_useMaskCheck->setEnabled(!m_maskRegion.isEmpty());
     m_useMaskCheck->setChecked(false);
@@ -413,7 +413,7 @@ void DeflickerDialog::setContext(
     m_analyzeButton->setEnabled(static_cast<bool>(m_context.frameFetcher)
                                 && context.frameCount > 0);
     m_statusLabel->setText(QStringLiteral(
-        "解析前。範囲と設定を確認して解析を実行してください。"));
+        "Not analyzed yet. Check the range and settings, then run analysis."));
     m_graph->clearSeries();
     updateModeControls();
 }
@@ -485,7 +485,7 @@ QString DeflickerDialog::outputDirectory(QString *error) const
     QDir parent = sourceInfo.absoluteDir();
     if (!parent.exists() && !parent.mkpath(QStringLiteral("."))) {
         if (error)
-            *error = QStringLiteral("クリップのフォルダを作成できません。\n%1")
+            *error = QStringLiteral("Could not create clip folder.\n%1")
                 .arg(parent.absolutePath());
         return {};
     }
@@ -500,7 +500,7 @@ QString DeflickerDialog::outputDirectory(QString *error) const
         path = parent.filePath(folderBase + QStringLiteral("_%1").arg(suffix++));
     if (!parent.mkpath(QFileInfo(path).fileName())) {
         if (error)
-            *error = QStringLiteral("出力フォルダを作成できません。\n%1").arg(path);
+            *error = QStringLiteral("Could not create output folder.\n%1").arg(path);
         return {};
     }
     return path;
@@ -511,7 +511,7 @@ void DeflickerDialog::clearAnalysis()
     m_graph->clearSeries();
     if (!m_busy)
         m_statusLabel->setText(QStringLiteral(
-            "設定が変更されました。解析を実行すると補正前後の推移を表示します。"));
+            "Settings changed. Run analysis to show the before/after transition."));
 }
 
 void DeflickerDialog::setBusy(bool busy)
@@ -551,13 +551,13 @@ void DeflickerDialog::requestCancel()
         return;
     m_cancelRequested = true;
     m_cancelButton->setEnabled(false);
-    m_statusLabel->setText(QStringLiteral("中止要求を受け付けました。現在のフレームを終了しています..."));
+    m_statusLabel->setText(QStringLiteral("Cancellation requested. Finishing the current frame..."));
 }
 
 void DeflickerDialog::finishCancelled()
 {
     setBusy(false);
-    m_statusLabel->setText(QStringLiteral("処理を中止しました。タイムラインは変更されていません。"));
+    m_statusLabel->setText(QStringLiteral("Processing cancelled. The timeline was not changed."));
 }
 
 void DeflickerDialog::closeEvent(QCloseEvent *event)
@@ -624,7 +624,7 @@ void DeflickerDialog::onAnalyzeClicked()
     if (sample.isNull()) {
         setBusy(false);
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("フレーム %1 のデコードに失敗しました。")
+                             QStringLiteral("Failed to decode frame %1.")
                                  .arg(start));
         return;
     }
@@ -639,7 +639,7 @@ void DeflickerDialog::onAnalyzeClicked()
         [this, start](int relativeFrame) {
             const int frameIndex = start + relativeFrame;
             m_statusLabel->setText(QStringLiteral(
-                "フレーム %1 / %2 を解析用に読み込み中...")
+                "Loading frames %1 / %2 for analysis...")
                                        .arg(relativeFrame + 1)
                                        .arg(m_endSpin->value() - m_startSpin->value() + 1));
             QApplication::processEvents();
@@ -655,7 +655,7 @@ void DeflickerDialog::onAnalyzeClicked()
                 if (m_cancelRequested)
                     return true;
                 m_statusLabel->setText(QStringLiteral(
-                    "フレーム %1 を補正結果として解析中...")
+                    "Analyzing frame %1 as the correction result...")
                                            .arg(relativeFrame + 1));
                 after.append(deflicker::analyzeFrame(
                     corrected, currentParams).lumaMean);
@@ -686,7 +686,7 @@ void DeflickerDialog::onAnalyzeClicked()
         : std::accumulate(after.cbegin(), after.cend(), 0.0)
             / static_cast<double>(after.size());
     m_statusLabel->setText(QStringLiteral(
-        "%1 フレームを解析しました。平均輝度: %2 → %3。")
+        "Analyzed %1 frames. Average luminance: %2 → %3.")
                                .arg(static_cast<int>(result.stats.size()))
                                .arg(beforeMean, 0, 'f', 2)
                                .arg(afterMean, 0, 'f', 2));
@@ -699,7 +699,7 @@ void DeflickerDialog::onApplyClicked()
         return;
     if (!m_context.sequenceImporter) {
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("新規クリップを取り込む経路が設定されていません。"));
+                             QStringLiteral("No import path is set for the new clip."));
         return;
     }
 
@@ -707,7 +707,7 @@ void DeflickerDialog::onApplyClicked()
     const int end = m_endSpin->value();
     if (end < start) {
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("終了フレームは開始フレーム以降にしてください。"));
+                             QStringLiteral("End frame must be at or after the start frame."));
         return;
     }
 
@@ -717,7 +717,7 @@ void DeflickerDialog::onApplyClicked()
     if (!sourceFetcher) {
         setBusy(false);
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("原本フレーム取得経路が設定されていません。"));
+                             QStringLiteral("The original frame acquisition path is not set."));
         return;
     }
 
@@ -725,7 +725,7 @@ void DeflickerDialog::onApplyClicked()
     if (sample.isNull()) {
         setBusy(false);
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("フレーム %1 のデコードに失敗しました。")
+                             QStringLiteral("Failed to decode frame %1.")
                                  .arg(start));
         return;
     }
@@ -746,7 +746,7 @@ void DeflickerDialog::onApplyClicked()
     const deflicker::FrameFetcher sourceRangeFetcher =
         [this, sourceFetcher, start, frameCount](int relativeFrame) {
             m_statusLabel->setText(QStringLiteral(
-                "フレーム %1 / %2 を原本から読み込み中...")
+                "Loading frames %1 / %2 from the original...")
                                        .arg(relativeFrame + 1)
                                        .arg(frameCount));
             QApplication::processEvents();
@@ -764,7 +764,7 @@ void DeflickerDialog::onApplyClicked()
                                                 const QImage &corrected,
                                                 QString *saveError) {
                 m_statusLabel->setText(QStringLiteral(
-                    "フレーム %1 / %2 を PNG 保存中...")
+                    "Saving frames %1 / %2 as PNG...")
                                            .arg(relativeFrame + 1)
                                            .arg(frameCount));
                 QApplication::processEvents();
@@ -791,8 +791,8 @@ void DeflickerDialog::onApplyClicked()
         cleanupOutput();
         setBusy(false);
         const QString message = result.error.isEmpty()
-            ? QStringLiteral("フレーム補正に失敗しました。")
-            : QStringLiteral("フレーム補正に失敗しました。\n%1").arg(result.error);
+            ? QStringLiteral("Frame correction failed.")
+            : QStringLiteral("Frame correction failed.\n%1").arg(result.error);
         QMessageBox::warning(this, windowTitle(), message);
         return;
     }
@@ -801,13 +801,13 @@ void DeflickerDialog::onApplyClicked()
         cleanupOutput();
         setBusy(false);
         QMessageBox::warning(this, windowTitle(),
-                             QStringLiteral("新規クリップへの取り込みに失敗しました。\n%1")
+                             QStringLiteral("Failed to import as a new clip.\n%1")
                                  .arg(error));
         return;
     }
 
     m_statusLabel->setText(QStringLiteral(
-        "%1 フレームを書き出し、新規クリップへ取り込みました。")
+        "Exported %1 frames and imported them as a new clip.")
                                .arg(paths.size()));
     setBusy(false);
     accept();

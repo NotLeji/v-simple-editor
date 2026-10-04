@@ -9,36 +9,36 @@ const std::array<PlanarTrackerPreset, 5>& builtinPresets()
         // 1. generic-default
         {
             "generic-default",
-            "汎用デフォルト",
-            "中程度の動きと patch size。多くの素材に汎用的に対応する初期値。",
+            "General Default",
+            "Medium motion and patch size. Generic defaults that work for most footage.",
             16.0, 32.0, 0.3, 0
         },
         // 2. precise-feature
         {
             "precise-feature",
-            "精密特徴追跡",
-            "小さな特徴 (顔のパーツ、製品のロゴ) を高精度追跡。探索狭く damping 弱。",
+            "Precise Feature Tracking",
+            "Track small features (face parts, product logos) with high precision. Narrow search, low damping.",
             8.0, 24.0, 0.1, 0
         },
         // 3. robust-motion
         {
             "robust-motion",
-            "大動き追跡",
-            "大きい動きに対応。広探索 + 高 damping でジッタ吸収。",
+            "Large Motion Tracking",
+            "Handles large motion. Wide search + high damping absorbs jitter.",
             32.0, 48.0, 0.5, 0
         },
         // 4. low-light-noisy
         {
             "low-light-noisy",
-            "低照度ノイズ",
-            "低照度・ノイズの多い素材。大きい patch でロバスト性確保。",
+            "Low-Light Noise",
+            "For low-light, noisy footage. Larger patches ensure robustness.",
             24.0, 64.0, 0.6, 0
         },
         // 5. fast-preview
         {
             "fast-preview",
-            "高速プレビュー",
-            "高速プレビュー用。中庸パラメータでフレーム速度優先。",
+            "Fast Preview",
+            "For fast previews. Balanced parameters prioritizing frame rate.",
             12.0, 24.0, 0.2, 0
         },
     }};

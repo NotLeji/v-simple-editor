@@ -345,12 +345,12 @@ void EffectKeyframeNavBar::showDiamondContextMenu(int index, const QPoint &globa
     addInterpolationAction(QStringLiteral("EaseOut"), KeyframePoint::EaseOut);
     addInterpolationAction(QStringLiteral("EaseInOut"), KeyframePoint::EaseInOut);
     addInterpolationAction(QStringLiteral("Hold"), KeyframePoint::Hold);
-    addInterpolationAction(QStringLiteral("エラスティック"), KeyframePoint::ElasticOut);
-    addInterpolationAction(QStringLiteral("バウンス"), KeyframePoint::BounceOut);
-    addInterpolationAction(QStringLiteral("バック(オーバーシュート)"), KeyframePoint::BackOut);
+    addInterpolationAction(QStringLiteral("Elastic"), KeyframePoint::ElasticOut);
+    addInterpolationAction(QStringLiteral("Bounce"), KeyframePoint::BounceOut);
+    addInterpolationAction(QStringLiteral("Back (Overshoot)"), KeyframePoint::BackOut);
 
     interpolationMenu->addSeparator();
-    QAction *editCurveAction = interpolationMenu->addAction(QStringLiteral("イージングカーブを編集…"));
+    QAction *editCurveAction = interpolationMenu->addAction(QStringLiteral("Edit easing curve…"));
     connect(editCurveAction, &QAction::triggered, this, [this, index]() {
         if (!m_track) {
             return;

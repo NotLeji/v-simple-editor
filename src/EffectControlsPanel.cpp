@@ -576,17 +576,17 @@ EffectControlsPanel::EffectControlsPanel(QWidget *parent)
 
 void EffectControlsPanel::buildLayerStyleGroup()
 {
-    m_layerStyleGroup = new QGroupBox(QStringLiteral("レイヤースタイル"), m_scrollContent);
+    m_layerStyleGroup = new QGroupBox(QStringLiteral("Layer style"), m_scrollContent);
     auto *form = new QFormLayout(m_layerStyleGroup);
     form->setContentsMargins(4, 4, 4, 4);
     form->setSpacing(4);
 
-    m_shadowEnable = new QCheckBox(QStringLiteral("ドロップシャドウ"), m_layerStyleGroup);
+    m_shadowEnable = new QCheckBox(QStringLiteral("Drop shadow"), m_layerStyleGroup);
     form->addRow(m_shadowEnable);
 
-    m_shadowColorButton = new QPushButton(QStringLiteral("色"), m_layerStyleGroup);
+    m_shadowColorButton = new QPushButton(QStringLiteral("Color"), m_layerStyleGroup);
     m_shadowColorButton->setMinimumWidth(64);
-    form->addRow(QStringLiteral("影の色"), m_shadowColorButton);
+    form->addRow(QStringLiteral("Shadow Color"), m_shadowColorButton);
 
     auto *offsetRow = new QHBoxLayout();
     m_shadowOffsetX = new QDoubleSpinBox(m_layerStyleGroup);
@@ -599,13 +599,13 @@ void EffectControlsPanel::buildLayerStyleGroup()
     m_shadowOffsetY->setSingleStep(1.0);
     offsetRow->addWidget(m_shadowOffsetX);
     offsetRow->addWidget(m_shadowOffsetY);
-    form->addRow(QStringLiteral("オフセット X/Y"), offsetRow);
+    form->addRow(QStringLiteral("Offset X/Y"), offsetRow);
 
     m_shadowBlurRadius = new QDoubleSpinBox(m_layerStyleGroup);
     m_shadowBlurRadius->setRange(0.0, 200.0);
     m_shadowBlurRadius->setDecimals(1);
     m_shadowBlurRadius->setSingleStep(1.0);
-    form->addRow(QStringLiteral("ぼかし半径"), m_shadowBlurRadius);
+    form->addRow(QStringLiteral("Blur radius"), m_shadowBlurRadius);
 
     auto *opacityRow = new QHBoxLayout();
     m_shadowOpacitySlider = new QSlider(Qt::Horizontal, m_layerStyleGroup);
@@ -615,20 +615,20 @@ void EffectControlsPanel::buildLayerStyleGroup()
     m_shadowOpacitySpin->setSuffix(QStringLiteral("%"));
     opacityRow->addWidget(m_shadowOpacitySlider, 1);
     opacityRow->addWidget(m_shadowOpacitySpin);
-    form->addRow(QStringLiteral("不透明度"), opacityRow);
+    form->addRow(QStringLiteral("Opacity"), opacityRow);
 
-    m_strokeEnable = new QCheckBox(QStringLiteral("ストローク(縁取り)"), m_layerStyleGroup);
+    m_strokeEnable = new QCheckBox(QStringLiteral("Stroke (outline)"), m_layerStyleGroup);
     form->addRow(m_strokeEnable);
 
-    m_strokeColorButton = new QPushButton(QStringLiteral("色"), m_layerStyleGroup);
+    m_strokeColorButton = new QPushButton(QStringLiteral("Color"), m_layerStyleGroup);
     m_strokeColorButton->setMinimumWidth(64);
-    form->addRow(QStringLiteral("縁取り色"), m_strokeColorButton);
+    form->addRow(QStringLiteral("Stroke Color"), m_strokeColorButton);
 
     m_strokeWidth = new QDoubleSpinBox(m_layerStyleGroup);
     m_strokeWidth->setRange(0.0, 200.0);
     m_strokeWidth->setDecimals(1);
     m_strokeWidth->setSingleStep(1.0);
-    form->addRow(QStringLiteral("幅"), m_strokeWidth);
+    form->addRow(QStringLiteral("Width"), m_strokeWidth);
 
     connect(m_shadowEnable, &QCheckBox::toggled, this, [this](bool) {
         if (m_blockLayerStyleUi)
@@ -884,7 +884,7 @@ void EffectControlsPanel::persistLayerStyleFromControls()
 void EffectControlsPanel::chooseShadowColor()
 {
     const QColor chosen = QColorDialog::getColor(
-        m_shadowColor, this, QStringLiteral("影の色"), QColorDialog::ShowAlphaChannel);
+        m_shadowColor, this, QStringLiteral("Shadow Color"), QColorDialog::ShowAlphaChannel);
     if (!chosen.isValid())
         return;
     m_shadowColor = chosen;
@@ -895,7 +895,7 @@ void EffectControlsPanel::chooseShadowColor()
 void EffectControlsPanel::chooseStrokeColor()
 {
     const QColor chosen = QColorDialog::getColor(
-        m_strokeColor, this, QStringLiteral("縁取り色"), QColorDialog::ShowAlphaChannel);
+        m_strokeColor, this, QStringLiteral("Stroke Color"), QColorDialog::ShowAlphaChannel);
     if (!chosen.isValid())
         return;
     m_strokeColor = chosen;

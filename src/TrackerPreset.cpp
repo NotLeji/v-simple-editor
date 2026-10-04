@@ -14,7 +14,7 @@ const std::array<TrackerPreset, 7>& builtinPresets()
             "Slow Pan, Static Background",
             "rect", "NCC",
             24, true, 0.08, 1.0, 0.5, true, 0.75,
-            "固定背景でのゆっくりしたパン用。インタビューやトーキングヘッド向け、被写体動少・揺れ少。"
+            "For slow pans on a fixed background. Suited to interviews and talking heads with little subject motion and shake."
         },
         // 2. fast-action-handheld
         {
@@ -22,7 +22,7 @@ const std::array<TrackerPreset, 7>& builtinPresets()
             "Fast Action, Handheld Camera",
             "rect", "ZNCC",
             48, true, 0.15, 0.8, 0.3, true, 0.6,
-            "手持ちカメラの高速アクション用。スポーツやダンス等、揺れ大・被写体動高に対応。"
+            "For fast handheld action. Handles heavy shake and fast-moving subjects such as sports or dance."
         },
         // 3. logo-corner-static
         {
@@ -30,7 +30,7 @@ const std::array<TrackerPreset, 7>& builtinPresets()
             "Logo Corner, Locked-Off Camera",
             "rect", "SSD",
             12, false, 0.1, 1.0, 0.8, true, 0.85,
-            "ロックオフ撮影でのロゴ・テキスト追跡。動なしの高精度トラッキング用。"
+            "Tracks logos and text in locked-off shots. High-precision tracking with no motion."
         },
         // 4. occlusion-prone-walk
         {
@@ -38,7 +38,7 @@ const std::array<TrackerPreset, 7>& builtinPresets()
             "Occlusion-Prone Walk",
             "rect", "ZNCC",
             40, true, 0.10, 2.0, 0.25, true, 0.55,
-            "通行人や障害物で被写体が一時的に隠れる撮影用。Kalman 予測で隙間を埋める。"
+            "For shots where the subject is temporarily hidden by passers-by or obstacles. Kalman prediction bridges the gaps."
         },
         // 5. tight-product-shot
         {
@@ -46,7 +46,7 @@ const std::array<TrackerPreset, 7>& builtinPresets()
             "Tight Product Shot",
             "rect", "NCC",
             8, true, 0.03, 1.2, 0.6, true, 0.80,
-            "製品クローズアップや顔のパーツ追跡。小さく狭い範囲、サブピクセル精度重視。"
+            "Tracks product close-ups or facial features. Small, narrow areas with emphasis on sub-pixel accuracy."
         },
         // 6. scene-change-resilient
         {
@@ -54,7 +54,7 @@ const std::array<TrackerPreset, 7>& builtinPresets()
             "Scene Change Resilient",
             "rect", "ZNCC",
             60, true, 0.20, 2.5, 0.15, false, 0.50,
-            "カット切替・大きいシーン変化を跨ぐ追跡用。広探索 + 弱信頼度で再捕捉を狙う。"
+            "Tracks across cuts and large scene changes. Wide search with low confidence to reacquire the subject."
         },
         // 7. manual-keyframe-only
         {
@@ -62,7 +62,7 @@ const std::array<TrackerPreset, 7>& builtinPresets()
             "Manual Keyframes Only",
             "rect", "NCC",
             0, false, 0.1, 1.0, 1.0, false, 1.0,
-            "自動追跡を無効化し手動キーフレームのみ使用。被写体が追跡不能な場合のフォールバック。"
+            "Disables auto-tracking and uses manual keyframes only. Fallback for when the subject cannot be tracked."
         },
     }};
     return kPresets;

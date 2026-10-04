@@ -522,12 +522,12 @@ QString ProxyManager::staleReason(const QString &originalPath) const
     const QString currentFp = computeConfigFingerprint(
         m_config, currentEffectiveEncoder(), m_qualityPreset);
     if (entry.configFingerprint != currentFp)
-        reasons << QStringLiteral("設定が変更されました");
+        reasons << QStringLiteral("Settings changed");
 
     const qint64 srcMtime =
         QFileInfo(entry.originalPath).lastModified().toMSecsSinceEpoch();
     if (entry.sourceMtimeMs > 0 && srcMtime > entry.sourceMtimeMs)
-        reasons << QStringLiteral("ソース動画が更新されました");
+        reasons << QStringLiteral("Source video updated");
 
     return reasons.join(QStringLiteral(" / "));
 }

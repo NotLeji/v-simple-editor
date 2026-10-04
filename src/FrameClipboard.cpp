@@ -14,7 +14,7 @@ std::unique_ptr<QMimeData> FrameClipboard::createMimeData(
         error->clear();
     if (frame.isNull() || frame.width() <= 0 || frame.height() <= 0) {
         if (error)
-            *error = QStringLiteral("現在のフレームが空です。");
+            *error = QStringLiteral("The current frame is empty.");
         return {};
     }
 
@@ -23,7 +23,7 @@ std::unique_ptr<QMimeData> FrameClipboard::createMimeData(
     QBuffer pngBuffer(&pngBytes);
     if (!pngBuffer.open(QIODevice::WriteOnly)) {
         if (error)
-            *error = QStringLiteral("PNGデータを準備できませんでした。");
+            *error = QStringLiteral("Could not prepare PNG data.");
         return {};
     }
 
@@ -31,7 +31,7 @@ std::unique_ptr<QMimeData> FrameClipboard::createMimeData(
     if (!writer.write(rgba)) {
         if (error) {
             *error = QStringLiteral(
-                         "現在のフレームをPNGとしてエンコードできませんでした: %1")
+                         "Could not encode the current frame as PNG: %1")
                          .arg(writer.errorString());
         }
         return {};
@@ -51,7 +51,7 @@ bool FrameClipboard::copyImage(const QImage &frame, QClipboard *clipboard,
         return false;
     if (!clipboard) {
         if (error)
-            *error = QStringLiteral("システムクリップボードを利用できません。");
+            *error = QStringLiteral("The system clipboard is unavailable.");
         return false;
     }
 

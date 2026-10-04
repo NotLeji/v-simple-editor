@@ -11,11 +11,11 @@
 ProxyProgressDialog::ProxyProgressDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("プロキシ生成中"));
+    setWindowTitle(tr("Generating Proxies"));
     setModal(false);
     setMinimumWidth(420);
 
-    m_clipLabel = new QLabel(tr("待機中..."), this);
+    m_clipLabel = new QLabel(tr("Waiting..."), this);
     m_clipLabel->setWordWrap(true);
 
     m_progressBar = new QProgressBar(this);
@@ -24,9 +24,9 @@ ProxyProgressDialog::ProxyProgressDialog(QWidget *parent)
     m_statusLabel = new QLabel(this);
     m_statusLabel->setStyleSheet("color: #888;");
 
-    m_cancelButton = new QPushButton(tr("キャンセル"), this);
+    m_cancelButton = new QPushButton(tr("Cancel"), this);
     connect(m_cancelButton, &QPushButton::clicked, this, [this]() {
-        m_statusLabel->setText(tr("キャンセル中..."));
+        m_statusLabel->setText(tr("Canceling..."));
         m_cancelButton->setEnabled(false);
         emit cancelRequested();
     });
@@ -57,7 +57,7 @@ void ProxyProgressDialog::onProxyStarted(const QString &clipName)
     // Cancel any pending auto-hide from a prior cancel — otherwise the
     // 800ms timer scheduled in onProxyCancelled would fire mid-new-job.
     m_autoHideTimer->stop();
-    m_clipLabel->setText(tr("処理中: %1").arg(clipName));
+    m_clipLabel->setText(tr("Processing: %1").arg(clipName));
     m_progressBar->setRange(0, 0); // indeterminate until first percent arrives
     m_progressBar->setValue(0);
     m_statusLabel->clear();
@@ -68,11 +68,11 @@ void ProxyProgressDialog::onProxyStarted(const QString &clipName)
     // and the user would lose the ability to cancel — the button just
     // closes the dialog while the new ffmpeg job keeps running silently
     // in the background.
-    m_cancelButton->setText(tr("キャンセル"));
+    m_cancelButton->setText(tr("Cancel"));
     m_cancelButton->setEnabled(true);
     disconnect(m_cancelButton, nullptr, nullptr, nullptr);
     connect(m_cancelButton, &QPushButton::clicked, this, [this]() {
-        m_statusLabel->setText(tr("キャンセル中..."));
+        m_statusLabel->setText(tr("Canceling..."));
         m_cancelButton->setEnabled(false);
         emit cancelRequested();
     });
@@ -86,7 +86,7 @@ void ProxyProgressDialog::onProxyStarted(const QString &clipName)
 void ProxyProgressDialog::onProxyProgress(const QString &clipName, int percent)
 {
     if (!clipName.isEmpty())
-        m_clipLabel->setText(tr("処理中: %1").arg(clipName));
+        m_clipLabel->setText(tr("Processing: %1").arg(clipName));
     if (percent < 0) {
         m_progressBar->setRange(0, 0);
         return;
@@ -101,9 +101,9 @@ void ProxyProgressDialog::onProxyFinished(const QString &clipName, bool ok)
     m_autoHideTimer->stop();
     m_progressBar->setRange(0, 100);
     m_progressBar->setValue(ok ? 100 : 0);
-    m_statusLabel->setText(ok ? tr("完了: %1").arg(clipName)
-                              : tr("エラー: %1").arg(clipName));
-    m_cancelButton->setText(tr("閉じる"));
+    m_statusLabel->setText(ok ? tr("Done: %1").arg(clipName)
+                              : tr("Error: %1").arg(clipName));
+    m_cancelButton->setText(tr("Close"));
     m_cancelButton->setEnabled(true);
     disconnect(m_cancelButton, nullptr, nullptr, nullptr);
     connect(m_cancelButton, &QPushButton::clicked, this, &QDialog::accept);
@@ -113,8 +113,8 @@ void ProxyProgressDialog::onProxyCancelled(const QString &clipName)
 {
     m_progressBar->setRange(0, 100);
     m_progressBar->setValue(0);
-    m_statusLabel->setText(tr("キャンセル済み: %1").arg(clipName));
-    m_cancelButton->setText(tr("閉じる"));
+    m_statusLabel->setText(tr("Cancelled: %1").arg(clipName));
+    m_cancelButton->setText(tr("Close"));
     m_cancelButton->setEnabled(true);
     disconnect(m_cancelButton, nullptr, nullptr, nullptr);
     connect(m_cancelButton, &QPushButton::clicked, this, &QDialog::accept);
@@ -134,7 +134,7 @@ void ProxyProgressDialog::closeEvent(QCloseEvent *event)
     // onProxyCancelled both rewrite the button text to「閉じる」, so any
     // other text means we're still mid-job regardless of determinate vs
     // indeterminate progress bar mode.
-    if (m_cancelButton->text() == tr("キャンセル") && m_cancelButton->isEnabled()) {
+    if (m_cancelButton->text() == tr("Cancel") && m_cancelButton->isEnabled()) {
         emit cancelRequested();
     }
     QDialog::closeEvent(event);

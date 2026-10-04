@@ -104,7 +104,7 @@ QDoubleSpinBox *createTimingSpinBox(QWidget *parent, double value)
     spin->setDecimals(3);
     spin->setSingleStep(1.0);
     spin->setValue(normalizedTimingValue(value));
-    spin->setToolTip(QStringLiteral("空欄または -1 で無制限"));
+    spin->setToolTip(QStringLiteral("Leave blank or set -1 for unlimited"));
     return spin;
 }
 
@@ -140,16 +140,16 @@ void EffectRowWidget::buildRows(const QVector<ParamDef> &schema)
     timingLayout->setContentsMargins(2, 1, 2, 1);
     timingLayout->setSpacing(4);
 
-    auto *startLabel = new QLabel(QStringLiteral("開始(秒)"), timingContainer);
+    auto *startLabel = new QLabel(QStringLiteral("Start (s)"), timingContainer);
     startLabel->setMinimumWidth(64);
     auto *startSpin = createTimingSpinBox(timingContainer, m_effect.startSec);
-    auto *endLabel = new QLabel(QStringLiteral("終了(秒)"), timingContainer);
+    auto *endLabel = new QLabel(QStringLiteral("End (s)"), timingContainer);
     endLabel->setMinimumWidth(64);
     auto *endSpin = createTimingSpinBox(timingContainer, m_effect.endSec);
     auto *resetButton = new QPushButton(timingContainer);
     resetButton->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
     resetButton->setFixedSize(20, 20);
-    resetButton->setToolTip(QStringLiteral("有効区間を無制限に戻す"));
+    resetButton->setToolTip(QStringLiteral("Reset active range to unlimited"));
 
     auto emitTimingValue = [this](const QString &paramName, QDoubleSpinBox *spin, double value) {
         const double normalized = normalizedTimingValue(value);

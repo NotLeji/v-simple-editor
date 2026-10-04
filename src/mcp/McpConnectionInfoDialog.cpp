@@ -40,7 +40,7 @@ QWidget *snippetRow(const QString& snippet, const QString& buttonText,
     layout->addWidget(text, 1);
 
     auto *copy = new QPushButton(buttonText, row);
-    copy->setToolTip(QStringLiteral("この設定をクリップボードへコピーします。"));
+    copy->setToolTip(QStringLiteral("Copy this setting to the clipboard."));
     QObject::connect(copy, &QPushButton::clicked, row, [text]() {
         if (QClipboard *clipboard = QApplication::clipboard())
             clipboard->setText(text->toPlainText());
@@ -56,18 +56,18 @@ McpConnectionInfoDialog::McpConnectionInfoDialog(const QString& endpoint,
                                                  QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("MCP サーバ接続情報"));
+    setWindowTitle(QStringLiteral("MCP Server Connection Info"));
     resize(720, 520);
 
     auto *layout = new QVBoxLayout(this);
 
-    auto *endpointLabel = new QLabel(QStringLiteral("エンドポイント"), this);
+    auto *endpointLabel = new QLabel(QStringLiteral("Endpoint"), this);
     layout->addWidget(endpointLabel);
     auto *endpointEdit = new QLineEdit(endpoint, this);
     endpointEdit->setReadOnly(true);
     layout->addWidget(endpointEdit);
 
-    auto *tokenLabel = new QLabel(QStringLiteral("トークン"), this);
+    auto *tokenLabel = new QLabel(QStringLiteral("Token"), this);
     layout->addWidget(tokenLabel);
     auto *tokenEdit = new QLineEdit(token, this);
     tokenEdit->setReadOnly(true);
@@ -88,10 +88,10 @@ McpConnectionInfoDialog::McpConnectionInfoDialog(const QString& endpoint,
             }}
         }).toJson(QJsonDocument::Compact));
 
-    layout->addWidget(new QLabel(QStringLiteral("Claude Code 用"), this));
-    layout->addWidget(snippetRow(claudeSnippet, QStringLiteral("コピー"), this));
+    layout->addWidget(new QLabel(QStringLiteral("For Claude Code"), this));
+    layout->addWidget(snippetRow(claudeSnippet, QStringLiteral("Copy"), this));
     layout->addWidget(new QLabel(
-        QStringLiteral("使い方: claude --mcp-config veditor-mcp.json --strict-mcp-config"),
+        QStringLiteral("Usage: claude --mcp-config veditor-mcp.json --strict-mcp-config"),
         this));
 
     const QString executable = QDir::toNativeSeparators(
@@ -105,12 +105,12 @@ McpConnectionInfoDialog::McpConnectionInfoDialog(const QString& endpoint,
              QString::number(QUrl(endpoint).port()),
              tomlString(token));
 
-    layout->addWidget(new QLabel(QStringLiteral("Codex CLI 用"), this));
-    layout->addWidget(snippetRow(codexSnippet, QStringLiteral("コピー"), this));
+    layout->addWidget(new QLabel(QStringLiteral("For Codex CLI"), this));
+    layout->addWidget(snippetRow(codexSnippet, QStringLiteral("Copy"), this));
 
     auto *warning = new QLabel(
-        QStringLiteral("このサーバに接続した LLM は、確認なしにタイムラインを編集します。\n"
-                       "変更は Ctrl+Z で戻せます。トークンを他人に渡さないでください。"),
+        QStringLiteral("An LLM connected to this server will edit the timeline without confirmation.\n"
+                       "Changes can be undone with Ctrl+Z. Do not share the token with others."),
         this);
     warning->setStyleSheet(QStringLiteral("color: #d32f2f;"));
     warning->setWordWrap(true);

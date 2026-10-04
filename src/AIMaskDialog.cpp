@@ -20,7 +20,7 @@ AIMaskDialog::AIMaskDialog(QWidget* parent)
     : QDialog(parent)
 {
     setObjectName(QStringLiteral("aiMaskDialog"));
-    setWindowTitle(tr("AI マスク生成"));
+    setWindowTitle(tr("AI Mask Generation"));
 
     // --- エンジン選択 ---
     m_engineCombo = new QComboBox(this);
@@ -35,7 +35,7 @@ AIMaskDialog::AIMaskDialog(QWidget* parent)
     m_lumaSpin->setValue(0.5);
 
     // --- ColorRange パラメータ ---
-    m_colorButton = new QPushButton(tr("色を選択..."), this);
+    m_colorButton = new QPushButton(tr("Select Color..."), this);
     // ボタン背景でターゲット色を示す
     QPalette pal = m_colorButton->palette();
     pal.setColor(QPalette::Button, m_colorTarget);
@@ -54,7 +54,7 @@ AIMaskDialog::AIMaskDialog(QWidget* parent)
     m_pluginIdEdit->setEnabled(false);
 
     // --- プレビュー領域 ---
-    m_preview = new QLabel(tr("プレビューなし"), this);
+    m_preview = new QLabel(tr("No Preview"), this);
     m_preview->setFixedSize(320, 180);
     m_preview->setAlignment(Qt::AlignCenter);
     {
@@ -66,7 +66,7 @@ AIMaskDialog::AIMaskDialog(QWidget* parent)
     }
 
     // --- 生成ボタン ---
-    auto* generateBtn = new QPushButton(tr("生成"), this);
+    auto* generateBtn = new QPushButton(tr("Generate"), this);
 
     // --- OK / Cancel ---
     auto* buttons = new QDialogButtonBox(
@@ -74,11 +74,11 @@ AIMaskDialog::AIMaskDialog(QWidget* parent)
 
     // --- フォームレイアウト ---
     auto* form = new QFormLayout;
-    form->addRow(tr("エンジン:"),      m_engineCombo);
-    form->addRow(tr("輝度閾値:"),      m_lumaSpin);
-    form->addRow(tr("ターゲット色:"),  m_colorButton);
-    form->addRow(tr("色許容範囲:"),    m_toleranceSpin);
-    form->addRow(tr("プラグイン ID:"), m_pluginIdEdit);
+    form->addRow(tr("Engine:"),      m_engineCombo);
+    form->addRow(tr("Luma Threshold:"),      m_lumaSpin);
+    form->addRow(tr("Target Color:"),  m_colorButton);
+    form->addRow(tr("Color Tolerance:"),    m_toleranceSpin);
+    form->addRow(tr("Plugin ID:"), m_pluginIdEdit);
 
     // --- メインレイアウト ---
     auto* mainLayout = new QVBoxLayout(this);
@@ -92,7 +92,7 @@ AIMaskDialog::AIMaskDialog(QWidget* parent)
             this, [this](int) { updateWidgetStates(); });
 
     connect(m_colorButton, &QPushButton::clicked, this, [this]() {
-        QColor c = QColorDialog::getColor(m_colorTarget, this, tr("ターゲット色を選択"));
+        QColor c = QColorDialog::getColor(m_colorTarget, this, tr("Select Target Color"));
         if (c.isValid()) {
             m_colorTarget = c;
             QPalette pal = m_colorButton->palette();
@@ -166,7 +166,7 @@ void AIMaskDialog::onGenerateClicked()
     const aimask::MaskResult result = aimask::generateMask(m_source, params());
 
     if (!result.success) {
-        QMessageBox::warning(this, tr("マスク生成エラー"), result.error);
+        QMessageBox::warning(this, tr("Mask Generation Error"), result.error);
         return;
     }
 

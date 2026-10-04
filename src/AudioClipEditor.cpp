@@ -46,7 +46,7 @@ AudioClipEditor::AudioClipEditor(QWidget* parent)
     row->setContentsMargins(8, 4, 8, 4);
     row->setSpacing(8);
 
-    auto* volumeLabel = new QLabel(QStringLiteral("音量"), m_controlPanel);
+    auto* volumeLabel = new QLabel(QStringLiteral("Volume"), m_controlPanel);
     m_volumeSlider = new QSlider(Qt::Horizontal, m_controlPanel);
     m_volumeSlider->setRange(0, 200);
     m_volumeSlider->setValue(100);
@@ -57,7 +57,7 @@ AudioClipEditor::AudioClipEditor(QWidget* parent)
     m_volumeSpin->setSingleStep(0.01);
     m_volumeSpin->setValue(1.0);
 
-    m_panLabel = new QLabel(QStringLiteral("パン (L/C/R)"), m_controlPanel);
+    m_panLabel = new QLabel(QStringLiteral("Pan (L/C/R)"), m_controlPanel);
     m_panSlider = new QSlider(Qt::Horizontal, m_controlPanel);
     m_panSlider->setRange(-100, 100);
     m_panSlider->setValue(0);
@@ -466,7 +466,7 @@ void AudioClipEditor::contextMenuEvent(QContextMenuEvent* e)
     QMenu menu(this);
     const bool isEndpoint = (idx == 0 || idx == m_points.size() - 1);
 
-    QAction* delAct = menu.addAction(tr("この点を削除"));
+    QAction* delAct = menu.addAction(tr("Delete this point"));
     delAct->setEnabled(!isEndpoint);
 
     QAction* chosen = menu.exec(e->globalPos());

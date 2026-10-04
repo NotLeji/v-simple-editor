@@ -109,15 +109,15 @@ int runVfxFootageSelftest()
     for (const vfxfootage::FootageItem &item : scanned) {
         const QString name = QFileInfo(item.filePath).fileName();
         if (name == QStringLiteral("fire_01.mp4")
-            && item.category == QStringLiteral("炎")) {
+            && item.category == QStringLiteral("Fire")) {
             fireCategoryOk = true;
         }
         if (name == QStringLiteral("smoke_02.MOV")
-            && item.category == QStringLiteral("煙")) {
+            && item.category == QStringLiteral("Smoke")) {
             smokeCategoryOk = true;
         }
         if (name == QStringLiteral("foo.mp4")
-            && item.category == QStringLiteral("その他")) {
+            && item.category == QStringLiteral("Other")) {
             unknownKept = true;
         }
     }

@@ -85,29 +85,29 @@ QByteArray toPcm16(const QVector<float> &samples)
 VoiceIsolationDialog::VoiceIsolationDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("音声分離（スピーチ強調）"));
+    setWindowTitle(tr("Voice Isolation (Speech Enhancement)"));
     setModal(true);
     resize(720, 680);
     setMinimumWidth(640);
 
-    m_sourceLabel = new QLabel(tr("音声ソース未設定"), this);
+    m_sourceLabel = new QLabel(tr("Audio Source Not Set"), this);
     m_sourceLabel->setWordWrap(true);
     m_sourceLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_sourceLabel->setMinimumHeight(34);
 
     m_rangeStartSpin = makeDoubleSpin(this, 0.0, 0.0, 0.1, 3, 0.0);
     m_rangeEndSpin = makeDoubleSpin(this, 0.0, 0.0, 0.1, 3, 0.0);
-    m_rangeStartSpin->setSuffix(tr(" 秒"));
-    m_rangeEndSpin->setSuffix(tr(" 秒"));
+    m_rangeStartSpin->setSuffix(tr(" sec"));
+    m_rangeEndSpin->setSuffix(tr(" sec"));
     connect(m_rangeStartSpin, qOverload<double>(&QDoubleSpinBox::valueChanged),
             this, &VoiceIsolationDialog::onRangeChanged);
     connect(m_rangeEndSpin, qOverload<double>(&QDoubleSpinBox::valueChanged),
             this, &VoiceIsolationDialog::onRangeChanged);
 
     m_modeCombo = new QComboBox(this);
-    m_modeCombo->addItem(tr("音声のみ"), static_cast<int>(voiceiso::OutputMode::VoiceOnly));
-    m_modeCombo->addItem(tr("背景のみ"), static_cast<int>(voiceiso::OutputMode::BackgroundOnly));
-    m_modeCombo->addItem(tr("ミックス"), static_cast<int>(voiceiso::OutputMode::Mix));
+    m_modeCombo->addItem(tr("Voice only"), static_cast<int>(voiceiso::OutputMode::VoiceOnly));
+    m_modeCombo->addItem(tr("Background only"), static_cast<int>(voiceiso::OutputMode::BackgroundOnly));
+    m_modeCombo->addItem(tr("Mix"), static_cast<int>(voiceiso::OutputMode::Mix));
     connect(m_modeCombo, qOverload<int>(&QComboBox::currentIndexChanged),
             this, &VoiceIsolationDialog::invalidateAnalysis);
 
@@ -128,8 +128,8 @@ VoiceIsolationDialog::VoiceIsolationDialog(QWidget *parent)
     m_highHzSpin = makeDoubleSpin(this, 0.0, 24000.0, 100.0, 0, 8000.0);
     m_highHzSpin->setSuffix(tr(" Hz"));
     m_noiseLearnSpin = makeDoubleSpin(this, 0.0, 5.0, 0.1, 1, 0.5);
-    m_noiseLearnSpin->setSuffix(tr(" 秒"));
-    m_adaptiveNoiseCheck = new QCheckBox(tr("適応ノイズ床を使用"), this);
+    m_noiseLearnSpin->setSuffix(tr(" sec"));
+    m_adaptiveNoiseCheck = new QCheckBox(tr("Use adaptive noise floor"), this);
     m_adaptiveNoiseCheck->setChecked(true);
     m_harmonicSlider = new QSlider(Qt::Horizontal, this);
     m_harmonicSlider->setRange(0, 100);
@@ -146,57 +146,57 @@ VoiceIsolationDialog::VoiceIsolationDialog(QWidget *parent)
     bindSliderAndSpin(m_smoothingSlider, m_smoothingSpin, this,
                       [this]() { invalidateAnalysis(); });
 
-    auto *sourceGroup = new QGroupBox(tr("対象クリップと範囲"), this);
+    auto *sourceGroup = new QGroupBox(tr("Target Clip and Range"), this);
     auto *sourceForm = new QFormLayout(sourceGroup);
-    sourceForm->addRow(tr("クリップ:"), m_sourceLabel);
+    sourceForm->addRow(tr("Clip:"), m_sourceLabel);
     auto *rangeRow = new QHBoxLayout;
     rangeRow->addWidget(m_rangeStartSpin);
-    rangeRow->addWidget(new QLabel(tr("から"), sourceGroup));
+    rangeRow->addWidget(new QLabel(tr("From"), sourceGroup));
     rangeRow->addWidget(m_rangeEndSpin);
-    rangeRow->addWidget(new QLabel(tr("まで"), sourceGroup));
+    rangeRow->addWidget(new QLabel(tr("to"), sourceGroup));
     rangeRow->addStretch(1);
-    sourceForm->addRow(tr("処理範囲:"), rangeRow);
+    sourceForm->addRow(tr("Processing range:"), rangeRow);
 
-    auto *separationGroup = new QGroupBox(tr("分離"), this);
+    auto *separationGroup = new QGroupBox(tr("Separation"), this);
     auto *separationForm = new QFormLayout(separationGroup);
     auto *strengthRow = new QHBoxLayout;
     strengthRow->addWidget(m_strengthSlider, 1);
     strengthRow->addWidget(m_strengthSpin);
-    separationForm->addRow(tr("分離強度:"), strengthRow);
-    separationForm->addRow(tr("出力モード:"), m_modeCombo);
-    separationForm->addRow(tr("音声ゲイン:"), m_voiceGainSpin);
-    separationForm->addRow(tr("背景ゲイン:"), m_backgroundGainSpin);
+    separationForm->addRow(tr("Separation strength:"), strengthRow);
+    separationForm->addRow(tr("Output mode:"), m_modeCombo);
+    separationForm->addRow(tr("Voice gain:"), m_voiceGainSpin);
+    separationForm->addRow(tr("Background gain:"), m_backgroundGainSpin);
     auto *bandRow = new QHBoxLayout;
     bandRow->addWidget(m_lowHzSpin);
-    bandRow->addWidget(new QLabel(tr("から"), separationGroup));
+    bandRow->addWidget(new QLabel(tr("From"), separationGroup));
     bandRow->addWidget(m_highHzSpin);
     bandRow->addStretch(1);
-    separationForm->addRow(tr("音声帯域:"), bandRow);
+    separationForm->addRow(tr("Voice band:"), bandRow);
 
-    auto *analysisGroup = new QGroupBox(tr("解析と音声らしさ"), this);
+    auto *analysisGroup = new QGroupBox(tr("Analysis and Voiceness"), this);
     auto *analysisForm = new QFormLayout(analysisGroup);
-    analysisForm->addRow(tr("ノイズ学習:"), m_noiseLearnSpin);
+    analysisForm->addRow(tr("Noise learning:"), m_noiseLearnSpin);
     analysisForm->addRow(QString(), m_adaptiveNoiseCheck);
     auto *harmonicRow = new QHBoxLayout;
     harmonicRow->addWidget(m_harmonicSlider, 1);
     harmonicRow->addWidget(m_harmonicSpin);
-    analysisForm->addRow(tr("倍音構造:"), harmonicRow);
+    analysisForm->addRow(tr("Harmonic structure:"), harmonicRow);
     auto *smoothingRow = new QHBoxLayout;
     smoothingRow->addWidget(m_smoothingSlider, 1);
     smoothingRow->addWidget(m_smoothingSpin);
-    analysisForm->addRow(tr("時間平滑化:"), smoothingRow);
+    analysisForm->addRow(tr("Temporal smoothing:"), smoothingRow);
 
-    m_ratioLabel = new QLabel(tr("推定音声比率: 未解析"), this);
+    m_ratioLabel = new QLabel(tr("Estimated Voice Ratio: Not Analyzed"), this);
     m_ratioLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    m_statusLabel = new QLabel(tr("対象を設定すると解析できます。"), this);
+    m_statusLabel = new QLabel(tr("Set a target to analyze."), this);
     m_statusLabel->setWordWrap(true);
     m_statusLabel->setMinimumHeight(32);
 
-    m_analyzeButton = new QPushButton(tr("解析"), this);
-    m_previewButton = new QPushButton(tr("プレビュー再生"), this);
-    m_applyButton = new QPushButton(tr("適用"), this);
+    m_analyzeButton = new QPushButton(tr("Analyze"), this);
+    m_previewButton = new QPushButton(tr("Preview Playback"), this);
+    m_applyButton = new QPushButton(tr("Apply"), this);
     m_applyButton->setDefault(true);
-    auto *closeButton = new QPushButton(tr("閉じる"), this);
+    auto *closeButton = new QPushButton(tr("Close"), this);
     connect(m_analyzeButton, &QPushButton::clicked,
             this, &VoiceIsolationDialog::onAnalyzeClicked);
     connect(m_previewButton, &QPushButton::clicked,
@@ -259,7 +259,7 @@ void VoiceIsolationDialog::setAudioSource(const QString &label,
     m_hasAnalysis = false;
     const double duration = (sampleRate > 0 && !samples.isEmpty())
         ? samples.size() / static_cast<double>(sampleRate) : 0.0;
-    m_sourceLabel->setText(label.isEmpty() ? tr("音声ソース未設定") : label);
+    m_sourceLabel->setText(label.isEmpty() ? tr("Audio Source Not Set") : label);
     m_rangeStartSpin->setRange(0.0, duration);
     m_rangeEndSpin->setRange(0.0, duration);
     {
@@ -268,10 +268,10 @@ void VoiceIsolationDialog::setAudioSource(const QString &label,
         m_rangeStartSpin->setValue(0.0);
         m_rangeEndSpin->setValue(duration);
     }
-    m_ratioLabel->setText(tr("推定音声比率: 未解析"));
+    m_ratioLabel->setText(tr("Estimated Voice Ratio: Not Analyzed"));
     m_statusLabel->setText(samples.isEmpty() || sampleRate <= 0
-                               ? tr("音声サンプルを読み込めませんでした。")
-                               : tr("解析またはプレビュー再生を実行できます。"));
+                               ? tr("Could not load audio samples.")
+                               : tr("You can run analysis or preview playback."));
     updateActionState();
 }
 
@@ -319,7 +319,7 @@ voiceiso::VoiceIsolationParams VoiceIsolationDialog::paramsFromUi() const
 bool VoiceIsolationDialog::processCurrentRange()
 {
     if (m_samples.isEmpty() || m_sampleRate <= 0) {
-        m_statusLabel->setText(tr("有効な音声サンプルがありません。"));
+        m_statusLabel->setText(tr("No valid audio samples."));
         return false;
     }
     const qint64 first64 = qBound<qint64>(
@@ -327,7 +327,7 @@ bool VoiceIsolationDialog::processCurrentRange()
     const qint64 end64 = qBound<qint64>(
         first64 + 1, qRound64(rangeEndSeconds() * m_sampleRate), m_samples.size());
     if (end64 <= first64) {
-        m_statusLabel->setText(tr("処理範囲の終点は始点より後に設定してください。"));
+        m_statusLabel->setText(tr("Please set the processing range end after the start."));
         return false;
     }
 
@@ -345,7 +345,7 @@ bool VoiceIsolationDialog::processCurrentRange()
         range, m_sampleRate, params);
     const int rangeLength = static_cast<int>(end64 - first64);
     if (static_cast<int>(result.output.size()) != rangeLength) {
-        m_statusLabel->setText(tr("音声分離に必要なメモリを確保できませんでした。範囲を短くして再試行してください。"));
+        m_statusLabel->setText(tr("Could not allocate memory needed for voice isolation. Shorten the range and try again."));
         setBusy(false);
         return false;
     }
@@ -361,10 +361,10 @@ bool VoiceIsolationDialog::processCurrentRange()
     if (!floor.isEmpty())
         floorMean /= floor.size();
     const double floorDb = 10.0 * std::log10(std::max(1.0e-12, floorMean));
-    m_ratioLabel->setText(tr("推定音声比率: %1% | ノイズ床: %2 dBFS")
+    m_ratioLabel->setText(tr("Estimated voice ratio: %1% | Noise floor: %2 dBFS")
                               .arg(result.estimatedVoiceRatio * 100.0, 0, 'f', 1)
                               .arg(floorDb, 0, 'f', 1));
-    m_statusLabel->setText(tr("解析完了。範囲内の処理結果をプレビューできます。"));
+    m_statusLabel->setText(tr("Analysis complete. You can preview the processed result for the range."));
     setBusy(false);
     return true;
 }
@@ -374,7 +374,7 @@ bool VoiceIsolationDialog::writePreviewFile(const QVector<float> &samples,
 {
     if (m_sampleRate <= 0 || samples.isEmpty()) {
         if (error)
-            *error = tr("プレビュー対象が空です。");
+            *error = tr("Preview target is empty.");
         return false;
     }
     if (m_previewFile.fileName().isEmpty()) {
@@ -388,7 +388,7 @@ bool VoiceIsolationDialog::writePreviewFile(const QVector<float> &samples,
     const QByteArray pcm = toPcm16(samples);
     if (pcm.isEmpty()) {
         if (error)
-            *error = tr("プレビュー用 PCM の作成に失敗しました。");
+            *error = tr("Failed to create preview PCM.");
         return false;
     }
     return libavcore::writePcm16AsWav(
@@ -400,7 +400,7 @@ void VoiceIsolationDialog::setBusy(bool busy)
     m_busy = busy;
     updateActionState();
     if (m_busy)
-        m_statusLabel->setText(tr("解析中..."));
+        m_statusLabel->setText(tr("Analyzing..."));
 }
 
 void VoiceIsolationDialog::invalidateAnalysis()
@@ -409,7 +409,7 @@ void VoiceIsolationDialog::invalidateAnalysis()
         return;
     m_hasAnalysis = false;
     if (!m_samples.isEmpty())
-        m_statusLabel->setText(tr("設定が変更されました。再解析してください。"));
+        m_statusLabel->setText(tr("Settings changed. Please re-analyze."));
 }
 
 void VoiceIsolationDialog::updateActionState()
@@ -451,12 +451,12 @@ void VoiceIsolationDialog::onPreviewClicked()
         return;
     QString error;
     if (!writePreviewFile(m_processedSamples, &error)) {
-        m_statusLabel->setText(tr("プレビュー準備に失敗しました: %1").arg(error));
+        m_statusLabel->setText(tr("Failed to prepare preview: %1").arg(error));
         return;
     }
     m_player->setSource(QUrl::fromLocalFile(m_previewFile.fileName()));
     m_player->play();
-    m_statusLabel->setText(tr("プレビューを再生しています。"));
+    m_statusLabel->setText(tr("Playing preview."));
 }
 
 void VoiceIsolationDialog::onApplyClicked()
@@ -479,10 +479,10 @@ void VoiceIsolationDialog::onRangeChanged()
 void VoiceIsolationDialog::onPlayerStateChanged(QMediaPlayer::PlaybackState state)
 {
     if (state == QMediaPlayer::PlayingState) {
-        m_previewButton->setText(tr("プレビュー停止"));
+        m_previewButton->setText(tr("Stop Preview"));
     } else {
-        m_previewButton->setText(tr("プレビュー再生"));
+        m_previewButton->setText(tr("Preview Playback"));
         if (!m_busy && m_hasAnalysis)
-            m_statusLabel->setText(tr("解析完了。適用するか、設定を調整できます。"));
+            m_statusLabel->setText(tr("Analysis complete. Apply it or adjust the settings."));
     }
 }

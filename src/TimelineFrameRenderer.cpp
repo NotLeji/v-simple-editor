@@ -2693,7 +2693,7 @@ QImage renderFrameFromTracks(const Timeline *timeline,
         // legitimately-top matte SOURCE fail that guard — silently dropping the
         // matte. So the shared SSOT array order is kept ascending here to
         // PRESERVE the matte adjacency relationships exactly (per the spec's
-        // "判断が難しければマット隣接関係は維持" fallback). The z-order flip to
+        // "When in doubt, keep matte adjacency" fallback). The z-order flip to
         // V1-on-top is applied to every non-matte path (matte-free branch above,
         // preview compositor, special-clip composite); matte'd stacks keep their
         // adjacency-driven order so the alpha relationships stay correct.

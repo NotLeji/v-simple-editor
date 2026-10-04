@@ -25,13 +25,13 @@ MediaRelinkDialog::MediaRelinkDialog(const QStringList &missingPaths,
     , m_missingPaths(missingPaths)
 {
     setObjectName(QStringLiteral("mediaRelinkDialog"));
-    setWindowTitle(QStringLiteral("オフラインメディアを再リンク"));
+    setWindowTitle(QStringLiteral("Relink Offline Media"));
     setModal(true);
     resize(760, 420);
 
     auto *layout = new QVBoxLayout(this);
     auto *description = new QLabel(
-        QStringLiteral("参照先が見つからないメディアがあります。新しい場所を指定するか、オフラインのままプロジェクトを開けます。"),
+        QStringLiteral("Some media is missing its source. Specify a new location, or open the project offline."),
         this);
     description->setWordWrap(true);
     layout->addWidget(description);
@@ -39,8 +39,8 @@ MediaRelinkDialog::MediaRelinkDialog(const QStringList &missingPaths,
     m_files = new QTreeWidget(this);
     m_files->setObjectName(QStringLiteral("missingMediaList"));
     m_files->setColumnCount(2);
-    m_files->setHeaderLabels({QStringLiteral("見つからないファイル"),
-                              QStringLiteral("再リンク先")});
+    m_files->setHeaderLabels({QStringLiteral("Missing Files"),
+                              QStringLiteral("Relink To")});
     m_files->setSelectionMode(QAbstractItemView::SingleSelection);
     m_files->setRootIsDecorated(false);
     m_files->header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -48,7 +48,7 @@ MediaRelinkDialog::MediaRelinkDialog(const QStringList &missingPaths,
     for (const QString &path : m_missingPaths) {
         auto *item = new QTreeWidgetItem(m_files);
         item->setText(0, QDir::toNativeSeparators(path));
-        item->setText(1, QStringLiteral("未指定"));
+        item->setText(1, QStringLiteral("Unspecified"));
         item->setData(0, kOriginalPathRole, path);
         item->setToolTip(0, QDir::toNativeSeparators(path));
     }
@@ -58,9 +58,9 @@ MediaRelinkDialog::MediaRelinkDialog(const QStringList &missingPaths,
 
     auto *actions = new QHBoxLayout;
     m_searchFolderButton = new QPushButton(
-        QStringLiteral("フォルダを指定して検索"), this);
+        QStringLiteral("Search in Folder"), this);
     m_searchFolderButton->setObjectName(QStringLiteral("searchRelinkFolderButton"));
-    m_chooseFileButton = new QPushButton(QStringLiteral("個別に選択"), this);
+    m_chooseFileButton = new QPushButton(QStringLiteral("Choose Individually"), this);
     m_chooseFileButton->setObjectName(QStringLiteral("chooseRelinkFileButton"));
     actions->addWidget(m_searchFolderButton);
     actions->addWidget(m_chooseFileButton);
@@ -68,11 +68,11 @@ MediaRelinkDialog::MediaRelinkDialog(const QStringList &missingPaths,
     layout->addLayout(actions);
 
     auto *buttons = new QDialogButtonBox(this);
-    m_applyButton = buttons->addButton(QStringLiteral("再リンクを適用"),
+    m_applyButton = buttons->addButton(QStringLiteral("Apply Relink"),
                                        QDialogButtonBox::AcceptRole);
     m_applyButton->setObjectName(QStringLiteral("applyRelinkButton"));
     auto *offlineButton = buttons->addButton(
-        QStringLiteral("オフラインのまま開く"), QDialogButtonBox::RejectRole);
+        QStringLiteral("Open Offline"), QDialogButtonBox::RejectRole);
     offlineButton->setObjectName(QStringLiteral("openOfflineButton"));
     layout->addWidget(buttons);
 
@@ -99,7 +99,7 @@ MediaRelinkDialog::MediaRelinkDialog(const QStringList &missingPaths,
 void MediaRelinkDialog::searchFolder()
 {
     const QString root = QFileDialog::getExistingDirectory(
-        this, QStringLiteral("再リンク先のフォルダを選択"));
+        this, QStringLiteral("Select Relink Destination Folder"));
     if (root.isEmpty())
         return;
 
@@ -127,7 +127,7 @@ void MediaRelinkDialog::searchFolder()
                 displayCandidates.append(QDir::toNativeSeparators(candidate));
             bool ok = false;
             const QString displaySelection = QInputDialog::getItem(
-                this, QStringLiteral("再リンク候補を選択"),
+                this, QStringLiteral("Select Relink Candidate"),
                 QFileInfo(original).fileName(), displayCandidates, 0, false, &ok);
             if (!ok)
                 continue;
@@ -142,8 +142,8 @@ void MediaRelinkDialog::searchFolder()
 
     if (matched == 0) {
         QMessageBox::information(
-            this, QStringLiteral("再リンク候補なし"),
-            QStringLiteral("選択したフォルダ以下に、同じファイル名の候補は見つかりませんでした。"));
+            this, QStringLiteral("No Relink Candidates"),
+            QStringLiteral("No same-named candidates were found under the selected folder."));
     }
 }
 
@@ -154,9 +154,9 @@ void MediaRelinkDialog::chooseIndividualFile()
         return;
     const QString original = item->data(0, kOriginalPathRole).toString();
     const QString candidate = QFileDialog::getOpenFileName(
-        this, QStringLiteral("%1 の再リンク先を選択")
+        this, QStringLiteral("Select relink destination for %1")
                   .arg(QFileInfo(original).fileName()),
-        QFileInfo(original).absolutePath(), QStringLiteral("すべてのファイル (*)"));
+        QFileInfo(original).absolutePath(), QStringLiteral("All files (*)"));
     if (!candidate.isEmpty())
         setCandidate(item, candidate);
 }

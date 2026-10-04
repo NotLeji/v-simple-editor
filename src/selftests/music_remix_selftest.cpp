@@ -180,7 +180,7 @@ int runMusicRemixSelftest()
             0, 0, excessiveExternalPlan, true, &error);
         const QVector<ClipInfo> &unchanged = audioTrack->clips();
         const bool g7 = !applied
-            && error.contains(QStringLiteral("上限"))
+            && error.contains(QStringLiteral("Ceiling"))
             && unchanged.size() == 2
             && unchanged[0].filePath == original.filePath
             && qAbs(unchanged[0].inPoint - original.inPoint) <= 1.0e-9

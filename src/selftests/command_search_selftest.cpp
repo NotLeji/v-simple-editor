@@ -28,11 +28,11 @@ int runCommandSearchSelftest()
     auto fail = [&](const char* name, const QString& msg) { ++failed; qWarning().noquote() << "[command-search] FAIL" << name << ":" << msg; };
 
     const QVector<cmdsearch::CommandEntry> entries = {
-        { QStringLiteral("export"), QStringLiteral("動画を書き出し"), QStringLiteral("export render エクスポート 出力") },
-        { QStringLiteral("cut"), QStringLiteral("自動ジャンプカット"), QStringLiteral("無音 カット silence") },
-        { QStringLiteral("whisper"), QStringLiteral("動画を文字起こし"), QStringLiteral("transcribe 字幕 whisper") },
-        { QStringLiteral("render_help"), QStringLiteral("レンダー設定"), QStringLiteral("動画を書き出し export quality") },
-        { QStringLiteral("markers"), QStringLiteral("マーカーを追加"), QStringLiteral("chapter bookmark 目印") }
+        { QStringLiteral("export"), QStringLiteral("Export Video"), QStringLiteral("export render export output") },
+        { QStringLiteral("cut"), QStringLiteral("Auto jump cut"), QStringLiteral("silence cut silence") },
+        { QStringLiteral("whisper"), QStringLiteral("Transcribe Video"), QStringLiteral("transcribe subtitles whisper") },
+        { QStringLiteral("render_help"), QStringLiteral("Render settings"), QStringLiteral("export video export quality") },
+        { QStringLiteral("markers"), QStringLiteral("Add marker"), QStringLiteral("chapter bookmark marker") }
     };
 
     const int exportIndex = 0;
@@ -54,7 +54,7 @@ int runCommandSearchSelftest()
     }
 
     // G2: title partial match
-    const QVector<int> titleResults = cmdsearch::rankMatches(entries, QStringLiteral("書き出し"));
+    const QVector<int> titleResults = cmdsearch::rankMatches(entries, QStringLiteral("Export"));
     const bool titleOk = !titleResults.isEmpty()
         && titleResults.contains(exportIndex)
         && titleResults.indexOf(exportIndex) <= 1;
@@ -78,7 +78,7 @@ int runCommandSearchSelftest()
     }
 
     // G4: title exact match ranks before keyword-only match
-    const QVector<int> rankResults = cmdsearch::rankMatches(entries, QStringLiteral("動画を書き出し"));
+    const QVector<int> rankResults = cmdsearch::rankMatches(entries, QStringLiteral("Export Video"));
     const int exportRank = rankResults.indexOf(exportIndex);
     const int keywordOnlyRank = rankResults.indexOf(keywordOnlyWriteIndex);
     const bool rankOk = exportRank >= 0
@@ -117,11 +117,11 @@ int runCommandSearchSelftest()
     //     の言葉で機能を引けることをランキング層で保証する回帰ゲート。
     {
         const QVector<cmdsearch::CommandEntry> behavior = {
-            { QStringLiteral("normalize"), QStringLiteral("オーディオ均一化"),
-              QStringLiteral("動画全体の音量を均一にそろえます ノーマライズ ラウドネス均一化") }
+            { QStringLiteral("normalize"), QStringLiteral("Audio Normalize"),
+              QStringLiteral("Even out the volume of the whole video normalize loudness leveling") }
         };
         const QVector<int> behaviorResults =
-            cmdsearch::rankMatches(behavior, QStringLiteral("音量を均一"));
+            cmdsearch::rankMatches(behavior, QStringLiteral("Even out volume"));
         if (!behaviorResults.isEmpty() && behaviorResults.first() == 0) {
             pass("G7 behavior phrase finds feature via folded help keywords");
         } else {

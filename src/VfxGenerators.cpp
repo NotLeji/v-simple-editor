@@ -306,16 +306,16 @@ QString VfxGenerators::typeName(VfxGeneratorType type)
 QString VfxGenerators::displayName(VfxGeneratorType type)
 {
     switch (type) {
-    case VfxGeneratorType::Explosion:   return QStringLiteral("爆発");
-    case VfxGeneratorType::Lightning:   return QStringLiteral("稲妻");
-    case VfxGeneratorType::ShockWave:   return QStringLiteral("衝撃波");
-    case VfxGeneratorType::EnergyBeam:  return QStringLiteral("エネルギービーム");
-    case VfxGeneratorType::MagicCircle: return QStringLiteral("魔法陣");
-    case VfxGeneratorType::MuzzleFlash: return QStringLiteral("マズルフラッシュ");
-    case VfxGeneratorType::EnergyShield:return QStringLiteral("エネルギーシールド");
+    case VfxGeneratorType::Explosion:   return QStringLiteral("Explosion");
+    case VfxGeneratorType::Lightning:   return QStringLiteral("Lightning");
+    case VfxGeneratorType::ShockWave:   return QStringLiteral("Shockwave");
+    case VfxGeneratorType::EnergyBeam:  return QStringLiteral("Energy Beam");
+    case VfxGeneratorType::MagicCircle: return QStringLiteral("Magic Circle");
+    case VfxGeneratorType::MuzzleFlash: return QStringLiteral("Muzzle Flash");
+    case VfxGeneratorType::EnergyShield:return QStringLiteral("Energy Shield");
     case VfxGeneratorType::Count:       break;
     }
-    return QStringLiteral("VFX ジェネレータ");
+    return QStringLiteral("VFX Generator");
 }
 
 VfxGeneratorParameters VfxGenerators::defaultParameters(VfxGeneratorType type)

@@ -20,47 +20,47 @@ QVector<Guide> guides(const QSize& outSize, Platform p)
     // TitleSafe: 中央 90%、各辺 5% マージン
     result.append({ QRectF(W * 0.05, H * 0.05, W * 0.90, H * 0.90),
                     GuideKind::TitleSafe,
-                    QStringLiteral("タイトルセーフ") });
+                    QStringLiteral("Title Safe") });
 
     // ActionSafe: 中央 80%、各辺 10% マージン
     result.append({ QRectF(W * 0.10, H * 0.10, W * 0.80, H * 0.80),
                     GuideKind::ActionSafe,
-                    QStringLiteral("アクションセーフ") });
+                    QStringLiteral("Action Safe") });
 
     // PlatformUi — プラットフォーム別
     switch (p) {
     case Platform::TikTok:
         result.append({ QRectF(W * 0.86, H * 0.45, W * 0.14, H * 0.45),
                         GuideKind::PlatformUi,
-                        QStringLiteral("TikTok 右: アクション") });
+                        QStringLiteral("TikTok Right: Action") });
         result.append({ QRectF(0, H * 0.80, W, H * 0.20),
                         GuideKind::PlatformUi,
-                        QStringLiteral("TikTok 下部: キャプション") });
+                        QStringLiteral("TikTok Bottom: Caption") });
         result.append({ QRectF(0, 0, W, H * 0.06),
                         GuideKind::PlatformUi,
-                        QStringLiteral("TikTok 上部") });
+                        QStringLiteral("TikTok Top") });
         break;
     case Platform::InstagramReels:
         result.append({ QRectF(W * 0.86, H * 0.40, W * 0.14, H * 0.45),
                         GuideKind::PlatformUi,
-                        QStringLiteral("Reels 右: アクション") });
+                        QStringLiteral("Reels Right: Action") });
         result.append({ QRectF(0, H * 0.78, W, H * 0.22),
                         GuideKind::PlatformUi,
-                        QStringLiteral("Reels 下部: キャプション") });
+                        QStringLiteral("Reels Bottom: Caption") });
         result.append({ QRectF(0, 0, W, H * 0.10),
                         GuideKind::PlatformUi,
-                        QStringLiteral("Reels 上部") });
+                        QStringLiteral("Reels Top") });
         break;
     case Platform::YouTubeShorts:
         result.append({ QRectF(W * 0.86, H * 0.45, W * 0.14, H * 0.40),
                         GuideKind::PlatformUi,
-                        QStringLiteral("Shorts 右: アクション") });
+                        QStringLiteral("Shorts Right: Action") });
         result.append({ QRectF(0, H * 0.82, W, H * 0.18),
                         GuideKind::PlatformUi,
-                        QStringLiteral("Shorts 下部: キャプション") });
+                        QStringLiteral("Shorts Bottom: Caption") });
         result.append({ QRectF(0, 0, W, H * 0.08),
                         GuideKind::PlatformUi,
-                        QStringLiteral("Shorts 上部") });
+                        QStringLiteral("Shorts Top") });
         break;
     case Platform::Generic:
     default:
@@ -114,13 +114,13 @@ QImage apply(const QImage& display, Platform p, double opacity)
 QString platformName(Platform p)
 {
     switch (p) {
-    case Platform::None:           return QStringLiteral("なし");
+    case Platform::None:           return QStringLiteral("None");
     case Platform::TikTok:         return QStringLiteral("TikTok");
     case Platform::InstagramReels: return QStringLiteral("Instagram Reels");
     case Platform::YouTubeShorts:  return QStringLiteral("YouTube Shorts");
-    case Platform::Generic:        return QStringLiteral("汎用");
+    case Platform::Generic:        return QStringLiteral("Generic");
     }
-    return QStringLiteral("不明");
+    return QStringLiteral("Unknown");
 }
 
 } // namespace safezone

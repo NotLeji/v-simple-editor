@@ -37,12 +37,12 @@ int runYoutubeChapterSelftest()
     // 時刻 (0:20 / 0:40) で検証する。両時刻が別表示なので順序検証が vacuous
     // にならず、ソート挙動を確実に exercise する。
     QList<ChapterHighlight> highlights;
-    highlights.append(ChapterHighlight{40.0, QStringLiteral("後半")});
-    highlights.append(ChapterHighlight{20.0, QStringLiteral("前半")});
+    highlights.append(ChapterHighlight{40.0, QStringLiteral("Second half")});
+    highlights.append(ChapterHighlight{20.0, QStringLiteral("First half")});
 
     const bool inputNotAscending = highlights.at(0).startSec > highlights.at(1).startSec;
     const QString chapterText = YoutubeChapterGen::generateChapterText(highlights, 120.0);
-    const QString expected = QStringLiteral("0:00 イントロ\n0:20 前半\n0:40 後半");
+    const QString expected = QStringLiteral("0:00 Intro\n0:20 First half\n0:40 Second half");
     const QStringList lines = chapterText.split(QStringLiteral("\n"));
     if (inputNotAscending
      && chapterText == expected

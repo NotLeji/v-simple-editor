@@ -57,7 +57,7 @@ bool StillStore::ensureBaseDir(QString *error) const
     const QString directory = baseDir();
     if (!directory.isEmpty() && QDir().mkpath(directory))
         return true;
-    setError(error, QStringLiteral("スチル保存先を作成できません: %1").arg(directory));
+    setError(error, QStringLiteral("Cannot create stills directory: %1").arg(directory));
     return false;
 }
 
@@ -71,7 +71,7 @@ QVector<Still> StillStore::list(QString *error) const
     if (!file.exists())
         return {};
     if (!file.open(QIODevice::ReadOnly)) {
-        setError(error, QStringLiteral("スチル一覧を開けません: %1").arg(file.errorString()));
+        setError(error, QStringLiteral("Cannot open stills list: %1").arg(file.errorString()));
         return {};
     }
 
@@ -81,7 +81,7 @@ QVector<Still> StillStore::list(QString *error) const
     QJsonParseError parseError;
     const QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
     if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
-        setError(error, QStringLiteral("スチル一覧が壊れています: %1").arg(parseError.errorString()));
+        setError(error, QStringLiteral("Stills list is corrupted: %1").arg(parseError.errorString()));
         return {};
     }
 
@@ -143,12 +143,12 @@ bool StillStore::writeIndex(const QVector<Still> &stills, QString *error) const
 
     QSaveFile file(indexPath(baseDir()));
     if (!file.open(QIODevice::WriteOnly)) {
-        setError(error, QStringLiteral("スチル一覧を書き込めません: %1").arg(file.errorString()));
+        setError(error, QStringLiteral("Cannot write stills list: %1").arg(file.errorString()));
         return false;
     }
     const QByteArray payload = QJsonDocument(root).toJson(QJsonDocument::Indented);
     if (file.write(payload) != payload.size() || !file.commit()) {
-        setError(error, QStringLiteral("スチル一覧の保存に失敗しました: %1").arg(file.errorString()));
+        setError(error, QStringLiteral("Failed to save stills list: %1").arg(file.errorString()));
         return false;
     }
     return true;
@@ -160,7 +160,7 @@ bool StillStore::save(const QImage &image, const QString &projectName,
     if (error)
         error->clear();
     if (image.isNull()) {
-        setError(error, QStringLiteral("保存するフレームが空です。"));
+        setError(error, QStringLiteral("The frame to save is empty."));
         return false;
     }
     if (!ensureBaseDir(error))
@@ -214,13 +214,13 @@ bool StillStore::remove(const QString &id, QString *error)
         return still.id == id;
     });
     if (it == stills.end()) {
-        setError(error, QStringLiteral("指定されたスチルが見つかりません。"));
+        setError(error, QStringLiteral("The specified still was not found."));
         return false;
     }
 
     const QString imagePath = it->filePath;
     if (QFile::exists(imagePath) && !QFile::remove(imagePath)) {
-        setError(error, QStringLiteral("スチル画像を削除できません: %1").arg(imagePath));
+        setError(error, QStringLiteral("Cannot delete still image: %1").arg(imagePath));
         return false;
     }
     stills.erase(it);
@@ -244,7 +244,7 @@ bool StillStore::setLabel(const QString &id, const QString &label, QString *erro
         return still.id == id;
     });
     if (it == stills.end()) {
-        setError(error, QStringLiteral("指定されたスチルが見つかりません。"));
+        setError(error, QStringLiteral("The specified still was not found."));
         return false;
     }
     it->label = label;

@@ -19,7 +19,7 @@
 
 namespace {
 // ルート (すべてのメディア) を表す特別な binId。空文字列で表現する。
-const char *kRootName = "すべてのメディア";
+const char *kRootName = "All Media";
 
 // QListWidgetItem に asset id を持たせるための role。
 constexpr int kAssetIdRole   = Qt::UserRole;
@@ -66,7 +66,7 @@ QMimeData *MediaPoolAssetListWidget::createMimeDataForItems(const QList<QListWid
 }
 
 MediaPoolDock::MediaPoolDock(QWidget *parent)
-    : QDockWidget(tr("メディアプール"), parent)
+    : QDockWidget(tr("Media Pool"), parent)
 {
     setObjectName(QStringLiteral("MediaPoolDock"));
 
@@ -77,7 +77,7 @@ MediaPoolDock::MediaPoolDock(QWidget *parent)
 
     // --- 検索ボックス -------------------------------------------------------
     m_searchEdit = new QLineEdit(root);
-    m_searchEdit->setPlaceholderText(tr("検索..."));
+    m_searchEdit->setPlaceholderText(tr("Search..."));
     m_searchEdit->setClearButtonEnabled(true);
     rootLayout->addWidget(m_searchEdit);
 
@@ -111,9 +111,9 @@ MediaPoolDock::MediaPoolDock(QWidget *parent)
     QHBoxLayout *btnRow = new QHBoxLayout;
     btnRow->setSpacing(6);
 
-    m_addBinBtn = new QPushButton(tr("ビン追加"), root);
-    m_removeBtn = new QPushButton(tr("削除"), root);
-    m_importBtn = new QPushButton(tr("読み込み..."), root);
+    m_addBinBtn = new QPushButton(tr("Add Bin"), root);
+    m_removeBtn = new QPushButton(tr("Delete"), root);
+    m_importBtn = new QPushButton(tr("Import..."), root);
 
     btnRow->addWidget(m_addBinBtn);
     btnRow->addWidget(m_removeBtn);
@@ -299,7 +299,7 @@ void MediaPoolDock::onAddBin()
     }
     bool ok = false;
     const QString name = QInputDialog::getText(
-        this, tr("ビン追加"), tr("ビン名:"),
+        this, tr("Add Bin"), tr("Bin name:"),
         QLineEdit::Normal, QString(), &ok);
     if (!ok || name.trimmed().isEmpty()) {
         return;

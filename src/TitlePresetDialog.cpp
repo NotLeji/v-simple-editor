@@ -308,7 +308,7 @@ private:
 TitlePresetDialog::TitlePresetDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("タイトル・プリセット"));
+    setWindowTitle(tr("Title Presets"));
     resize(820, 480);
 
     m_presets = builtInPresets();
@@ -344,9 +344,9 @@ void TitlePresetDialog::buildUi()
     right->addWidget(m_preview, 1);
 
     auto *form = new QHBoxLayout();
-    form->addWidget(new QLabel(tr("テキスト:"), this));
+    form->addWidget(new QLabel(tr("Text:"), this));
     m_textEdit = new QLineEdit(this);
-    m_textEdit->setPlaceholderText(tr("タイトル本文を入力"));
+    m_textEdit->setPlaceholderText(tr("Enter title text"));
     connect(m_textEdit, &QLineEdit::textChanged, this, [this](const QString &) {
         if (m_currentRow >= 0 && m_currentRow < m_presets.size()) {
             m_preview->setPreset(m_presets[m_currentRow], m_textEdit->text(), m_currentColour);
@@ -354,7 +354,7 @@ void TitlePresetDialog::buildUi()
     });
     form->addWidget(m_textEdit, 1);
 
-    m_colourButton = new QPushButton(tr("色…"), this);
+    m_colourButton = new QPushButton(tr("Color…"), this);
     connect(m_colourButton, &QPushButton::clicked, this, &TitlePresetDialog::onPickColour);
     form->addWidget(m_colourButton);
 
@@ -366,8 +366,8 @@ void TitlePresetDialog::buildUi()
     right->addLayout(form);
 
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::NoButton, Qt::Horizontal, this);
-    auto *applyBtn  = buttons->addButton(tr("適用"),    QDialogButtonBox::AcceptRole);
-    auto *cancelBtn = buttons->addButton(tr("キャンセル"), QDialogButtonBox::RejectRole);
+    auto *applyBtn  = buttons->addButton(tr("Apply"),    QDialogButtonBox::AcceptRole);
+    auto *cancelBtn = buttons->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
     connect(applyBtn,  &QPushButton::clicked, this, &TitlePresetDialog::onAccept);
     connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
     right->addWidget(buttons);
@@ -409,7 +409,7 @@ void TitlePresetDialog::onPresetChanged(int row)
 
 void TitlePresetDialog::onPickColour()
 {
-    QColor picked = QColorDialog::getColor(m_currentColour, this, tr("色を選択"));
+    QColor picked = QColorDialog::getColor(m_currentColour, this, tr("Select Color"));
     if (!picked.isValid()) return;
     m_currentColour = picked;
     QPixmap sw(28, 24);
@@ -540,7 +540,7 @@ QVector<TitlePreset> TitlePresetDialog::builtInPresets()
     {
         TitlePreset p;
         p.id          = TitlePresetId::SimpleCenter;
-        p.displayName = QStringLiteral("シンプル中央");
+        p.displayName = QStringLiteral("Simple Center");
         p.defaultText = QStringLiteral("Title");
         p.font        = QFont(QStringLiteral("Arial"), 64, QFont::Bold);
         p.colour      = Qt::white;
@@ -554,7 +554,7 @@ QVector<TitlePreset> TitlePresetDialog::builtInPresets()
     {
         TitlePreset p;
         p.id          = TitlePresetId::LowerThird;
-        p.displayName = QStringLiteral("下三分割 (Lower-Third)");
+        p.displayName = QStringLiteral("Lower Third");
         p.defaultText = QStringLiteral("Name / Subtitle");
         p.font        = QFont(QStringLiteral("Arial"), 36, QFont::Bold);
         p.colour      = Qt::white;
@@ -570,7 +570,7 @@ QVector<TitlePreset> TitlePresetDialog::builtInPresets()
     {
         TitlePreset p;
         p.id          = TitlePresetId::TitleScale;
-        p.displayName = QStringLiteral("タイトル拡大");
+        p.displayName = QStringLiteral("Title Zoom");
         p.defaultText = QStringLiteral("Title");
         p.font        = QFont(QStringLiteral("Arial"), 72, QFont::Bold);
         p.colour      = Qt::white;
@@ -582,7 +582,7 @@ QVector<TitlePreset> TitlePresetDialog::builtInPresets()
     {
         TitlePreset p;
         p.id          = TitlePresetId::Typewriter;
-        p.displayName = QStringLiteral("タイプライター");
+        p.displayName = QStringLiteral("Typewriter");
         p.defaultText = QStringLiteral("Hello, World.");
         p.font        = QFont(QStringLiteral("Courier New"), 48, QFont::Bold);
         p.colour      = Qt::white;
@@ -595,7 +595,7 @@ QVector<TitlePreset> TitlePresetDialog::builtInPresets()
     {
         TitlePreset p;
         p.id          = TitlePresetId::SpinIn;
-        p.displayName = QStringLiteral("スピンイン");
+        p.displayName = QStringLiteral("Spin In");
         p.defaultText = QStringLiteral("Title");
         p.font        = QFont(QStringLiteral("Arial"), 64, QFont::Bold);
         p.colour      = QColor(255, 220, 80);
@@ -608,7 +608,7 @@ QVector<TitlePreset> TitlePresetDialog::builtInPresets()
     {
         TitlePreset p;
         p.id          = TitlePresetId::GlowPulse;
-        p.displayName = QStringLiteral("グロウ・パルス");
+        p.displayName = QStringLiteral("Glow Pulse");
         p.defaultText = QStringLiteral("Title");
         p.font        = QFont(QStringLiteral("Arial"), 64, QFont::Bold);
         p.colour      = QColor(255, 255, 200);
@@ -621,7 +621,7 @@ QVector<TitlePreset> TitlePresetDialog::builtInPresets()
     {
         TitlePreset p;
         p.id            = TitlePresetId::DropShadowSlide;
-        p.displayName   = QStringLiteral("ドロップシャドウ・スライド");
+        p.displayName   = QStringLiteral("Drop Shadow Slide");
         p.defaultText   = QStringLiteral("Sub-Title");
         p.font          = QFont(QStringLiteral("Arial"), 40, QFont::Bold);
         p.colour        = Qt::white;

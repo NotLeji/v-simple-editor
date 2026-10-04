@@ -23,7 +23,7 @@ SequenceSettingsDialog::SequenceSettingsDialog(const ProjectConfig &initial,
     : QDialog(parent)
     , m_config(initial)
 {
-    setWindowTitle(QStringLiteral("プロジェクト設定"));
+    setWindowTitle(QStringLiteral("Project Settings"));
     setModal(true);
     setMinimumWidth(360);
     setupUi();
@@ -38,14 +38,14 @@ void SequenceSettingsDialog::setupUi()
 
     m_nameEdit = new QLineEdit(this);
     m_nameEdit->setText(m_config.name);
-    form->addRow(QStringLiteral("名前:"), m_nameEdit);
+    form->addRow(QStringLiteral("Name:"), m_nameEdit);
 
     m_resolutionCombo = new QComboBox(this);
     m_resolutionCombo->addItem(QStringLiteral("1920 x 1080 (16:9)"), QSize(1920, 1080));
     m_resolutionCombo->addItem(QStringLiteral("1080 x 1920 (9:16)"), QSize(1080, 1920));
     m_resolutionCombo->addItem(QStringLiteral("1080 x 1080 (1:1)"), QSize(1080, 1080));
-    m_resolutionCombo->addItem(QStringLiteral("カスタム"), QSize());
-    form->addRow(QStringLiteral("解像度:"), m_resolutionCombo);
+    m_resolutionCombo->addItem(QStringLiteral("Custom"), QSize());
+    form->addRow(QStringLiteral("Resolution:"), m_resolutionCombo);
 
     auto *customLayout = new QHBoxLayout();
     m_widthSpin = new QSpinBox(this);
@@ -59,13 +59,13 @@ void SequenceSettingsDialog::setupUi()
     customLayout->addWidget(m_widthSpin);
     customLayout->addWidget(new QLabel(QStringLiteral("x"), this));
     customLayout->addWidget(m_heightSpin);
-    form->addRow(QStringLiteral("カスタム:"), customLayout);
+    form->addRow(QStringLiteral("Custom:"), customLayout);
 
     m_fpsSpin = new QSpinBox(this);
     m_fpsSpin->setRange(1, 240);
     m_fpsSpin->setSuffix(QStringLiteral(" fps"));
     m_fpsSpin->setValue(m_config.fps > 0 ? m_config.fps : 30);
-    form->addRow(QStringLiteral("フレームレート:"), m_fpsSpin);
+    form->addRow(QStringLiteral("Frame Rate:"), m_fpsSpin);
 
     mainLayout->addLayout(form);
 

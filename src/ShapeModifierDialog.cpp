@@ -13,18 +13,18 @@
 ShapeModifierDialog::ShapeModifierDialog(const ShapeModifiers &initial, QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("シェイプモディファイア"));
+    setWindowTitle(QStringLiteral("Shape Modifier"));
     auto *layout = new QVBoxLayout(this);
-    layout->addWidget(new QLabel(QStringLiteral("クリップの先頭のシェイプを編集します。"), this));
-    auto *repeaterBox = new QGroupBox(QStringLiteral("リピーター"), this);
+    layout->addWidget(new QLabel(QStringLiteral("Edit the shape at the start of the clip."), this));
+    auto *repeaterBox = new QGroupBox(QStringLiteral("Repeater"), this);
     auto *repeatForm = new QFormLayout(repeaterBox);
-    m_repeater = new QCheckBox(QStringLiteral("有効"), repeaterBox);
+    m_repeater = new QCheckBox(QStringLiteral("Enabled"), repeaterBox);
     m_repeater->setChecked(initial.repeater.enabled);
     repeatForm->addRow(m_repeater);
     m_copies = new QSpinBox(repeaterBox);
     m_copies->setRange(1, 1000);
     m_copies->setValue(initial.repeater.copies);
-    repeatForm->addRow(QStringLiteral("コピー数"), m_copies);
+    repeatForm->addRow(QStringLiteral("Copies"), m_copies);
     auto spin = [this](QFormLayout *form, const QString &label, const QString &name,
                        double low, double high, double value, const QString &suffix) {
         auto *box = new QDoubleSpinBox(this);
@@ -38,28 +38,28 @@ ShapeModifierDialog::ShapeModifierDialog(const ShapeModifiers &initial, QWidget 
                 [this](double) { emit modifiersChanged(); });
         return box;
     };
-    m_offsetX = spin(repeatForm, QStringLiteral("移動 X"), QStringLiteral("offsetX"),
+    m_offsetX = spin(repeatForm, QStringLiteral("Offset X"), QStringLiteral("offsetX"),
                      -1000000, 1000000, initial.repeater.offset.x(), QStringLiteral(" px"));
-    m_offsetY = spin(repeatForm, QStringLiteral("移動 Y"), QStringLiteral("offsetY"),
+    m_offsetY = spin(repeatForm, QStringLiteral("Offset Y"), QStringLiteral("offsetY"),
                      -1000000, 1000000, initial.repeater.offset.y(), QStringLiteral(" px"));
-    m_rotation = spin(repeatForm, QStringLiteral("回転"), QStringLiteral("rotation"),
+    m_rotation = spin(repeatForm, QStringLiteral("Rotation"), QStringLiteral("rotation"),
                       -36000, 36000, initial.repeater.rotationDeg, QStringLiteral("°"));
-    m_scale = spin(repeatForm, QStringLiteral("拡大率"), QStringLiteral("scale"),
+    m_scale = spin(repeatForm, QStringLiteral("Scale"), QStringLiteral("scale"),
                    0, 10000, initial.repeater.scale * 100.0, QStringLiteral(" %"));
-    m_opacity = spin(repeatForm, QStringLiteral("最後のコピーの不透明度"), QStringLiteral("opacityEnd"),
+    m_opacity = spin(repeatForm, QStringLiteral("Last Copy Opacity"), QStringLiteral("opacityEnd"),
                      0, 100, initial.repeater.opacityEnd * 100.0, QStringLiteral(" %"));
     layout->addWidget(repeaterBox);
 
-    auto *trimBox = new QGroupBox(QStringLiteral("パスのトリミング"), this);
+    auto *trimBox = new QGroupBox(QStringLiteral("Trim Paths"), this);
     auto *trimForm = new QFormLayout(trimBox);
-    m_trim = new QCheckBox(QStringLiteral("有効"), trimBox);
+    m_trim = new QCheckBox(QStringLiteral("Enabled"), trimBox);
     m_trim->setChecked(initial.trim.enabled);
     trimForm->addRow(m_trim);
-    m_start = spin(trimForm, QStringLiteral("開始"), QStringLiteral("startPct"),
+    m_start = spin(trimForm, QStringLiteral("Start"), QStringLiteral("startPct"),
                    0, 100, initial.trim.startPct, QStringLiteral(" %"));
-    m_end = spin(trimForm, QStringLiteral("終了"), QStringLiteral("endPct"),
+    m_end = spin(trimForm, QStringLiteral("End"), QStringLiteral("endPct"),
                  0, 100, initial.trim.endPct, QStringLiteral(" %"));
-    m_offset = spin(trimForm, QStringLiteral("オフセット"), QStringLiteral("offsetPct"),
+    m_offset = spin(trimForm, QStringLiteral("Offset"), QStringLiteral("offsetPct"),
                     -1000000, 1000000, initial.trim.offsetPct, QStringLiteral(" %"));
     layout->addWidget(trimBox);
     connect(m_repeater, &QCheckBox::toggled, this, [this](bool) { emit modifiersChanged(); });
@@ -67,8 +67,8 @@ ShapeModifierDialog::ShapeModifierDialog(const ShapeModifiers &initial, QWidget 
     connect(m_copies, &QSpinBox::valueChanged, this, [this](int) { emit modifiersChanged(); });
 
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("適用"));
-    buttons->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("キャンセル"));
+    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("Apply"));
+    buttons->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("Cancel"));
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     layout->addWidget(buttons);

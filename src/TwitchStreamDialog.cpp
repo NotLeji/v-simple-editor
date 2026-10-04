@@ -23,7 +23,7 @@
 TwitchStreamDialog::TwitchStreamDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Twitch ライブ配信設定"));
+    setWindowTitle(tr("Twitch Live Streaming Settings"));
     setModal(false);
     setMinimumWidth(560);
 
@@ -35,7 +35,7 @@ TwitchStreamDialog::TwitchStreamDialog(QWidget *parent)
     m_streamKeyEdit = new QLineEdit;
     m_streamKeyEdit->setEchoMode(QLineEdit::Password);
     m_streamKeyEdit->setPlaceholderText(tr("live_XXXXXXXXXXXX"));
-    formLayout->addRow(tr("ストリームキー:"), m_streamKeyEdit);
+    formLayout->addRow(tr("Stream key:"), m_streamKeyEdit);
 
     // Server
     m_serverCombo = new QComboBox;
@@ -45,29 +45,29 @@ TwitchStreamDialog::TwitchStreamDialog(QWidget *parent)
     m_serverCombo->addItem(tr("Asia     (live-tyo)"));
     m_serverCombo->addItem(tr("Auto     (live)"));
     m_serverCombo->setCurrentIndex(4); // Auto
-    formLayout->addRow(tr("サーバー:"), m_serverCombo);
+    formLayout->addRow(tr("Server:"), m_serverCombo);
 
     // Bitrate
     m_bitrateSpin = new QSpinBox;
     m_bitrateSpin->setRange(1000, 15000);
     m_bitrateSpin->setValue(6000);
     m_bitrateSpin->setSuffix(tr(" kbps"));
-    formLayout->addRow(tr("ビットレート:"), m_bitrateSpin);
+    formLayout->addRow(tr("Bitrate:"), m_bitrateSpin);
 
     // FPS
     m_fpsSpin = new QSpinBox;
     m_fpsSpin->setRange(24, 120);
     m_fpsSpin->setValue(60);
     m_fpsSpin->setSuffix(tr(" fps"));
-    formLayout->addRow(tr("フレームレート:"), m_fpsSpin);
+    formLayout->addRow(tr("Frame Rate:"), m_fpsSpin);
 
     // Save key checkbox
-    m_saveKeyCheck = new QCheckBox(tr("ストリームキーを保存する"));
+    m_saveKeyCheck = new QCheckBox(tr("Save stream key"));
     formLayout->addRow(QString(), m_saveKeyCheck);
 
     // ---- buttons ------------------------------------------------------------
-    auto *generateBtn = new QPushButton(tr("生成"));
-    auto *copyBtn     = new QPushButton(tr("クリップボードにコピー"));
+    auto *generateBtn = new QPushButton(tr("Generate"));
+    auto *copyBtn     = new QPushButton(tr("Copy to Clipboard"));
 
     auto *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(generateBtn);
@@ -77,13 +77,13 @@ TwitchStreamDialog::TwitchStreamDialog(QWidget *parent)
     // ---- command preview ----------------------------------------------------
     m_commandView = new QPlainTextEdit;
     m_commandView->setReadOnly(true);
-    m_commandView->setPlaceholderText(tr("「生成」を押すと ffmpeg コマンドが表示されます。"));
+    m_commandView->setPlaceholderText(tr("Press \"Generate\" to show the ffmpeg command."));
     m_commandView->setMinimumHeight(80);
 
     // ---- assemble -----------------------------------------------------------
     auto *mainLayout = new QVBoxLayout(this);
     auto *setupHint = new QLabel(
-        tr("Twitch のストリームキー (RTMP) を配信設定に入力してください。"),
+        tr("Please enter your Twitch stream key (RTMP) in the streaming settings."),
         this);
     setupHint->setWordWrap(true);
     mainLayout->addWidget(setupHint);

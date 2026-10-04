@@ -81,7 +81,7 @@ Shape fullyPopulatedShape(ShapeType type)
     shape.position = QPointF(321.25, 123.75);
     shape.rotation = -27.5;
     shape.scale = 1.875;
-    shape.name = QStringLiteral("全フィールド");
+    shape.name = QStringLiteral("All fields");
     return shape;
 }
 
@@ -127,7 +127,7 @@ ProjectData projectWithClip(const ClipInfo &clip)
 ClipInfo makeShapeClip(const Shape &shape)
 {
     ClipInfo clip;
-    clip.displayName = QStringLiteral("シェイプクリップ");
+    clip.displayName = QStringLiteral("Shape Clip");
     clip.duration = 5.0;
     clip.inPoint = 0.0;
     clip.outPoint = 5.0;

@@ -471,7 +471,7 @@ bool pauseOnRightClickFromSettings()
 QString onionSkinOpacityText(const onionskin::Config &cfg)
 {
     const int pct = qRound(qBound(0.0, cfg.opacity, 1.0) * 100.0);
-    return QStringLiteral("不透明度... (%1%)").arg(pct);
+    return QStringLiteral("Opacity... (%1%)").arg(pct);
 }
 
 QString findFfmpegBinary()
@@ -685,7 +685,7 @@ bool applyDuckingToTimeline(Timeline *timeline,
         collectVoiceRanges(tracks[voiceTrackIndex], thresholdLinear);
     if (voiceRanges.isEmpty()) {
         if (message)
-            *message = QStringLiteral("閾値を超える voice クリップがありません。");
+            *message = QStringLiteral("No voice clips exceed the threshold.");
         return false;
     }
 
@@ -734,7 +734,7 @@ bool applyDuckingToTimeline(Timeline *timeline,
 
     if (!anyChanged) {
         if (message)
-            *message = QStringLiteral("対象トラックに重なる BGM クリップがありません。");
+            *message = QStringLiteral("No BGM clips overlap the target track.");
         return false;
     }
 
@@ -744,7 +744,7 @@ bool applyDuckingToTimeline(Timeline *timeline,
     timeline->refreshPlaybackSequence();
     timeline->repaintAudioTracks();
     if (message) {
-        *message = QStringLiteral("%1 個の BGM クリップへダッキングを適用しました。")
+        *message = QStringLiteral("Applied ducking to %1 BGM clips.")
             .arg(changedClips);
     }
     return true;
@@ -865,7 +865,7 @@ bool runFfmpegForAudioMix(const QStringList &args, QString *error)
     const QString ffmpeg = findFfmpegBinary();
     if (ffmpeg.isEmpty()) {
         if (error)
-            *error = QStringLiteral("ffmpeg が見つからないため、ダッキング済み audio mix を作成できません。");
+            *error = QStringLiteral("Cannot create the ducked audio mix because ffmpeg was not found.");
         return false;
     }
 
@@ -873,13 +873,13 @@ bool runFfmpegForAudioMix(const QStringList &args, QString *error)
     process.start(ffmpeg, args);
     if (!process.waitForStarted(5000)) {
         if (error)
-            *error = QStringLiteral("ffmpeg を起動できませんでした。");
+            *error = QStringLiteral("Could not launch ffmpeg.");
         return false;
     }
     process.waitForFinished(-1);
     if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
         if (error) {
-            *error = QStringLiteral("audio mix の作成に失敗しました。\n%1")
+            *error = QStringLiteral("Failed to create the audio mix.\n%1")
                 .arg(QString::fromUtf8(process.readAllStandardError()));
         }
         return false;
@@ -923,7 +923,7 @@ QString prepareTimelineAudioMixForExport(Timeline *timeline, QString *error,
         const bool reversed = reversedFlags.value(entryIndex, false);
         if (reversed && entry.clipOut - entry.clipIn > 10.0 * 60.0) {
             qWarning().noquote()
-                << QStringLiteral("音声の逆再生クリップが10分の上限を超えたため、書き出しでは無音にします: %1")
+                << QStringLiteral("A reversed audio clip exceeds the 10-minute limit, so it will be silent on export: %1")
                        .arg(entry.filePath);
             continue;
         }
@@ -1103,17 +1103,17 @@ QString trackMatteTypeLabel(TrackMatteType type)
 {
     switch (type) {
     case TrackMatteType::None:
-        return QStringLiteral("なし");
+        return QStringLiteral("None");
     case TrackMatteType::AlphaMatte:
         return QStringLiteral("Alpha Matte");
     case TrackMatteType::AlphaInvertedMatte:
-        return QStringLiteral("Alpha Matte (反転)");
+        return QStringLiteral("Alpha Matte (inverted)");
     case TrackMatteType::LumaMatte:
         return QStringLiteral("Luma Matte");
     case TrackMatteType::LumaInvertedMatte:
-        return QStringLiteral("Luma Matte (反転)");
+        return QStringLiteral("Luma Matte (inverted)");
     }
-    return QStringLiteral("なし");
+    return QStringLiteral("None");
 }
 
 constexpr const char *kMaskBezierMetadataMarker = "\n#VEDITOR_MASK_BEZIER:";
@@ -2561,7 +2561,7 @@ bool decodeEntryForLoudness(const PlaybackEntry &entry,
     LoudnessDecodeCtx dec;
     if (!dec.open(entry.filePath)) {
         if (error)
-            *error = QStringLiteral("音声を開けません: %1").arg(QFileInfo(entry.filePath).fileName());
+            *error = QStringLiteral("Could not open audio: %1").arg(QFileInfo(entry.filePath).fileName());
         return false;
     }
 
@@ -2664,7 +2664,7 @@ LoudnessMeasureResult measureTimelineLoudness(const QVector<PlaybackEntry> &entr
     if (blocks.isEmpty()) {
         LoudnessMeasureResult result;
         result.error = lastError.isEmpty()
-            ? QStringLiteral("測定できる音声がありません。")
+            ? QStringLiteral("There is no audio to measure.")
             : lastError;
         return result;
     }
@@ -2783,11 +2783,11 @@ MainWindow::MainWindow(QWidget *parent)
 
         QMessageBox prompt(this);
         prompt.setIcon(QMessageBox::Question);
-        prompt.setWindowTitle("自動保存の復元");
-        prompt.setText("自動保存されたプロジェクトが見つかりました。復元しますか？");
-        prompt.setInformativeText("復元しない場合も、自動保存ファイルは削除されません。");
-        QPushButton *restoreButton = prompt.addButton("復元", QMessageBox::AcceptRole);
-        prompt.addButton("後で", QMessageBox::RejectRole);
+        prompt.setWindowTitle("Restore Autosave");
+        prompt.setText("An autosaved project was found. Restore it?");
+        prompt.setInformativeText("The autosave file will not be deleted even if you don't restore.");
+        QPushButton *restoreButton = prompt.addButton("Restore", QMessageBox::AcceptRole);
+        prompt.addButton("Later", QMessageBox::RejectRole);
         prompt.exec();
         if (prompt.clickedButton() != restoreButton)
             return;
@@ -2803,8 +2803,8 @@ MainWindow::MainWindow(QWidget *parent)
         bool ok = true;
         QString selected = labels.first();
         if (labels.size() > 1) {
-            selected = QInputDialog::getItem(this, "自動保存の復元",
-                "復元するバックアップ:", labels, 0, false, &ok);
+            selected = QInputDialog::getItem(this, "Restore Autosave",
+                "Backup to restore:", labels, 0, false, &ok);
             if (!ok)
                 return;
         }
@@ -2816,13 +2816,13 @@ MainWindow::MainWindow(QWidget *parent)
         const QString json = AutoSave::recoverFromFile(files.at(selectedIndex));
         ProjectData data;
         if (json.isEmpty() || !ProjectFile::fromJsonString(json, data)) {
-            QMessageBox::warning(this, "自動保存の復元",
-                "自動保存ファイルを読み込めませんでした。");
+            QMessageBox::warning(this, "Restore Autosave",
+                "Could not load the autosave file.");
             return;
         }
 
         applyLoadedProjectData(data, QString());
-        statusBar()->showMessage("自動保存から復元しました: "
+        statusBar()->showMessage("Restored from autosave: "
             + QFileInfo(files.at(selectedIndex)).fileName(), 5000);
     });
     // Apply dark theme by default
@@ -2836,7 +2836,7 @@ MainWindow::MainWindow(QWidget *parent)
     updateStatusInfo();
     updateAcesUiState();
 
-    statusBar()->showMessage("準備完了 — ファイル > 新規プロジェクトから開始してください");
+    statusBar()->showMessage("Ready — start with File > New Project");
 
     connect(m_timeline, &Timeline::clipSelected, this, [this](int /*index*/) {
         updateEditActions();
@@ -3050,14 +3050,14 @@ void MainWindow::toggleMcpServer(bool enabled)
             m_mcpServer->stop();
         if (m_mcpConnectionInfoAction)
             m_mcpConnectionInfoAction->setEnabled(false);
-        statusBar()->showMessage(QStringLiteral("MCP サーバを停止しました"));
+        statusBar()->showMessage(QStringLiteral("MCP server stopped"));
         return;
     }
 
     ensureMcpServerComponents();
     if (!m_mcpServer->start(8765)) {
-        QMessageBox::warning(this, QStringLiteral("MCP サーバ"),
-                             QStringLiteral("MCP サーバを起動できませんでした。"));
+        QMessageBox::warning(this, QStringLiteral("MCP Server"),
+                             QStringLiteral("Could not start MCP server."));
         if (persist)
             settings.setValue(QStringLiteral("mcpAutoStart"), false);
         if (m_mcpToggleAction) {
@@ -3076,15 +3076,15 @@ void MainWindow::toggleMcpServer(bool enabled)
     if (m_mcpConnectionInfoAction)
         m_mcpConnectionInfoAction->setEnabled(true);
     statusBar()->showMessage(
-        QStringLiteral("MCP サーバを起動しました (ポート %1)")
+        QStringLiteral("MCP server started (port %1)")
             .arg(m_mcpServer->port()));
 }
 
 void MainWindow::showMcpConnectionInfo()
 {
     if (!m_mcpServer || !m_mcpServer->isRunning()) {
-        QMessageBox::information(this, QStringLiteral("MCP サーバ"),
-                                 QStringLiteral("サーバが停止しています"));
+        QMessageBox::information(this, QStringLiteral("MCP Server"),
+                                 QStringLiteral("Server is stopped"));
         return;
     }
 
@@ -3105,35 +3105,35 @@ void MainWindow::registerCoreShortcuts()
 
     // 編集
     reg(m_undoAction,            "edit.undo",
-        QStringLiteral("元に戻す"),            QStringLiteral("編集"));
+        QStringLiteral("Undo"),            QStringLiteral("Edit"));
     reg(m_redoAction,            "edit.redo",
-        QStringLiteral("やり直し"),            QStringLiteral("編集"));
+        QStringLiteral("Redo"),            QStringLiteral("Edit"));
     reg(m_copyAction,            "edit.copy",
-        QStringLiteral("クリップをコピー"),    QStringLiteral("編集"));
+        QStringLiteral("Copy clip"),    QStringLiteral("Edit"));
     reg(m_copyCurrentFrameAction, "edit.copy_current_frame",
-        QStringLiteral("現在フレームをコピー"), QStringLiteral("編集"));
+        QStringLiteral("Copy current frame"), QStringLiteral("Edit"));
     reg(m_pasteAction,           "edit.paste",
-        QStringLiteral("クリップを貼り付け"),  QStringLiteral("編集"));
+        QStringLiteral("Paste clip"),  QStringLiteral("Edit"));
     reg(m_splitAction,           "edit.split",
-        QStringLiteral("再生ヘッドで分割"),    QStringLiteral("編集"));
+        QStringLiteral("Split at playhead"),    QStringLiteral("Edit"));
     reg(m_deleteAction,          "edit.delete",
-        QStringLiteral("クリップを削除"),      QStringLiteral("編集"));
+        QStringLiteral("Delete clip"),      QStringLiteral("Edit"));
     reg(m_rippleDeleteAction,    "timeline.ripple_delete",
-        QStringLiteral("リップル削除"),        QStringLiteral("編集"));
+        QStringLiteral("Ripple Delete"),        QStringLiteral("Edit"));
     reg(m_copyEffectsAction,     "edit.copy_effects",
-        QStringLiteral("エフェクトをコピー"),  QStringLiteral("編集"));
+        QStringLiteral("Copy effect"),  QStringLiteral("Edit"));
     reg(m_pasteEffectsAction,    "edit.paste_effects",
-        QStringLiteral("エフェクトを貼り付け"), QStringLiteral("編集"));
+        QStringLiteral("Paste effect"), QStringLiteral("Edit"));
     reg(m_pasteAttributesAction, "edit.paste_attributes",
-        QStringLiteral("属性を貼り付け"),      QStringLiteral("編集"));
+        QStringLiteral("Paste attributes"),      QStringLiteral("Edit"));
 
     // タイムライン / 表示
     reg(m_snapAction,         "timeline.snap_toggle",
-        QStringLiteral("スナップ切替"),       QStringLiteral("タイムライン"));
+        QStringLiteral("Toggle snapping"),       QStringLiteral("Timeline"));
     reg(m_trackMotionAction,  "tools.track_motion",
-        QStringLiteral("モーション追跡"),     QStringLiteral("ツール"));
+        QStringLiteral("Motion tracking"),     QStringLiteral("Tools"));
     reg(m_nodeModeAction,     "view.node_mode",
-        QStringLiteral("ノード合成モード"),   QStringLiteral("表示"));
+        QStringLiteral("Node compositing mode"),   QStringLiteral("View"));
 }
 
 double MainWindow::currentPlayheadSeconds() const
@@ -3206,7 +3206,7 @@ void MainWindow::applyEffectLibraryEntry(const QString &entryId,
 
     efxlib::LibraryEntry entry;
     if (!m_effectLibraryPanel->model().entryById(entryId, &entry)) {
-        statusBar()->showMessage(QStringLiteral("エフェクトエントリが見つかりません"), 3000);
+        statusBar()->showMessage(QStringLiteral("Effect entry not found"), 3000);
         return;
     }
     if (entry.kind == efxlib::SourceKind::VfxGenerator) {
@@ -3234,7 +3234,7 @@ void MainWindow::applyEffectLibraryEntry(const QString &entryId,
         if (!m_effectLibraryPanel->model().applyToClip(entryId, footageClip)
             || footageClip.duration <= 0.0) {
             statusBar()->showMessage(
-                QStringLiteral("VFX素材の動画を読み込めませんでした"), 3500);
+                QStringLiteral("Could not load the VFX asset video"), 3500);
             return;
         }
         int placedTrack = -1;
@@ -3242,7 +3242,7 @@ void MainWindow::applyEffectLibraryEntry(const QString &entryId,
         if (!m_timeline->insertVfxFootageAtPlayhead(
                 footageClip, &placedTrack, &placedClip)) {
             statusBar()->showMessage(
-                QStringLiteral("VFX素材をプレイヘッドへ配置できませんでした"), 3500);
+                QStringLiteral("Could not place the VFX asset at the playhead"), 3500);
             return;
         }
         const auto &videoTracks = m_timeline->videoTracks();
@@ -3251,7 +3251,7 @@ void MainWindow::applyEffectLibraryEntry(const QString &entryId,
             videoTracks.at(placedTrack)->setSelectedClip(placedClip);
         }
         statusBar()->showMessage(
-            QStringLiteral("VFX素材をV%1へ配置しました（%2）")
+            QStringLiteral("Placed VFX asset on V%1 (%2)")
                 .arg(placedTrack + 1)
                 .arg(CompositeLayer::blendModeName(footageClip.blendMode)),
             3000);
@@ -3260,7 +3260,7 @@ void MainWindow::applyEffectLibraryEntry(const QString &entryId,
 
     if (trackIdx < 0 || clipIdx < 0) {
         if (!selectedVideoClipRef(trackIdx, clipIdx)) {
-            statusBar()->showMessage(QStringLiteral("先に動画クリップを選択してください"), 3000);
+            statusBar()->showMessage(QStringLiteral("Please select a video clip first"), 3000);
             return;
         }
     }
@@ -3270,13 +3270,13 @@ void MainWindow::applyEffectLibraryEntry(const QString &entryId,
         || !tracks[trackIdx]
         || clipIdx < 0
         || clipIdx >= static_cast<int>(tracks[trackIdx]->clips().size())) {
-        statusBar()->showMessage(QStringLiteral("適用先のクリップが見つかりません"), 3000);
+        statusBar()->showMessage(QStringLiteral("Target clip not found"), 3000);
         return;
     }
 
     ClipInfo updated = tracks[trackIdx]->clips().at(clipIdx);
     if (!m_effectLibraryPanel->model().applyToClip(entryId, updated)) {
-        statusBar()->showMessage(QStringLiteral("このエントリはクリップへ適用できません"), 3000);
+        statusBar()->showMessage(QStringLiteral("This entry cannot be applied to a clip"), 3000);
         return;
     }
 
@@ -3286,7 +3286,7 @@ void MainWindow::applyEffectLibraryEntry(const QString &entryId,
                                            updated.colorCorrection);
     m_timeline->setClipEffectsAndKeyframes(trackIdx, clipIdx,
                                            updated.effects, updated.keyframes);
-    statusBar()->showMessage(QStringLiteral("エフェクトを適用しました"), 2500);
+    statusBar()->showMessage(QStringLiteral("Effect applied"), 2500);
     if (m_effectLibraryPanel->previewEnabled())
         refreshEffectLibraryPreview();
 }
@@ -3301,19 +3301,19 @@ void MainWindow::addEffectLibraryKeyframe(const QString &entryId,
     int clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        statusBar()->showMessage(QStringLiteral("先に動画クリップを選択してください"), 3000);
+        statusBar()->showMessage(QStringLiteral("Please select a video clip first"), 3000);
         return;
     }
     const double localTime = qMax(0.0,
         currentPlayheadSeconds() - clipTimelineStartSeconds(trackIdx, clipIdx));
     if (!m_effectLibraryPanel->model().addKeyframeToClip(
             entryId, paramName, localTime, clip)) {
-        statusBar()->showMessage(QStringLiteral("このパラメータはキーフレーム化できません"), 3000);
+        statusBar()->showMessage(QStringLiteral("This parameter cannot be keyframed"), 3000);
         return;
     }
     m_timeline->setClipEffectsAndKeyframes(trackIdx, clipIdx,
                                            clip.effects, clip.keyframes);
-    statusBar()->showMessage(QStringLiteral("キーフレームを追加しました"), 2500);
+    statusBar()->showMessage(QStringLiteral("Keyframe added"), 2500);
 }
 
 void MainWindow::saveEffectLibraryPreset()
@@ -3324,25 +3324,25 @@ void MainWindow::saveEffectLibraryPreset()
     int clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        statusBar()->showMessage(QStringLiteral("先に動画クリップを選択してください"), 3000);
+        statusBar()->showMessage(QStringLiteral("Please select a video clip first"), 3000);
         return;
     }
 
     bool accepted = false;
     const QString name = QInputDialog::getText(
-        this, QStringLiteral("プリセット保存"), QStringLiteral("プリセット名"),
-        QLineEdit::Normal, QStringLiteral("新しいエフェクトセット"), &accepted).trimmed();
+        this, QStringLiteral("Save Preset"), QStringLiteral("Preset name"),
+        QLineEdit::Normal, QStringLiteral("New effect set"), &accepted).trimmed();
     if (!accepted || name.isEmpty())
         return;
 
     QString path;
     if (!m_effectLibraryPanel->model().saveUserPreset(name, clip, true, &path)) {
-        QMessageBox::warning(this, QStringLiteral("プリセット保存"),
-                             QStringLiteral("プリセットを保存できませんでした"));
+        QMessageBox::warning(this, QStringLiteral("Save Preset"),
+                             QStringLiteral("Could not save the preset"));
         return;
     }
     m_effectLibraryPanel->refreshCatalog();
-    statusBar()->showMessage(QStringLiteral("プリセットを保存しました: %1").arg(name), 3000);
+    statusBar()->showMessage(QStringLiteral("Preset saved: %1").arg(name), 3000);
 }
 
 void MainWindow::renameEffectLibraryPreset(const QString &entryId)
@@ -3356,13 +3356,13 @@ void MainWindow::renameEffectLibraryPreset(const QString &entryId)
     }
     bool accepted = false;
     const QString name = QInputDialog::getText(
-        this, QStringLiteral("プリセット名を変更"), QStringLiteral("新しい名前"),
+        this, QStringLiteral("Rename Preset"), QStringLiteral("New name"),
         QLineEdit::Normal, entry.displayName, &accepted).trimmed();
     if (!accepted || name.isEmpty() || name == entry.displayName)
         return;
     if (!m_effectLibraryPanel->model().renameUserPreset(entryId, name)) {
-        QMessageBox::warning(this, QStringLiteral("プリセット名を変更"),
-                             QStringLiteral("名前を変更できませんでした"));
+        QMessageBox::warning(this, QStringLiteral("Rename Preset"),
+                             QStringLiteral("Could not rename"));
         return;
     }
     m_effectLibraryPanel->refreshCatalog();
@@ -3377,15 +3377,15 @@ void MainWindow::deleteEffectLibraryPreset(const QString &entryId)
         || !entry.isUserPreset) {
         return;
     }
-    if (QMessageBox::question(this, QStringLiteral("プリセット削除"),
-                             QStringLiteral("%1 を削除しますか？").arg(entry.displayName),
+    if (QMessageBox::question(this, QStringLiteral("Delete Preset"),
+                             QStringLiteral("Delete %1?").arg(entry.displayName),
                              QMessageBox::Yes | QMessageBox::No,
                              QMessageBox::No) != QMessageBox::Yes) {
         return;
     }
     if (!m_effectLibraryPanel->model().removeUserPreset(entryId)) {
-        QMessageBox::warning(this, QStringLiteral("プリセット削除"),
-                             QStringLiteral("プリセットを削除できませんでした"));
+        QMessageBox::warning(this, QStringLiteral("Delete Preset"),
+                             QStringLiteral("Could not delete the preset"));
         return;
     }
     m_effectLibraryPanel->refreshCatalog();
@@ -3490,7 +3490,7 @@ void MainWindow::setupUI()
         }
 
         QMenu menu;
-        QAction *pauseOnRightClickAct = menu.addAction(QStringLiteral("右クリックで一時停止"));
+        QAction *pauseOnRightClickAct = menu.addAction(QStringLiteral("Pause on right-click"));
         pauseOnRightClickAct->setCheckable(true);
         pauseOnRightClickAct->setChecked(pauseOnRightClickFromSettings());
         connect(pauseOnRightClickAct, &QAction::toggled, this, [](bool checked) {
@@ -3500,18 +3500,18 @@ void MainWindow::setupUI()
         menu.addSeparator();
 
         // --- 表示系トグル (すべて表示専用・書き出し非変更) ---
-        QMenu *szMenu = menu.addMenu(QStringLiteral("SNS セーフゾーン"));
+        QMenu *szMenu = menu.addMenu(QStringLiteral("SNS safe zones"));
         auto *szGroup = new QActionGroup(&menu);
         szGroup->setExclusive(true);
         const safezone::Platform currentSafeZone = m_player
             ? m_player->safeZonePlatform()
             : safezone::Platform::None;
         const QPair<QString, safezone::Platform> szItems[] = {
-            { QStringLiteral("なし"),               safezone::Platform::None },
+            { QStringLiteral("None"),               safezone::Platform::None },
             { QStringLiteral("TikTok"),             safezone::Platform::TikTok },
             { QStringLiteral("Instagram Reels"),    safezone::Platform::InstagramReels },
             { QStringLiteral("YouTube Shorts"),     safezone::Platform::YouTubeShorts },
-            { QStringLiteral("汎用"),               safezone::Platform::Generic },
+            { QStringLiteral("Generic"),               safezone::Platform::Generic },
         };
         for (const auto &it : szItems) {
             const safezone::Platform p = it.second;
@@ -3523,17 +3523,17 @@ void MainWindow::setupUI()
                     [this, p]() { if (m_player) m_player->setSafeZonePlatform(p); });
         }
 
-        QMenu *aidMenu = menu.addMenu(QStringLiteral("モニタリング (露出/フォーカス)"));
+        QMenu *aidMenu = menu.addMenu(QStringLiteral("Monitoring (exposure/focus)"));
         auto *aidGroup = new QActionGroup(&menu);
         aidGroup->setExclusive(true);
         const exposureaid::AidMode currentAid = m_player
             ? m_player->exposureAidMode()
             : exposureaid::AidMode::None;
         const QPair<QString, exposureaid::AidMode> aidItems[] = {
-            { QStringLiteral("オフ"),               exposureaid::AidMode::None },
-            { QStringLiteral("フォルスカラー"),     exposureaid::AidMode::FalseColor },
-            { QStringLiteral("ゼブラ"),             exposureaid::AidMode::Zebra },
-            { QStringLiteral("フォーカスピーキング"), exposureaid::AidMode::FocusPeaking },
+            { QStringLiteral("Off"),               exposureaid::AidMode::None },
+            { QStringLiteral("False color"),     exposureaid::AidMode::FalseColor },
+            { QStringLiteral("Zebra"),             exposureaid::AidMode::Zebra },
+            { QStringLiteral("Focus peaking"), exposureaid::AidMode::FocusPeaking },
         };
         for (const auto &it : aidItems) {
             const exposureaid::AidMode m = it.second;
@@ -3545,16 +3545,16 @@ void MainWindow::setupUI()
                     [this, m]() { if (m_player) m_player->setExposureAidMode(m); });
         }
 
-        QMenu *onionMenu = menu.addMenu(QStringLiteral("オニオンスキン"));
+        QMenu *onionMenu = menu.addMenu(QStringLiteral("Onion Skin"));
         auto *onionGroup = new QActionGroup(&menu);
         onionGroup->setExclusive(true);
         const onionskin::Config currentOnion = m_player
             ? m_player->onionSkinConfig()
             : onionskin::Config{};
         const QPair<QString, OnionSkinPreset> onionItems[] = {
-            { QStringLiteral("オフ"),     OnionSkinPreset::Off },
-            { QStringLiteral("前1後1"),   OnionSkinPreset::OneBeforeAfter },
-            { QStringLiteral("前2後2"),   OnionSkinPreset::TwoBeforeAfter },
+            { QStringLiteral("Off"),     OnionSkinPreset::Off },
+            { QStringLiteral("1 Before / 1 After"),   OnionSkinPreset::OneBeforeAfter },
+            { QStringLiteral("2 Before / 2 After"),   OnionSkinPreset::TwoBeforeAfter },
         };
         for (const auto &it : onionItems) {
             const OnionSkinPreset preset = it.second;
@@ -3577,8 +3577,8 @@ void MainWindow::setupUI()
             onionskin::Config cfg = m_player->onionSkinConfig();
             bool ok = false;
             const double pct = QInputDialog::getDouble(
-                this, QStringLiteral("オニオンスキン"),
-                QStringLiteral("不透明度 (%):"),
+                this, QStringLiteral("Onion Skin"),
+                QStringLiteral("Opacity (%):"),
                 qBound(0.0, cfg.opacity, 1.0) * 100.0,
                 0.0, 100.0, 0, &ok);
             if (!ok)
@@ -3587,14 +3587,14 @@ void MainWindow::setupUI()
             m_player->setOnionSkinConfig(cfg);
         });
 
-        QMenu *pqMenu = menu.addMenu(QStringLiteral("再生プレビュー品質"));
+        QMenu *pqMenu = menu.addMenu(QStringLiteral("Playback preview quality"));
         auto *pqGroup = new QActionGroup(&menu);
         pqGroup->setExclusive(true);
         const int currentProxyDivisor = m_player ? m_player->proxyDivisor() : 1;
         const QPair<QString, int> pqItems[] = {
-            { QStringLiteral("フル解像度 (1x)"), 1 },
-            { QStringLiteral("1/2 解像度 (2x)"), 2 },
-            { QStringLiteral("1/4 解像度 (4x)"), 4 },
+            { QStringLiteral("Full resolution (1x)"), 1 },
+            { QStringLiteral("1/2 resolution (2x)"), 2 },
+            { QStringLiteral("1/4 resolution (4x)"), 4 },
         };
         for (const auto &it : pqItems) {
             const int div = it.second;
@@ -3611,27 +3611,27 @@ void MainWindow::setupUI()
         TimelineTrack *clipTrack = nullptr;
         int clipIdx = -1;
         if (m_timeline && m_timeline->clipUnderPlayhead(clipTrack, clipIdx) && clipTrack) {
-            connect(menu.addAction(QStringLiteral("無音を自動カット...")), &QAction::triggered,
+            connect(menu.addAction(QStringLiteral("Auto-Cut Silence...")), &QAction::triggered,
                     this, [this, clipTrack, clipIdx]() {
                         if (m_timeline) m_timeline->applySilenceCutToClip(clipTrack, clipIdx); });
-            connect(menu.addAction(QStringLiteral("ビートでマーカー...")), &QAction::triggered,
+            connect(menu.addAction(QStringLiteral("Markers on Beats...")), &QAction::triggered,
                     this, [this, clipTrack, clipIdx]() {
                         if (m_timeline) m_timeline->applyBeatMarkersToClip(clipTrack, clipIdx); });
             menu.addSeparator();
-            connect(menu.addAction(QStringLiteral("SNS: 幅フィット中央(全表示)")), &QAction::triggered,
+            connect(menu.addAction(QStringLiteral("SNS: fit width, centered (show all)")), &QAction::triggered,
                     this, [this, clipTrack, clipIdx]() {
                         if (m_timeline) m_timeline->applySnsFitToClip(clipTrack, clipIdx, true, false,
                             QStringLiteral("SNS width fit center")); });
-            connect(menu.addAction(QStringLiteral("SNS: 幅埋め(クロップ・歪みなし)")), &QAction::triggered,
+            connect(menu.addAction(QStringLiteral("Social: Fill Width (no crop/distortion)")), &QAction::triggered,
                     this, [this, clipTrack, clipIdx]() {
                         if (m_timeline) m_timeline->applySnsFitToClip(clipTrack, clipIdx, false, true,
                             QStringLiteral("SNS width fill crop")); });
-            connect(menu.addAction(QStringLiteral("SNS: フィット解除(全画面)")), &QAction::triggered,
+            connect(menu.addAction(QStringLiteral("Social: Unfit (Fullscreen)")), &QAction::triggered,
                     this, [this, clipTrack, clipIdx]() {
                         if (m_timeline) m_timeline->applySnsFitToClip(clipTrack, clipIdx, false, false,
                             QStringLiteral("SNS restore fullscreen")); });
         } else {
-            QAction *noClip = menu.addAction(QStringLiteral("(再生ヘッド下に V1 クリップなし)"));
+            QAction *noClip = menu.addAction(QStringLiteral("(No V1 clip under playhead)"));
             noClip->setEnabled(false);
         }
 
@@ -3675,7 +3675,7 @@ void MainWindow::setupUI()
     // (今の仕様だと一定以上大きくした後一気に最大サイズになる)」. With
     // QSplitter's default collapsible behavior, dragging the divider past
     // the timeline's collapse threshold snapped the timeline to 0 and the
-    // preview to full height — the "一気に最大サイズ" jump. Non-collapsible
+    // preview to full height — the "Jump to max size" jump. Non-collapsible
     // children stop the divider at each child's natural minimum, so the
     // preview's smooth scaling range extends up to window_height -
     // timeline_min instead of clamping at the snap point.
@@ -3721,7 +3721,7 @@ void MainWindow::setupUI()
                 // the updated time range.
                 if (m_player)
                     m_player->setTextOverlays(m_timeline->timelineTextOverlays());
-                statusBar()->showMessage(QString("テキスト時間: %1 s → %2 s (%3 s)")
+                statusBar()->showMessage(QString("Text duration: %1 s → %2 s (%3 s)")
                     .arg(startTime, 0, 'f', 2)
                     .arg(endTime, 0, 'f', 2)
                     .arg(endTime - startTime, 0, 'f', 2));
@@ -3742,7 +3742,7 @@ void MainWindow::setupUI()
     connect(m_timeline, &Timeline::transitionShortened,
             this, [this](const QString &name, double askedSec, double effSec) {
                 statusBar()->showMessage(
-                    QString("ハンドル不足: %1 を %2s → %3s に短縮しました")
+                    QString("Insufficient handles: shortened %1 from %2s to %3s")
                         .arg(name)
                         .arg(askedSec, 0, 'f', 2)
                         .arg(effSec,   0, 'f', 2),
@@ -3978,64 +3978,64 @@ void MainWindow::setupUI()
 void MainWindow::setupMenuBar()
 {
     // ファイル メニュー
-    auto *fileMenu = menuBar()->addMenu("ファイル(&F)");
+    auto *fileMenu = menuBar()->addMenu("File(&F)");
 
-    auto *newAction = fileMenu->addAction("新規プロジェクト(&N)...");
+    auto *newAction = fileMenu->addAction("New Project(&N)...");
     newAction->setShortcut(QKeySequence::New);
     connect(newAction, &QAction::triggered, this, &MainWindow::newProject);
     m_menuHelpEntries.append({newAction,
-        QStringLiteral("まっさらな状態で編集を始めます。今の作業は保存していないと消えてしまうので注意してください。")});
+        QStringLiteral("Start editing from a blank state. Note that unsaved work will be lost.")});
 
-    auto *projectSettingsAction = fileMenu->addAction("プロジェクト設定(&T)...");
+    auto *projectSettingsAction = fileMenu->addAction("Project Settings(&T)...");
     connect(projectSettingsAction, &QAction::triggered, this, &MainWindow::editProjectSettings);
     m_menuHelpEntries.append({projectSettingsAction,
-        QStringLiteral("プロジェクトの出力解像度を 16:9 / 9:16 / 1:1 / カスタムから選びます。")});
+        QStringLiteral("Choose the project output resolution from 16:9 / 9:16 / 1:1 / Custom.")});
 
-    auto *openAction = fileMenu->addAction("ファイルを開く(&O)...");
+    auto *openAction = fileMenu->addAction("Open File(&O)...");
     openAction->setShortcut(QKeySequence::Open);
     connect(openAction, &QAction::triggered, this, &MainWindow::openFile);
     m_menuHelpEntries.append({openAction,
-        QStringLiteral("パソコンの中の動画・画像・音声ファイルを読み込んで素材として取り込みます。")});
+        QStringLiteral("Load video, image, and audio files from your computer as footage.")});
 
-    auto *importUrlAction = fileMenu->addAction("URL から動画を取り込み(&U)...");
+    auto *importUrlAction = fileMenu->addAction("Import Video from URL(&U)...");
     connect(importUrlAction, &QAction::triggered, this, &MainWindow::importVideoFromUrl);
     m_menuHelpEntries.append({importUrlAction,
-        QStringLiteral("YouTube などの動画 URL を貼り付けて、yt-dlp でダウンロードしてそのまま素材に取り込みます。")});
+        QStringLiteral("Paste a video URL (e.g. YouTube) to download it with yt-dlp and import it as footage.")});
 
     // 最近使ったファイル
     m_recentFilesMenu = new RecentFilesMenu(m_recentFilesManager, fileMenu);
-    m_recentFilesMenu->setTitle("最近使ったファイル");
+    m_recentFilesMenu->setTitle("Recent files");
     fileMenu->addMenu(m_recentFilesMenu);
     connect(m_recentFilesMenu, &RecentFilesMenu::fileSelected, this, &MainWindow::openRecentFile);
     if (m_recentFilesMenu->menuAction())
         m_menuHelpEntries.append({m_recentFilesMenu->menuAction(),
-            QStringLiteral("直前に開いた素材やプロジェクトを一覧からすぐに呼び出せます。")});
+            QStringLiteral("Quickly reopen recently opened footage or projects from the list.")});
 
     fileMenu->addSeparator();
 
-    auto *openProjectAction = fileMenu->addAction("プロジェクトを開く(&P)...");
+    auto *openProjectAction = fileMenu->addAction("Open Project(&P)...");
     openProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
     connect(openProjectAction, &QAction::triggered, this, &MainWindow::openProject);
     m_menuHelpEntries.append({openProjectAction,
-        QStringLiteral("以前に保存した編集プロジェクト（.veproj）ファイルを開いて続きから作業します。")});
+        QStringLiteral("Open a previously saved editing project (.veproj) file to continue working.")});
 
-    auto *saveAction = fileMenu->addAction("プロジェクトを保存(&S)");
+    auto *saveAction = fileMenu->addAction("Save Project(&S)");
     saveAction->setShortcut(QKeySequence::Save);
     connect(saveAction, &QAction::triggered, this, &MainWindow::saveProject);
     m_menuHelpEntries.append({saveAction,
-        QStringLiteral("今の編集内容をプロジェクトファイルに書き出します。こまめに保存しましょう。")});
+        QStringLiteral("Write the current edits to the project file. Save often.")});
 
-    auto *saveAsAction = fileMenu->addAction("名前を付けて保存(&A)...");
+    auto *saveAsAction = fileMenu->addAction("Save As(&A)...");
     saveAsAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S));
     connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveProjectAs);
     m_menuHelpEntries.append({saveAsAction,
-        QStringLiteral("別名でプロジェクトを保存します。元のファイルを残したまま別バージョンを作りたいときに使います。")});
+        QStringLiteral("Save the project under a different name. Use this to create a separate version while keeping the original.")});
 
-    auto *compareProjectAction = fileMenu->addAction(QStringLiteral("保存版と比較…"));
+    auto *compareProjectAction = fileMenu->addAction(QStringLiteral("Compare with saved version…"));
     compareProjectAction->setObjectName(QStringLiteral("action_compare_project"));
     connect(compareProjectAction, &QAction::triggered, this, &MainWindow::compareSavedProject);
 
-    auto *versionedSaveAction = fileMenu->addAction(QStringLiteral("インクリメンタル保存(&I)"));
+    auto *versionedSaveAction = fileMenu->addAction(QStringLiteral("Incremental Save(&I)"));
     versionedSaveAction->setObjectName(QStringLiteral("action_versioned_save"));
     versionedSaveAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_S));
     connect(versionedSaveAction, &QAction::triggered, this, [this]() {
@@ -4064,7 +4064,7 @@ void MainWindow::setupMenuBar()
         updateTitle();
     });
     m_menuHelpEntries.append({versionedSaveAction,
-        QStringLiteral("現在のプロジェクト名の末尾番号を 1 つ進めた別ファイルとして保存します。")});
+        QStringLiteral("Save as a separate file with the trailing number of the current project name incremented.")});
 
     fileMenu->addSeparator();
 
@@ -4072,33 +4072,33 @@ void MainWindow::setupMenuBar()
 
     // Premiere Multicam / Resolve Multicam Sync (simplified) parity —
     // standalone dialog that builds a MultiCamProject EDL.
-    auto *multiCamDialogAction = fileMenu->addAction("マルチカメラ...");
+    auto *multiCamDialogAction = fileMenu->addAction("Multicam...");
     connect(multiCamDialogAction, &QAction::triggered, this, &MainWindow::openMultiCamDialog);
     m_menuHelpEntries.append({multiCamDialogAction,
-        QStringLiteral("複数カメラの映像を音声で同期し、切り替えながら 1 本にまとめます。")});
+        QStringLiteral("Sync multiple camera angles by audio and cut between them into one sequence.")});
 
     // Premiere Media Encoder / Resolve Deliver page parity — modeless
     // dialog that lists pending / running / completed export jobs.
-    auto *renderQueueDialogAction = fileMenu->addAction("レンダーキュー...");
+    auto *renderQueueDialogAction = fileMenu->addAction("Render Queue...");
     connect(renderQueueDialogAction, &QAction::triggered, this, &MainWindow::openRenderQueueDialog);
     m_menuHelpEntries.append({renderQueueDialogAction,
-        QStringLiteral("複数の書き出しをまとめて順番に処理する待ち行列を開きます。")});
+        QStringLiteral("Opens a queue to batch-process multiple exports in order.")});
 
     fileMenu->addSeparator();
 
-    auto *exportAction = fileMenu->addAction("エクスポート(&E)...");
+    auto *exportAction = fileMenu->addAction("Export(&E)...");
     exportAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
     connect(exportAction, &QAction::triggered, this, &MainWindow::exportVideo);
     m_menuHelpEntries.append({exportAction,
-        QStringLiteral("完成した動画を mp4 などの 1 本の動画ファイルに書き出します。")});
+        QStringLiteral("Write the finished video out as a single video file such as mp4.")});
 
-    auto *frameExportAction = fileMenu->addAction(QStringLiteral("現在フレームを書き出し..."));
+    auto *frameExportAction = fileMenu->addAction(QStringLiteral("Export Current Frame..."));
     frameExportAction->setObjectName(QStringLiteral("action_frame_export"));
     frameExportAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_E));
     connect(frameExportAction, &QAction::triggered, this, [this]() {
         if (!m_timeline) {
-            QMessageBox::warning(this, QStringLiteral("現在フレームを書き出し"),
-                                 QStringLiteral("タイムラインがありません。"));
+            QMessageBox::warning(this, QStringLiteral("Export Current Frame"),
+                                 QStringLiteral("No timeline."));
             return;
         }
 
@@ -4108,8 +4108,8 @@ void MainWindow::setupMenuBar()
         const int height = qMax(1, m_projectConfig.height);
         QImage frame = tlrender::renderFrameAt(m_timeline, usec, QSize(width, height));
         if (frame.isNull()) {
-            QMessageBox::warning(this, QStringLiteral("現在フレームを書き出し"),
-                                 QStringLiteral("現在位置の合成フレームをレンダリングできませんでした。"));
+            QMessageBox::warning(this, QStringLiteral("Export Current Frame"),
+                                 QStringLiteral("Could not render the composited frame at the current position."));
             return;
         }
         frame = frame.convertToFormat(QImage::Format_RGBA8888);
@@ -4125,7 +4125,7 @@ void MainWindow::setupMenuBar()
         QString selectedFilter = QStringLiteral("PNG Image (*.png)");
         QString path = QFileDialog::getSaveFileName(
             this,
-            QStringLiteral("現在フレームを書き出し"),
+            QStringLiteral("Export Current Frame"),
             initialPath,
             frameexport::fileDialogFilter(),
             &selectedFilter);
@@ -4142,99 +4142,99 @@ void MainWindow::setupMenuBar()
 
         QString error;
         if (!frameexport::saveFrameImage(frame, path, format, &error)) {
-            QMessageBox::warning(this, QStringLiteral("現在フレームを書き出し"),
-                                 QStringLiteral("保存に失敗しました:\n%1").arg(error));
+            QMessageBox::warning(this, QStringLiteral("Export Current Frame"),
+                                 QStringLiteral("Save failed:\n%1").arg(error));
             return;
         }
 
         statusBar()->showMessage(
-            QStringLiteral("現在フレームを書き出しました: %1").arg(path), 5000);
+            QStringLiteral("Exported the current frame: %1").arg(path), 5000);
     });
     m_menuHelpEntries.append({frameExportAction,
-        QStringLiteral("再生ヘッド位置の合成済みフレームを PNG / JPEG の静止画として保存します。")});
+        QStringLiteral("Save the composited frame at the playhead position as a PNG / JPEG still.")});
 
-    auto *remotionAction = fileMenu->addAction("Remotion形式でエクスポート(&R)...");
+    auto *remotionAction = fileMenu->addAction("Export as Remotion(&R)...");
     connect(remotionAction, &QAction::triggered, this, &MainWindow::exportToRemotion);
 
     // US-SC2-B: Sprint 13 — SNS 向けプリセット (Instagram/TikTok/YouTube Shorts) で
     // 縦動画リフレーミング込みエクスポートを開く。
-    auto *socialExportAction = fileMenu->addAction(QStringLiteral("SNS 向けエクスポート…"));
+    auto *socialExportAction = fileMenu->addAction(QStringLiteral("Export for Social Media…"));
     socialExportAction->setObjectName("action_social_export");
     connect(socialExportAction, &QAction::triggered,
             this, &MainWindow::openSocialExportDialog);
     m_menuHelpEntries.append({socialExportAction,
-        QStringLiteral("Instagram / TikTok / YouTube Shorts などの SNS 向けプリセットでエクスポートします (9:16/1:1/4:5 縦動画自動リフレーミング対応)。")});
+        QStringLiteral("Export with presets for Instagram / TikTok / YouTube Shorts and other social media (supports 9:16/1:1/4:5 auto-reframing for vertical video).")});
 
     // US-INT-1: Sprint 16 — モバイルデバイス向けエクスポート (iPhone/iPad/Android プロファイル)。
 #ifdef HAVE_MOBILE_EXPORT
-    auto *mobileExportAction = fileMenu->addAction(QStringLiteral("モバイルデバイス向けエクスポート(&M)…"));
+    auto *mobileExportAction = fileMenu->addAction(QStringLiteral("Export for Mobile Devices(&M)…"));
     mobileExportAction->setObjectName("action_mobile_export");
     connect(mobileExportAction, &QAction::triggered,
             this, &MainWindow::onMobileExport);
     m_menuHelpEntries.append({mobileExportAction,
-        QStringLiteral("iPhone / iPad / Android などのモバイルデバイス向けに最適化されたエクスポートプロファイルを開きます。")});
+        QStringLiteral("Open export profiles optimized for mobile devices such as iPhone / iPad / Android.")});
 #endif
 
     // US-INT-1: Sprint 16 — 外部ツール (OBS / Affinity / Blender) からの取り込みハブ。
 #ifdef HAVE_IMPORT_HUB
-    auto *importHubAction = fileMenu->addAction(QStringLiteral("外部ツール取り込みハブ(&I)…"));
+    auto *importHubAction = fileMenu->addAction(QStringLiteral("External Tool Import Hub(&I)…"));
     importHubAction->setObjectName("action_import_hub");
     connect(importHubAction, &QAction::triggered,
             this, &MainWindow::onImportHub);
     m_menuHelpEntries.append({importHubAction,
-        QStringLiteral("OBS の録画 / Affinity Photo の PSD / Blender のメッシュ・EXR シーケンスをまとめて取り込むハブを開きます。")});
+        QStringLiteral("Open a hub to batch-import OBS recordings, Affinity Photo PSDs, and Blender mesh/EXR sequences.")});
 #endif
 
     // US-EXT-10: HDR (HDR10/HLG) output settings dialog.
-    auto *hdrSettingsAction = fileMenu->addAction("HDR 出力設定...");
+    auto *hdrSettingsAction = fileMenu->addAction("HDR Output Settings...");
     hdrSettingsAction->setObjectName("action_hdr_settings");
     connect(hdrSettingsAction, &QAction::triggered, this, &MainWindow::onHDRSettings);
     m_menuHelpEntries.append({hdrSettingsAction,
-        QStringLiteral("HDR (HDR10 / HLG) 書き出しのメタデータと表示プレビュー設定を編集する。")});
+        QStringLiteral("Edit metadata and display preview settings for HDR (HDR10 / HLG) export.")});
 
     auto *timecodeBurnInAction = fileMenu->addAction(
-        QStringLiteral("タイムコード焼き込み設定…"));
+        QStringLiteral("Burn-in Timecode Settings…"));
     timecodeBurnInAction->setObjectName(
         QStringLiteral("action_timecode_burn_in_settings"));
     connect(timecodeBurnInAction, &QAction::triggered,
             this, &MainWindow::onTimecodeBurnInSettings);
     m_menuHelpEntries.append({timecodeBurnInAction,
-        QStringLiteral("プレビューと動画書き出しに表示するタイムコードの位置と書式を設定します。")});
+        QStringLiteral("Set the position and format of the timecode shown in the preview and exported video.")});
 
     // US-HW-10: collect project + referenced media into a single folder.
-    auto *collectAction = fileMenu->addAction("プロジェクトを収集 (Collect Files)...");
+    auto *collectAction = fileMenu->addAction("Collect Project Files...");
     collectAction->setObjectName("action_collect_project");
     connect(collectAction, &QAction::triggered, this, &MainWindow::onCollectProject);
     m_menuHelpEntries.append({collectAction,
-        QStringLiteral("プロジェクトと参照メディアを 1 フォルダにまとめる (Collect Files)。")});
+        QStringLiteral("Collect the project and referenced media into one folder (Collect Files).")});
     m_menuHelpEntries.append({remotionAction,
-        QStringLiteral("プログラム（Remotion）で再編集できる形式に書き出します。上級者向けです。")});
+        QStringLiteral("Export in a format that can be re-edited programmatically (Remotion). For advanced users.")});
 
     fileMenu->addSeparator();
 
-    auto *prefsMenu = fileMenu->addMenu("環境設定(&S)");
+    auto *prefsMenu = fileMenu->addMenu("Preferences(&S)");
     if (prefsMenu->menuAction())
         m_menuHelpEntries.append({prefsMenu->menuAction(),
-            QStringLiteral("テーマ、ショートカット、自動保存などアプリ全体の設定をまとめて変更できます。")});
+            QStringLiteral("Change app-wide settings such as theme, shortcuts, and auto-save in one place.")});
     fileMenu->addSeparator();
 
-    auto *quitAction = fileMenu->addAction("終了(&Q)");
+    auto *quitAction = fileMenu->addAction("Quit(&Q)");
     quitAction->setShortcut(QKeySequence::Quit);
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
     m_menuHelpEntries.append({quitAction,
-        QStringLiteral("アプリを閉じます。保存していない変更があるか確認してから終了してください。")});
+        QStringLiteral("Close the app. Check for unsaved changes before quitting.")});
 
     // 編集 メニュー
-    auto *editMenu = menuBar()->addMenu("編集(&E)");
+    auto *editMenu = menuBar()->addMenu("Edit(&E)");
 
     m_copyCurrentFrameAction =
-        editMenu->addAction(QStringLiteral("現在のフレームをクリップボードへコピー"));
+        editMenu->addAction(QStringLiteral("Copy Current Frame to Clipboard"));
     m_copyCurrentFrameAction->setObjectName(
         QStringLiteral("action_copy_current_frame_to_clipboard"));
     m_copyCurrentFrameAction->setProperty(
-        "accessibleName", QStringLiteral("現在のフレームをクリップボードへコピー"));
+        "accessibleName", QStringLiteral("Copy Current Frame to Clipboard"));
     m_copyCurrentFrameAction->setToolTip(
-        QStringLiteral("再生ヘッド位置の合成済みフレームをクリップボードへコピーします"));
+        QStringLiteral("Copy the composited frame at the playhead position to the clipboard"));
     m_copyCurrentFrameAction->setShortcut(
         QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
     connect(m_copyCurrentFrameAction, &QAction::triggered, this, [this]() {
@@ -4252,86 +4252,86 @@ void MainWindow::setupMenuBar()
         if (!FrameClipboard::copyImage(
                 renderedFrame, QApplication::clipboard(), &error)) {
             statusBar()->showMessage(
-                QStringLiteral("現在のフレームをコピーできませんでした: %1").arg(error),
+                QStringLiteral("Could not copy the current frame: %1").arg(error),
                 5000);
         } else {
             statusBar()->showMessage(
-                QStringLiteral("現在のフレームをクリップボードへコピーしました。"), 3000);
+                QStringLiteral("Copied the current frame to the clipboard."), 3000);
         }
     });
     m_menuHelpEntries.append({m_copyCurrentFrameAction,
-        QStringLiteral("再生ヘッド位置の合成済みフレームを画像としてクリップボードへコピーします。")});
+        QStringLiteral("Copy the composited frame at the playhead position to the clipboard as an image.")});
 
     editMenu->addSeparator();
 
-    m_undoAction = editMenu->addAction("元に戻す(&U)");
+    m_undoAction = editMenu->addAction("Undo(&U)");
     m_undoAction->setShortcut(QKeySequence::Undo);
     connect(m_undoAction, &QAction::triggered, this, &MainWindow::undoAction);
     m_menuHelpEntries.append({m_undoAction,
-        QStringLiteral("直前の操作を取り消します。間違えたらまずこれ（Ctrl+Z）。")});
+        QStringLiteral("Undo the last operation. Press this first if you make a mistake (Ctrl+Z).")});
 
-    m_redoAction = editMenu->addAction("やり直す(&R)");
+    m_redoAction = editMenu->addAction("Redo(&R)");
     m_redoAction->setShortcut(QKeySequence::Redo);
     connect(m_redoAction, &QAction::triggered, this, &MainWindow::redoAction);
     m_menuHelpEntries.append({m_redoAction,
-        QStringLiteral("「元に戻す」で取り消した操作を、もう一度やり直します。")});
+        QStringLiteral("Redo an operation that was undone with \"Undo\".")});
 
     editMenu->addSeparator();
 
-    m_copyAction = editMenu->addAction("クリップをコピー(&C)");
+    m_copyAction = editMenu->addAction("Copy Clip(&C)");
     m_copyAction->setShortcut(QKeySequence::Copy);
     connect(m_copyAction, &QAction::triggered, this, &MainWindow::copyClip);
     m_menuHelpEntries.append({m_copyAction,
-        QStringLiteral("選んでいるクリップを複製用にコピーします。貼り付けと組み合わせて使います。")});
+        QStringLiteral("Copy the selected clip for duplication. Use together with Paste.")});
 
-    m_pasteAction = editMenu->addAction("クリップを貼り付け(&P)");
+    m_pasteAction = editMenu->addAction("Paste Clip(&P)");
     m_pasteAction->setShortcut(QKeySequence::Paste);
     connect(m_pasteAction, &QAction::triggered, this, &MainWindow::pasteClip);
     m_menuHelpEntries.append({m_pasteAction,
-        QStringLiteral("コピーしたクリップを再生ヘッドの位置に貼り付けます。")});
+        QStringLiteral("Paste the copied clip at the playhead position.")});
 
     editMenu->addSeparator();
 
-    m_splitAction = editMenu->addAction("再生ヘッドで分割(&S)");
+    m_splitAction = editMenu->addAction("Split at Playhead(&S)");
     m_splitAction->setShortcut(QKeySequence(Qt::Key_S));
     connect(m_splitAction, &QAction::triggered, this, &MainWindow::splitClip);
     m_menuHelpEntries.append({m_splitAction,
-        QStringLiteral("再生ヘッド（縦線）の位置でクリップを 2 つに切り分けます。いらない部分を消す前準備に。")});
+        QStringLiteral("Split the clip in two at the playhead (vertical line) position. A preparatory step before removing unwanted parts.")});
 
-    m_deleteAction = editMenu->addAction("クリップを削除(&D)");
+    m_deleteAction = editMenu->addAction("Delete Clip(&D)");
     m_deleteAction->setShortcut(QKeySequence::Delete);
     connect(m_deleteAction, &QAction::triggered, this, &MainWindow::deleteClip);
     m_menuHelpEntries.append({m_deleteAction,
-        QStringLiteral("選んだクリップをタイムラインから消します。元の素材ファイル自体は消えません。")});
+        QStringLiteral("Remove the selected clip from the timeline. The original source file is not deleted.")});
 
-    m_rippleDeleteAction = editMenu->addAction("リップル削除");
+    m_rippleDeleteAction = editMenu->addAction("Ripple Delete");
     m_rippleDeleteAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Delete));
     connect(m_rippleDeleteAction, &QAction::triggered, this, &MainWindow::rippleDelete);
     m_menuHelpEntries.append({m_rippleDeleteAction,
-        QStringLiteral("クリップを消して、空いた隙間を後ろのクリップが詰めて埋めます。間を空けたくないときに。")});
+        QStringLiteral("Delete the clip and close the gap by shifting later clips forward. Use when you don't want a gap.")});
 
-    auto *matchFrameAction = editMenu->addAction(QStringLiteral("マッチフレーム"));
+    auto *matchFrameAction = editMenu->addAction(QStringLiteral("Match Frame"));
     matchFrameAction->setObjectName(QStringLiteral("action_match_frame"));
     matchFrameAction->setShortcut(QKeySequence(Qt::Key_F));
     connect(matchFrameAction, &QAction::triggered,
             this, &MainWindow::matchFrame);
     m_menuHelpEntries.append({matchFrameAction,
-        QStringLiteral("再生ヘッド位置のクリップを、対応するソース時刻でソースモニターに開きます。")});
+        QStringLiteral("Open the clip at the playhead position in the source monitor at the corresponding source time.")});
 
     auto *replaceClipAction = editMenu->addAction(
-        QStringLiteral("クリップをメディアプールの素材で置き換え"));
+        QStringLiteral("Replace Clip with Media Pool Asset"));
     replaceClipAction->setObjectName(QStringLiteral("action_replace_clip_media"));
     connect(replaceClipAction, &QAction::triggered,
             this, &MainWindow::replaceSelectedClipFromMediaPool);
     m_menuHelpEntries.append({replaceClipAction,
-        QStringLiteral("選んだクリップの位置とトリムを保ったまま、メディアプールで選択中の素材へ差し替えます。")});
+        QStringLiteral("Swap the selected clip with the asset selected in the media pool, keeping its position and trim.")});
 
     // US-WF-D: Sprint 11 workflow — magnetic timeline closeGaps demo.
-    auto *magTlDemoAction = editMenu->addAction("タイムラインギャップを詰める (Demo)");
+    auto *magTlDemoAction = editMenu->addAction("Close Timeline Gaps (Demo)");
     magTlDemoAction->setObjectName("action_magnetic_timeline_demo");
     connect(magTlDemoAction, &QAction::triggered, this, &MainWindow::runMagneticTimelineDemo);
     m_menuHelpEntries.append({magTlDemoAction,
-        QStringLiteral("Magnetic Timeline の closeGaps を 2 クリップの合成例で実行し、結果を表示します (デモ)。")});
+        QStringLiteral("Run Magnetic Timeline's closeGaps on a 2-clip composite example and show the result (demo).")});
 
     editMenu->addSeparator();
 
@@ -4339,18 +4339,18 @@ void MainWindow::setupMenuBar()
     m_copyEffectsAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_C));
     connect(m_copyEffectsAction, &QAction::triggered, this, &MainWindow::copyEffects);
     m_menuHelpEntries.append({m_copyEffectsAction,
-        QStringLiteral("選んだクリップに付けたエフェクト（色補正やぼかし等）の設定だけをコピーします。")});
+        QStringLiteral("Copy only the effect settings (color correction, blur, etc.) applied to the selected clip.")});
 
     m_pasteEffectsAction = editMenu->addAction("Paste Effects");
     m_pasteEffectsAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_V));
     connect(m_pasteEffectsAction, &QAction::triggered, this, &MainWindow::pasteEffects);
     m_menuHelpEntries.append({m_pasteEffectsAction,
-        QStringLiteral("コピーしたエフェクト設定を別のクリップに貼り付けます。同じ見た目をまとめて適用できます。")});
+        QStringLiteral("Paste the copied effect settings onto another clip. Apply the same look to multiple clips at once.")});
 
     m_pasteAttributesAction = editMenu->addAction("Paste Attributes...");
     connect(m_pasteAttributesAction, &QAction::triggered, this, &MainWindow::pasteAttributes);
     m_menuHelpEntries.append({m_pasteAttributesAction,
-        QStringLiteral("エフェクトのうちどの項目を貼り付けるかを選んで適用します。")});
+        QStringLiteral("Choose which effect attributes to paste and apply them.")});
 
     auto &clipBoard = effectctrl::EffectClipboard::instance();
     m_pasteEffectsAction->setEnabled(clipBoard.hasContent());
@@ -4363,83 +4363,83 @@ void MainWindow::setupMenuBar()
 
     editMenu->addSeparator();
 
-    auto *applyDefaultTransAct = editMenu->addAction("規定トランジションを適用(&D)");
+    auto *applyDefaultTransAct = editMenu->addAction("Apply Default Transition(&D)");
     applyDefaultTransAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
     connect(applyDefaultTransAct, &QAction::triggered, this, &MainWindow::applyDefaultTransition);
 
-    auto *editDefaultTransAct = editMenu->addAction("規定トランジション設定...");
+    auto *editDefaultTransAct = editMenu->addAction("Default Transition Settings...");
     connect(editDefaultTransAct, &QAction::triggered, this, &MainWindow::editDefaultTransition);
 
     editMenu->addSeparator();
 
-    m_snapAction = editMenu->addAction("スナップ切替(&N)");
+    m_snapAction = editMenu->addAction("Toggle Snapping(&N)");
     m_snapAction->setShortcut(QKeySequence(Qt::Key_N));
     m_snapAction->setCheckable(true);
     m_snapAction->setChecked(true);
     connect(m_snapAction, &QAction::triggered, this, &MainWindow::toggleSnap);
     m_menuHelpEntries.append({m_snapAction,
-        QStringLiteral("ON にすると、クリップを動かすとき隣のクリップや再生ヘッドにピタッと吸い付きます。")});
+        QStringLiteral("When ON, clips snap to neighboring clips and the playhead when moved.")});
 
     editMenu->addSeparator();
 
-    auto *speedAction = editMenu->addAction("再生速度を設定...");
+    auto *speedAction = editMenu->addAction("Set Playback Speed...");
     connect(speedAction, &QAction::triggered, this, &MainWindow::setClipSpeed);
     m_menuHelpEntries.append({speedAction,
-        QStringLiteral("選んだクリップを早送り・スローモーションにします。倍率を数字で指定できます。")});
+        QStringLiteral("Make the selected clip fast-forward or slow-motion. Specify the multiplier as a number.")});
 
     // Premiere "Speed / Duration" parity — applies a flat SpeedRamp
     // curve to the selected clip via Timeline.
-    auto *speedRampDialogAction = editMenu->addAction("速度 / 持続時間...");
+    auto *speedRampDialogAction = editMenu->addAction("Speed / Duration...");
     speedRampDialogAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
     connect(speedRampDialogAction, &QAction::triggered, this, &MainWindow::openSpeedRampDialog);
 
-    m_reverseClipAction = editMenu->addAction(QStringLiteral("逆再生"));
+    m_reverseClipAction = editMenu->addAction(QStringLiteral("Reverse"));
     m_reverseClipAction->setObjectName(QStringLiteral("action_reverse_clip"));
     m_reverseClipAction->setCheckable(true);
     connect(m_reverseClipAction, &QAction::triggered,
             this, &MainWindow::toggleClipReversed);
     m_menuHelpEntries.append({m_reverseClipAction,
-        QStringLiteral("選んだクリップを後ろから再生します。リンクした映像と音声にも同時に適用します。")});
+        QStringLiteral("Play the selected clip in reverse. Also applies to linked video and audio.")});
 
     editMenu->addSeparator();
 
     // Streaming chi-squared histogram cut detector (SceneDetector).
     // Decodes a sample of frames from the active clip and, for each
     // detected cut, drops a Timeline marker.
-    auto *sceneDetectAction = editMenu->addAction("シーン検出 (自動)...");
+    auto *sceneDetectAction = editMenu->addAction("Scene Detection (Auto)...");
     connect(sceneDetectAction, &QAction::triggered, this, &MainWindow::openSceneDetector);
 
     // MotionStabilizer — analyses the active clip for camera shake and
     // either bakes counter-translation keyframes (when supported) or
     // reports the result to the status bar (deferred integration).
-    auto *stabilizeAct = editMenu->addAction("スタビライズ (手ブレ補正)...");
+    auto *stabilizeAct = editMenu->addAction("Stabilize (Shake Reduction)...");
     connect(stabilizeAct, &QAction::triggered, this, &MainWindow::runMotionStabilizer);
 
     editMenu->addSeparator();
 
     // US-SC-B: Sprint 12 — Premiere/FCP/DaVinci 風プリセット切替 + 個別カスタマイズ
-    auto *shortcutCustomizeAction = editMenu->addAction(QStringLiteral("ショートカット設定…"));
+    auto *shortcutCustomizeAction = editMenu->addAction(QStringLiteral("Shortcut Settings..."));
     shortcutCustomizeAction->setObjectName("action_shortcut_customize");
     connect(shortcutCustomizeAction, &QAction::triggered,
             this, &MainWindow::openShortcutCustomizeDialog);
     prefsMenu->addAction(shortcutCustomizeAction);
     m_menuHelpEntries.append({shortcutCustomizeAction,
-        QStringLiteral("メニューやツールバーのキーボードショートカットをカスタマイズしたり、Premiere/FinalCutPro/DaVinci 風プリセットへ切り替えたりします。")});
+        QStringLiteral("Customize keyboard shortcuts for menus and toolbars, or switch to Premiere/FinalCutPro/DaVinci-style presets.")});
 
     editMenu->addSeparator();
 
     // US-AUTH-6: unified credential dialog for 5 streaming platforms.
-    auto *credentialAction = editMenu->addAction(QStringLiteral("配信認証情報..."));
+    auto *credentialAction = editMenu->addAction(QStringLiteral("Streaming Credentials..."));
     credentialAction->setShortcut(QKeySequence(tr("Ctrl+Alt+A")));
     connect(credentialAction, &QAction::triggered, this, &MainWindow::onShowCredentialDialog);
     m_menuHelpEntries.append({credentialAction,
-        QStringLiteral("YouTube / Vimeo / Instagram / X / Twitch の配信認証情報を 1 画面で確認・保存・削除します。")});
+        QStringLiteral("View, save, and delete YouTube / Vimeo / Instagram / X / Twitch streaming credentials on one screen.")});
 
     // US-TP-6: PRD-TP — モーショントラッカー preset 適用ダイアログ。Ctrl+Alt+T
     // で開き、選択した preset を m_motionTracker に適用する。既存の
     // motionTrackSetup() / trackMotion() 経路は変更しない。
     editMenu->addSeparator();
-    QAction *trackerAct = editMenu->addAction(tr("モーショントラッカー (&T)..."));
+    QAction *trackerAct = editMenu->addAction(tr("Motion Tracker (&T)..."));
     trackerAct->setShortcut(QKeySequence(tr("Ctrl+Alt+T")));
     connect(trackerAct, &QAction::triggered, this, &MainWindow::showMotionTrackerDialog);
 
@@ -4450,31 +4450,31 @@ void MainWindow::setupMenuBar()
     // setupMenuBar(), once every favoritable QAction exists; here we only
     // create the menu shell and the 「お気に入りを編集...」 action it always
     // keeps at the bottom.
-    m_favoritesMenu = menuBar()->addMenu(QStringLiteral("お気に入り(&O)"));
-    m_editFavoritesAction = new QAction(QStringLiteral("お気に入りを編集..."), this);
+    m_favoritesMenu = menuBar()->addMenu(QStringLiteral("Favorites(&O)"));
+    m_editFavoritesAction = new QAction(QStringLiteral("Edit Favorites..."), this);
     connect(m_editFavoritesAction, &QAction::triggered, this, &MainWindow::editFavorites);
     m_menuHelpEntries.append({m_editFavoritesAction,
-        QStringLiteral("この「お気に入り」メニューに表示する機能を、自分でチェックして選べます。")});
+        QStringLiteral("Choose which features appear in this \"Favorites\" menu by checking them yourself.")});
 
     // 表示 メニュー
-    auto *viewMenu = menuBar()->addMenu("表示(&V)");
+    auto *viewMenu = menuBar()->addMenu("View(&V)");
 
-    auto *zoomInAction = viewMenu->addAction("拡大(&I)");
+    auto *zoomInAction = viewMenu->addAction("Zoom In(&I)");
     zoomInAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
     connect(zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
     m_menuHelpEntries.append({zoomInAction,
-        QStringLiteral("タイムラインを拡大して、細かい位置あわせをしやすくします。")});
+        QStringLiteral("Zoom in the timeline to make fine positioning easier.")});
 
-    auto *zoomOutAction = viewMenu->addAction("縮小(&O)");
+    auto *zoomOutAction = viewMenu->addAction("Zoom Out(&O)");
     zoomOutAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus));
     connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
     m_menuHelpEntries.append({zoomOutAction,
-        QStringLiteral("タイムラインを縮小して、動画全体を一目で見られるようにします。")});
+        QStringLiteral("Zoom out the timeline to see the whole video at a glance.")});
 
     // WS-3: ワークスペース (名前付きドックレイアウト) サブメニュー。
     // 中身は rebuildWorkspaceMenu() で動的に組み立てる。
     viewMenu->addSeparator();
-    m_workspaceMenu = viewMenu->addMenu(QStringLiteral("ワークスペース(&W)"));
+    m_workspaceMenu = viewMenu->addMenu(QStringLiteral("Workspace(&W)"));
     rebuildWorkspaceMenu();
 
     // EXP-AID: 露出/フォーカス確認エイド (モニタリング)。フォルスカラー / ゼブラ /
@@ -4484,7 +4484,7 @@ void MainWindow::setupMenuBar()
     // 書き出し (renderFrameAt / TimelineFrameRenderer / RenderQueue / Exporter) には
     // 一切関与しないため、エイドが書き出し画に焼き込まれることはない。
     viewMenu->addSeparator();
-    auto *monitorMenu = viewMenu->addMenu(QStringLiteral("モニタリング(&M)"));
+    auto *monitorMenu = viewMenu->addMenu(QStringLiteral("Monitoring(&M)"));
     auto *aidGroup = new QActionGroup(this);
     aidGroup->setExclusive(true);
 
@@ -4494,14 +4494,14 @@ void MainWindow::setupMenuBar()
         const char *help;
     };
     const AidMenuEntry aidEntries[] = {
-        { "オフ(&O)", exposureaid::AidMode::None,
-          "露出/フォーカス確認エイドを使わない通常表示に戻します。" },
-        { "フォルスカラー(&F)", exposureaid::AidMode::FalseColor,
-          "明るさを色分けして表示し、白飛び/黒つぶれを一目で確認できます。書き出しには焼き込まれません。" },
-        { "ゼブラ(&Z)", exposureaid::AidMode::Zebra,
-          "明るすぎる部分に斜めの縞模様を重ね、白飛び直前の領域を警告します。書き出しには焼き込まれません。" },
-        { "フォーカスピーキング(&P)", exposureaid::AidMode::FocusPeaking,
-          "ピントが合っている輪郭を色で強調し、手動フォーカスを確認しやすくします。書き出しには焼き込まれません。" },
+        { "Off(&O)", exposureaid::AidMode::None,
+          "Return to the normal view without exposure/focus check aids." },
+        { "False Color(&F)", exposureaid::AidMode::FalseColor,
+          "Display brightness as colors to spot clipped highlights/shadows at a glance. Not burned into the export." },
+        { "Zebra(&Z)", exposureaid::AidMode::Zebra,
+          "Overlay diagonal stripes on overbright areas to warn of near-clipping regions. Not burned into the export." },
+        { "Focus Peaking(&P)", exposureaid::AidMode::FocusPeaking,
+          "Highlight in-focus edges with color to make manual focus easier to check. Not burned into the export." },
     };
     for (const auto &entry : aidEntries) {
         QAction *act = monitorMenu->addAction(QString::fromUtf8(entry.label));
@@ -4520,7 +4520,7 @@ void MainWindow::setupMenuBar()
     // SAFE-ZONE: SNS セーフゾーン/プラットフォーム UI ガイドのプレビュー表示専用オーバーレイ。
     // 選択を VideoPlayer::setSafeZonePlatform に流す。書き出しには焼き込まれない。
     viewMenu->addSeparator();
-    auto *szMenu = viewMenu->addMenu(QStringLiteral("SNS セーフゾーン(&S)"));
+    auto *szMenu = viewMenu->addMenu(QStringLiteral("SNS Safe Zone(&S)"));
     auto *szGroup = new QActionGroup(this);
     szGroup->setExclusive(true);
 
@@ -4530,16 +4530,16 @@ void MainWindow::setupMenuBar()
         const char *help;
     };
     const SzMenuEntry szEntries[] = {
-        { "なし(&O)", safezone::Platform::None,
-          "SNS セーフゾーンオーバーレイを使わない通常表示に戻します。" },
+        { "None(&O)", safezone::Platform::None,
+          "Return to the normal view without the SNS safe zone overlay." },
         { "TikTok(&T)", safezone::Platform::TikTok,
-          "TikTok のキャプション帯・右側アクション列・上部 UI 領域を半透明赤で表示します。書き出しには焼き込まれません。" },
+          "Show TikTok's caption bar, right-side action column, and top UI area in translucent red. Not burned into the export." },
         { "Instagram Reels(&I)", safezone::Platform::InstagramReels,
-          "Instagram Reels の UI 被さり領域をガイド表示します。書き出しには焼き込まれません。" },
+          "Show the Instagram Reels UI overlap area as a guide. Not burned into the export." },
         { "YouTube Shorts(&Y)", safezone::Platform::YouTubeShorts,
-          "YouTube Shorts の UI 被さり領域をガイド表示します。書き出しには焼き込まれません。" },
-        { "汎用(&G)", safezone::Platform::Generic,
-          "プラットフォーム汎用のタイトルセーフ/アクションセーフ枠のみ表示します。書き出しには焼き込まれません。" },
+          "Show the YouTube Shorts UI overlap area as a guide. Not burned into the export." },
+        { "Generic(&G)", safezone::Platform::Generic,
+          "Show only the platform-generic title-safe/action-safe frames. Not burned into the export." },
     };
     for (const auto &szEntry : szEntries) {
         QAction *szAct = szMenu->addAction(QString::fromUtf8(szEntry.label));
@@ -4558,12 +4558,12 @@ void MainWindow::setupMenuBar()
     // ONION-SKIN: 前後フレームを半透明で重ねるプレビュー表示専用オーバーレイ。
     // renderFrameAt で取得した ghost は displayFrame 内でのみ使い、書き出しには焼き込まない。
     viewMenu->addSeparator();
-    auto *onionMenu = viewMenu->addMenu(QStringLiteral("オニオンスキン(&O)"));
+    auto *onionMenu = viewMenu->addMenu(QStringLiteral("Onion Skin(&O)"));
     auto *onionGroup = new QActionGroup(this);
     onionGroup->setExclusive(true);
-    QAction *onionOffAct = onionMenu->addAction(QStringLiteral("オフ"));
-    QAction *onionOneAct = onionMenu->addAction(QStringLiteral("前1後1"));
-    QAction *onionTwoAct = onionMenu->addAction(QStringLiteral("前2後2"));
+    QAction *onionOffAct = onionMenu->addAction(QStringLiteral("Off"));
+    QAction *onionOneAct = onionMenu->addAction(QStringLiteral("1 Before / 1 After"));
+    QAction *onionTwoAct = onionMenu->addAction(QStringLiteral("2 Before / 2 After"));
     for (QAction *act : {onionOffAct, onionOneAct, onionTwoAct}) {
         act->setCheckable(true);
         onionGroup->addAction(act);
@@ -4605,8 +4605,8 @@ void MainWindow::setupMenuBar()
         onionskin::Config cfg = m_player->onionSkinConfig();
         bool ok = false;
         const double pct = QInputDialog::getDouble(
-            this, QStringLiteral("オニオンスキン"),
-            QStringLiteral("不透明度 (%):"),
+            this, QStringLiteral("Onion Skin"),
+            QStringLiteral("Opacity (%):"),
             qBound(0.0, cfg.opacity, 1.0) * 100.0,
             0.0, 100.0, 0, &ok);
         if (!ok)
@@ -4617,22 +4617,22 @@ void MainWindow::setupMenuBar()
         syncOnionMenu();
     });
     m_menuHelpEntries.append({onionOffAct,
-        QStringLiteral("オニオンスキンを使わない通常表示に戻します。書き出しには影響しません。")});
+        QStringLiteral("Return to the normal view without onion skin. Does not affect the export.")});
     m_menuHelpEntries.append({onionOneAct,
-        QStringLiteral("現在フレームの前後 1 フレームを半透明で重ね、動きのつながりを確認します。")});
+        QStringLiteral("Overlay 1 frame before and after the current frame translucently to check motion continuity.")});
     m_menuHelpEntries.append({onionTwoAct,
-        QStringLiteral("現在フレームの前後 2 フレームを半透明で重ねます。古い ghost ほど薄く表示します。")});
+        QStringLiteral("Overlay 2 frames before and after the current frame. Older ghosts appear fainter.")});
     m_menuHelpEntries.append({onionOpacityAct,
-        QStringLiteral("オニオンスキンの ghost 表示濃度を調整します。")});
+        QStringLiteral("Adjust the onion skin ghost opacity.")});
 
     // PV-C: プレビュー最大解像度。重い高解像度素材で GL アップロード/描画/
     // スコープ負荷を下げる display 専用キャップ(書き出し非変更)。QSettings 永続。
     viewMenu->addSeparator();
-    auto *prMenu = viewMenu->addMenu(QStringLiteral("プレビュー最大解像度(&R)"));
+    auto *prMenu = viewMenu->addMenu(QStringLiteral("Preview Max Resolution(&R)"));
     auto *prGroup = new QActionGroup(this);
     prGroup->setExclusive(true);
     const QPair<QString, int> prItems[] = {
-        { QStringLiteral("無制限"),  0 },
+        { QStringLiteral("Unlimited"),  0 },
         { QStringLiteral("1920px"), 1920 },
         { QStringLiteral("1280px"), 1280 },
         { QStringLiteral("960px"),  960 },
@@ -4654,19 +4654,19 @@ void MainWindow::setupMenuBar()
                 s.setValue(QStringLiteral("preview/maxLongSide"), cap);
             });
             m_menuHelpEntries.append({act, QStringLiteral(
-                "プレビュー表示の長辺をこの上限に縮小し、高解像度素材の再生負荷を軽くします。書き出しには影響しません。")});
+                "Shrink the long edge of the preview display to this limit to reduce playback load for high-resolution media. Does not affect the export.")});
         }
     }
 
         // トラック メニュー
-    auto *trackMenu = menuBar()->addMenu("トラック(&T)");
+    auto *trackMenu = menuBar()->addMenu("Track(&T)");
 
-    auto *addVTrack = trackMenu->addAction("ビデオトラックを追加(&V)");
+    auto *addVTrack = trackMenu->addAction("Add Video Track(&V)");
     connect(addVTrack, &QAction::triggered, this, &MainWindow::addVideoTrack);
     m_menuHelpEntries.append({addVTrack,
-        QStringLiteral("映像を重ねるための「段」を増やします。上の段ほど手前（前面）に表示されます。")});
+        QStringLiteral("Add another \"layer\" for stacking video. Higher layers appear in front.")});
 
-    auto *addSnsBgTrack = trackMenu->addAction(QStringLiteral("SNS: 背景トラックを追加"));
+    auto *addSnsBgTrack = trackMenu->addAction(QStringLiteral("SNS: Add Background Track"));
     connect(addSnsBgTrack, &QAction::triggered, this, [this]() {
         if (!m_timeline)
             return;
@@ -4674,194 +4674,194 @@ void MainWindow::setupMenuBar()
         if (created)
             m_timeline->addVideoTrack();
         statusBar()->showMessage(created
-            ? QStringLiteral("SNS背景: V2を追加しました。画像/動画をV2にドロップしてください。")
-            : QStringLiteral("SNS背景: V2は既にあります。画像/動画をV2にドロップしてください。"),
+            ? QStringLiteral("SNS background: V2 added. Drop an image/video onto V2.")
+            : QStringLiteral("SNS background: V2 already exists. Drop an image/video onto V2."),
             5000);
     });
     m_menuHelpEntries.append({addSnsBgTrack,
-        QStringLiteral("SNS縦動画用の背景段としてV2を用意します。背景素材は手動でV2へ配置します。")});
+        QStringLiteral("Prepare V2 as the background layer for vertical SNS videos. Place background media on V2 manually.")});
 
-    auto *addATrack = trackMenu->addAction("オーディオトラックを追加(&A)");
+    auto *addATrack = trackMenu->addAction("Add Audio Track(&A)");
     connect(addATrack, &QAction::triggered, this, &MainWindow::addAudioTrack);
     m_menuHelpEntries.append({addATrack,
-        QStringLiteral("音声を重ねるための段を増やします。ナレーションと BGM を別々の段に置けます。")});
+        QStringLiteral("Add another layer for stacking audio. Put narration and BGM on separate layers.")});
 
     // 挿入 メニュー
-    auto *insertMenu = menuBar()->addMenu("挿入(&I)");
+    auto *insertMenu = menuBar()->addMenu("Insert(&I)");
 
-    auto *addTextAction = insertMenu->addAction("テキスト / テロップ追加(&T)...");
+    auto *addTextAction = insertMenu->addAction("Add Text / Caption(&T)...");
     addTextAction->setShortcut(QKeySequence(Qt::Key_T));
     connect(addTextAction, &QAction::triggered, this, &MainWindow::addTextOverlay);
     m_menuHelpEntries.append({addTextAction,
-        QStringLiteral("画面に字幕やテロップ（文字）を追加します。フォントや色も選べます。")});
+        QStringLiteral("Add subtitles or captions (text) to the screen. Choose font and color too.")});
 
-    auto *manageTextAction = insertMenu->addAction("テキスト管理(&M)...");
+    auto *manageTextAction = insertMenu->addAction("Manage Text(&M)...");
     manageTextAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
     connect(manageTextAction, &QAction::triggered, this, &MainWindow::manageTextOverlays);
     m_menuHelpEntries.append({manageTextAction,
-        QStringLiteral("追加済みのテロップを一覧で確認・編集・削除できます。")});
+        QStringLiteral("View, edit, and delete added captions in a list.")});
 
-    auto *importSubAction = insertMenu->addAction("字幕をインポート (SRT/VTT)...");
+    auto *importSubAction = insertMenu->addAction("Import Subtitles (SRT/VTT)...");
     connect(importSubAction, &QAction::triggered, this, &MainWindow::importSubtitles);
     m_menuHelpEntries.append({importSubAction,
-        QStringLiteral("字幕ファイル（.srt / .vtt）を読み込んでテロップとして取り込みます。")});
+        QStringLiteral("Load a subtitle file (.srt / .vtt) and import it as captions.")});
 
     // US-CAP-B: Sprint 14 — 字幕エディタダイアログ
-    auto *captionEditorAction = insertMenu->addAction(QStringLiteral("字幕エディタ…"));
+    auto *captionEditorAction = insertMenu->addAction(QStringLiteral("Subtitle Editor..."));
     captionEditorAction->setObjectName("action_caption_editor");
     connect(captionEditorAction, &QAction::triggered,
             this, &MainWindow::openCaptionEditorDialog);
     m_menuHelpEntries.append({captionEditorAction,
-        QStringLiteral("字幕クリップを追加・編集・SRT/VTT で取込/書出し、Whisper.cpp など ASR エンジンで自動生成できます。")});
+        QStringLiteral("Add and edit subtitle clips, import/export SRT/VTT, and auto-generate with ASR engines such as Whisper.cpp.")});
 
-    auto *exportTextAction = insertMenu->addAction("テキストを書き出し (SRT / CSV)...");
+    auto *exportTextAction = insertMenu->addAction("Export Text (SRT / CSV)...");
     connect(exportTextAction, &QAction::triggered, this, &MainWindow::exportTextOverlays);
 
-    auto *saveTemplateAction = insertMenu->addAction("テキストテンプレートを保存...");
+    auto *saveTemplateAction = insertMenu->addAction("Save Text Template...");
     connect(saveTemplateAction, &QAction::triggered, this, &MainWindow::saveTextTemplate);
 
-    auto *addBrushAnimAction = insertMenu->addAction("ブラシ / 書き起こしアニメ追加(&B)...");
+    auto *addBrushAnimAction = insertMenu->addAction("Add Brush / Handwriting Animation(&B)...");
     addBrushAnimAction->setShortcut(QKeySequence(Qt::Key_B));
     connect(addBrushAnimAction, &QAction::triggered, this, &MainWindow::addBrushAnimation);
     m_menuHelpEntries.append({addBrushAnimAction,
-        QStringLiteral("手書き風に文字や線が少しずつ描かれていくアニメーションを追加します。")});
+        QStringLiteral("Add a handwriting-style animation where text or lines are drawn gradually.")});
 
-    auto *addVfxGeneratorAction = insertMenu->addAction(QStringLiteral("VFX ジェネレータ…"));
+    auto *addVfxGeneratorAction = insertMenu->addAction(QStringLiteral("VFX Generator..."));
     connect(addVfxGeneratorAction, &QAction::triggered, this, &MainWindow::addVfxGenerator);
     m_menuHelpEntries.append({addVfxGeneratorAction,
-        QStringLiteral("炎・稲妻・衝撃波などを素材なしで生成し、RGBA クリップとして重ねます。")});
+        QStringLiteral("Generate fire, lightning, shockwaves, etc. without source media and overlay them as RGBA clips.")});
 
     insertMenu->addSeparator();
 
-    auto *addTransAction = insertMenu->addAction("トランジションを追加...");
+    auto *addTransAction = insertMenu->addAction("Add Transition...");
     connect(addTransAction, &QAction::triggered, this, &MainWindow::addTransition);
     m_menuHelpEntries.append({addTransAction,
-        QStringLiteral("クリップのつなぎ目に、フェードやワイプなどの切り替え演出を入れます。")});
+        QStringLiteral("Add switching effects such as fades and wipes between clips.")});
 
-    auto *addImageAction = insertMenu->addAction("画像 / 静止画を追加...");
+    auto *addImageAction = insertMenu->addAction("Add Image / Still...");
     connect(addImageAction, &QAction::triggered, this, &MainWindow::addImageOverlay);
     m_menuHelpEntries.append({addImageAction,
-        QStringLiteral("写真やロゴなどの画像をタイムラインに重ねます。")});
+        QStringLiteral("Overlay images such as photos and logos on the timeline.")});
 
-    auto *addPipAction = insertMenu->addAction("ピクチャー・イン・ピクチャー追加...");
+    auto *addPipAction = insertMenu->addAction("Add Picture-in-Picture...");
     connect(addPipAction, &QAction::triggered, this, &MainWindow::addPip);
     m_menuHelpEntries.append({addPipAction,
-        QStringLiteral("画面の隅にもう 1 つ小さい動画を重ねて表示します（ワイプ・実況風）。")});
+        QStringLiteral("Overlay another small video in the corner of the screen (wipe/commentary style).")});
 
     insertMenu->addSeparator();
 
     // Premiere Essential Graphics / Resolve Fusion Titles parity.
-    auto *titlePresetAction = insertMenu->addAction("タイトルプリセット...");
+    auto *titlePresetAction = insertMenu->addAction("Title Presets...");
     titlePresetAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Y));
     connect(titlePresetAction, &QAction::triggered, this, &MainWindow::openTitlePresetDialog);
     m_menuHelpEntries.append({titlePresetAction,
-        QStringLiteral("デザイン済みのタイトル・テロップのひな型から選んで、文字だけ差し替えて使えます。")});
+        QStringLiteral("Choose from designed title/caption templates and just swap the text.")});
 
     // Photoshop / Premiere "Adjustment Layer" — a special timeline clip
     // that carries no video content of its own but applies grading
     // parameters to every video frame underneath.
-    auto *addAdjustmentAction = insertMenu->addAction("調整レイヤー");
+    auto *addAdjustmentAction = insertMenu->addAction("Adjustment Layer");
     connect(addAdjustmentAction, &QAction::triggered, this, &MainWindow::addAdjustmentLayerCmd);
     m_menuHelpEntries.append({addAdjustmentAction,
-        QStringLiteral("その下にある全部の映像にまとめて色補正やエフェクトをかけられる特別なレイヤーを追加します。")});
+        QStringLiteral("Add a special layer that applies color correction and effects to all video below it at once.")});
 
-    auto *addShapeClipAction = insertMenu->addAction(QStringLiteral("シェイプクリップ"));
+    auto *addShapeClipAction = insertMenu->addAction(QStringLiteral("Shape Clip"));
     connect(addShapeClipAction, &QAction::triggered,
             this, &MainWindow::addShapeLayer);
     m_menuHelpEntries.append({addShapeClipAction,
-        QStringLiteral("選択中の動画トラックへ、図形を描画する5秒のクリップを挿入します。")});
+        QStringLiteral("Insert a 5-second clip that draws shapes into the selected video track.")});
 
     // US-AETEXT-12: AE Text Parity — 11 new menu actions
     insertMenu->addSeparator();
 
-    auto *pathTextAction = insertMenu->addAction("パステキスト追加...");
+    auto *pathTextAction = insertMenu->addAction("Add Path Text...");
     connect(pathTextAction, &QAction::triggered, this, &MainWindow::addPathText);
 
-    auto *rangeSelAction = insertMenu->addAction("レンジセレクター...");
+    auto *rangeSelAction = insertMenu->addAction("Add Range Selector...");
     connect(rangeSelAction, &QAction::triggered, this, &MainWindow::addRangeSelector);
 
-    auto *wigglySelAction = insertMenu->addAction("ウィグリーセレクター...");
+    auto *wigglySelAction = insertMenu->addAction("Add Wiggly Selector...");
     connect(wigglySelAction, &QAction::triggered, this, &MainWindow::addWigglySelector);
 
-    auto *srcTextKfAction = insertMenu->addAction("ソーステキスト keyframe");
+    auto *srcTextKfAction = insertMenu->addAction("Source Text keyframe");
     connect(srcTextKfAction, &QAction::triggered, this, &MainWindow::addSourceTextKeyframe);
 
-    auto *animPresetAction = insertMenu->addAction("アニメーションプリセット...");
+    auto *animPresetAction = insertMenu->addAction("Animation Presets...");
     connect(animPresetAction, &QAction::triggered, this, &MainWindow::addAnimationPreset);
 
-    auto *text3DAction = insertMenu->addAction("3Dテキストレイヤー追加...");
+    auto *text3DAction = insertMenu->addAction("Add 3D Text Layer...");
     connect(text3DAction, &QAction::triggered, this, &MainWindow::add3DText);
 
-    auto *maskRevealAction = insertMenu->addAction("マスクテキストreveal追加...");
+    auto *maskRevealAction = insertMenu->addAction("Add Mask Text Reveal...");
     connect(maskRevealAction, &QAction::triggered, this, &MainWindow::addMaskTextReveal);
 
-    auto *bendWarpAction = insertMenu->addAction("ベンド/インフレートtext追加...");
+    auto *bendWarpAction = insertMenu->addAction("Add Bend/Inflate Text...");
     connect(bendWarpAction, &QAction::triggered, this, &MainWindow::addBendTextWarp);
 
-    auto *scopeAction = insertMenu->addAction("スコープ切替...");
+    auto *scopeAction = insertMenu->addAction("Toggle Scopes...");
     connect(scopeAction, &QAction::triggered, this, &MainWindow::changeTextScope);
 
-    auto *varFontAction = insertMenu->addAction("可変フォントaxisアニメ...");
+    auto *varFontAction = insertMenu->addAction("Variable Font Axis Animation...");
     connect(varFontAction, &QAction::triggered, this, &MainWindow::addVariableFontAxis);
 
-    auto *mographAction = insertMenu->addAction("Mographテンプレート...");
+    auto *mographAction = insertMenu->addAction("Mograph Templates...");
     connect(mographAction, &QAction::triggered, this, &MainWindow::addMographTemplate);
 
     // オーディオ メニュー
-    auto *audioMenu = menuBar()->addMenu("オーディオ(&A)");
+    auto *audioMenu = menuBar()->addMenu("Audio(&A)");
 
-    auto *volumeAction = audioMenu->addAction("音量を設定...");
+    auto *volumeAction = audioMenu->addAction("Set Volume...");
     connect(volumeAction, &QAction::triggered, this, &MainWindow::setClipVolume);
     m_menuHelpEntries.append({volumeAction,
-        QStringLiteral("選んだ音声クリップの大きさや、フェードイン・フェードアウトを調整します。")});
+        QStringLiteral("Adjust the volume of the selected audio clip, plus fade in/out.")});
 
-    auto *panAction = audioMenu->addAction("パンを設定...");
+    auto *panAction = audioMenu->addAction("Set Pan...");
     connect(panAction, &QAction::triggered, this, &MainWindow::setClipPan);
     m_menuHelpEntries.append({panAction,
-        QStringLiteral("選んだ音声クリップの左右バランスを調整します。")});
+        QStringLiteral("Adjust the left-right balance of the selected audio clip.")});
 
-    auto *bgmAction = audioMenu->addAction("BGM / 音声ファイルを追加...");
+    auto *bgmAction = audioMenu->addAction("Add BGM / Audio File...");
     connect(bgmAction, &QAction::triggered, this, &MainWindow::addBgm);
     m_menuHelpEntries.append({bgmAction,
-        QStringLiteral("BGM や効果音などの音声ファイルをタイムラインに追加します。")});
+        QStringLiteral("Add audio files such as BGM and sound effects to the timeline.")});
 
     auto *voiceOverAction = audioMenu->addAction("Voice-over Record...");
     voiceOverAction->setShortcut(QKeySequence(Qt::Key_F12));
     connect(voiceOverAction, &QAction::triggered, this, &MainWindow::openVoiceOverDialog);
     m_menuHelpEntries.append({voiceOverAction,
-        QStringLiteral("映像を見ながらマイクでナレーションを録音し、その場でトラックに追加します。")});
+        QStringLiteral("Record narration with a mic while watching the video and add it to a track on the spot.")});
 
     audioMenu->addSeparator();
 
-    auto *muteAction = audioMenu->addAction("ミュート切替 (A1)");
+    auto *muteAction = audioMenu->addAction("Toggle Mute (A1)");
     muteAction->setShortcut(QKeySequence(Qt::Key_M));
     connect(muteAction, &QAction::triggered, this, &MainWindow::toggleMute);
     m_menuHelpEntries.append({muteAction,
-        QStringLiteral("オーディオトラック A1 の音を一時的に消す／戻すを切り替えます。")});
+        QStringLiteral("Toggle muting/unmuting audio track A1.")});
 
-    auto *soloAction = audioMenu->addAction("ソロ切替 (A1)");
+    auto *soloAction = audioMenu->addAction("Toggle Solo (A1)");
     connect(soloAction, &QAction::triggered, this, &MainWindow::toggleSolo);
     m_menuHelpEntries.append({soloAction,
-        QStringLiteral("オーディオトラック A1 だけを鳴らして、他の音を止めて確認します。")});
+        QStringLiteral("Play only audio track A1 and stop the others to check it.")});
 
     audioMenu->addSeparator();
 
-    auto *eqAction = audioMenu->addAction("イコライザー...");
+    auto *eqAction = audioMenu->addAction("Equalizer...");
     connect(eqAction, &QAction::triggered, this, &MainWindow::audioEqualizer);
     m_menuHelpEntries.append({eqAction,
-        QStringLiteral("低音・高音などの聞こえ方を調整して音質を整えます。こもった声をクリアにしたいときに。")});
+        QStringLiteral("Adjust bass, treble, etc. to polish the sound. Use when you want to make a muffled voice clearer.")});
 
-    auto *audioFxAction = audioMenu->addAction("オーディオエフェクト...");
+    auto *audioFxAction = audioMenu->addAction("Audio Effects...");
     connect(audioFxAction, &QAction::triggered, this, &MainWindow::audioEffects);
     m_menuHelpEntries.append({audioFxAction,
-        QStringLiteral("音にエコーや音量の自動調整などの効果をかけます。")});
+        QStringLiteral("Apply effects such as echo and automatic volume adjustment to the audio.")});
 
     audioMenu->addSeparator();
 
-    auto *vstAction = audioMenu->addAction("VST / AUプラグイン...");
+    auto *vstAction = audioMenu->addAction("VST / AU Plugins...");
     connect(vstAction, &QAction::triggered, this, &MainWindow::openVSTPlugins);
     m_menuHelpEntries.append({vstAction,
-        QStringLiteral("外部の音響プラグイン（VST/AU）を読み込んで使います。上級者向けです。")});
+        QStringLiteral("Load and use external audio plugins (VST/AU). For advanced users.")});
 
     audioMenu->addSeparator();
 
@@ -4873,7 +4873,7 @@ void MainWindow::setupMenuBar()
         if (!m_timeline) return;
         const int trackCount = m_timeline->audioTrackCount();
         if (trackCount == 0) {
-            auto *info = trackEqMenu->addAction("オーディオトラックがありません");
+            auto *info = trackEqMenu->addAction("No audio tracks");
             info->setEnabled(false);
             return;
         }
@@ -4915,14 +4915,14 @@ void MainWindow::setupMenuBar()
     auto *compressorAction = audioMenu->addAction("Master Compressor...");
     connect(compressorAction, &QAction::triggered, this, &MainWindow::openMasterCompressor);
     m_menuHelpEntries.append({compressorAction,
-        QStringLiteral("動画全体の音量の差を縮めて、小さい音は聞こえやすく、大きすぎる音はおさえます。")});
+        QStringLiteral("Reduce volume differences across the video: make quiet sounds easier to hear and tame sounds that are too loud.")});
 
     audioMenu->addSeparator();
 
     // Pro-NLE "rubber band" volume envelope. When ON, every audio row
     // overlays its per-clip envelope; left-click adds a point, drag moves
     // it, right-click removes it. AudioMixer interpolates linearly.
-    auto *envelopeAction = audioMenu->addAction("ボリュームエンベロープ編集モード");
+    auto *envelopeAction = audioMenu->addAction("Volume Envelope Edit Mode");
     envelopeAction->setCheckable(true);
     // Ctrl+Shift+E so we don't shadow the existing File→Export Ctrl+E.
     envelopeAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E));
@@ -4937,7 +4937,7 @@ void MainWindow::setupMenuBar()
                         if (t) clipCount += t->clipCount();
                 }
                 statusBar()->showMessage(
-                    QString("ボリュームエンベロープ %1 (audio tracks=%2, total clips=%3)")
+                    QString("Volume Envelope %1 (audio tracks=%2, total clips=%3)")
                         .arg(on ? QStringLiteral("ON") : QStringLiteral("OFF"))
                         .arg(trackCount).arg(clipCount), 6000);
             });
@@ -4948,19 +4948,19 @@ void MainWindow::setupMenuBar()
     // audio tracks appear without restart. Picking A<n> writes a -12 dB
     // envelope on every other audio track that overlaps that track's
     // clip ranges (200 ms attack / 400 ms release, Premiere defaults).
-    auto *duckMenu = audioMenu->addMenu("BGM 自動ダッキング");
+    auto *duckMenu = audioMenu->addMenu("BGM Auto Ducking");
     connect(duckMenu, &QMenu::aboutToShow, this, [this, duckMenu]() {
         duckMenu->clear();
         if (!m_timeline) return;
         const int n = m_timeline->audioTrackCount();
         if (n < 2) {
-            auto *info = duckMenu->addAction("オーディオトラックを 2 本以上に増やしてください");
+            auto *info = duckMenu->addAction("Add at least 2 audio tracks");
             info->setEnabled(false);
             return;
         }
         for (int i = 0; i < n; ++i) {
             auto *act = duckMenu->addAction(
-                QString("A%1 を voice 扱いして他トラックをダッキング").arg(i + 1));
+                QString("Treat A%1 as voice and duck the other tracks").arg(i + 1));
             const int ti = i;
             connect(act, &QAction::triggered, this, [this, ti]() {
                 if (!m_timeline) return;
@@ -4981,11 +4981,11 @@ void MainWindow::setupMenuBar()
         }
     });
 
-    auto *duckingSettingsAction = audioMenu->addAction("自動ダッキングを適用...");
+    auto *duckingSettingsAction = audioMenu->addAction("Apply Auto Ducking...");
     duckingSettingsAction->setObjectName("action_audio_ducking_settings");
     connect(duckingSettingsAction, &QAction::triggered, this, &MainWindow::onAudioDuckingSettings);
     m_menuHelpEntries.append({duckingSettingsAction,
-        QStringLiteral("対象トラック、閾値、attack/release、duck量を指定して、BGM クリップのボリュームエンベロープへ自動ダッキングを適用します。")});
+        QStringLiteral("Specify the target track, threshold, attack/release, and duck amount, and apply auto ducking to the BGM clip's volume envelope.")});
 
     audioMenu->addSeparator();
 
@@ -4994,86 +4994,86 @@ void MainWindow::setupMenuBar()
     // QDockWidget that owns the panel widget; on change the panel signal
     // calls AudioMixer::setEqForTrack / setCompressorForTrack /
     // setReverbForTrack / setNoiseReductionForTrack.
-    auto *eqPanelAction = audioMenu->addAction("EQ パネル...");
+    auto *eqPanelAction = audioMenu->addAction("EQ Panel...");
     connect(eqPanelAction, &QAction::triggered, this, &MainWindow::openEqualizerPanel);
     m_menuHelpEntries.append({eqPanelAction,
-        QStringLiteral("トラックごとに低音・中音・高音のバランスを調整する画面を開きます。")});
+        QStringLiteral("Open a screen to adjust the bass/mid/treble balance per track.")});
 
-    auto *compPanelAction = audioMenu->addAction("コンプレッサー / リミッター...");
+    auto *compPanelAction = audioMenu->addAction("Compressor / Limiter...");
     connect(compPanelAction, &QAction::triggered, this, &MainWindow::openCompressorPanel);
     m_menuHelpEntries.append({compPanelAction,
-        QStringLiteral("音量の差をならし、急に大きくなりすぎる音を防ぐ画面を開きます。")});
+        QStringLiteral("Open a screen to smooth out volume differences and prevent sudden loud spikes.")});
 
-    auto *reverbPanelAction = audioMenu->addAction("リバーブ...");
+    auto *reverbPanelAction = audioMenu->addAction("Reverb...");
     connect(reverbPanelAction, &QAction::triggered, this, &MainWindow::openReverbPanel);
     m_menuHelpEntries.append({reverbPanelAction,
-        QStringLiteral("音に残響（広い部屋やホールにいるような響き）を足す画面を開きます。")});
+        QStringLiteral("Open a screen to add reverberation (like the sound of a large room or hall) to the audio.")});
 
-    auto *nrPanelAction = audioMenu->addAction("ノイズリダクション...");
+    auto *nrPanelAction = audioMenu->addAction("Noise Reduction...");
     connect(nrPanelAction, &QAction::triggered, this, &MainWindow::openNoiseReductionPanel);
     m_menuHelpEntries.append({nrPanelAction,
-        QStringLiteral("「サーッ」という背景ノイズや空調音を減らす画面を開きます。")});
+        QStringLiteral("Open a screen to reduce \"hiss\" background noise and air-conditioning hum.")});
 
     // US-WF-D: Sprint 11 workflow — per-clip volume envelope editor (AudioClipEditor).
-    auto *clipVolumeEditorAction = audioMenu->addAction("クリップボリュームエンベロープエディタ…");
+    auto *clipVolumeEditorAction = audioMenu->addAction("Clip Volume Envelope Editor...");
     clipVolumeEditorAction->setObjectName("action_audio_clip_editor");
     connect(clipVolumeEditorAction, &QAction::triggered, this, &MainWindow::openAudioClipEditorDialog);
     m_menuHelpEntries.append({clipVolumeEditorAction,
-        QStringLiteral("クリップ内のボリュームエンベロープ (時間 × dB) を点で編集する画面を開きます。")});
+        QStringLiteral("Open a screen to edit the clip's volume envelope (time x dB) with points.")});
 
     // マーカー メニュー
-    auto *markersMenu = menuBar()->addMenu("マーカー(&K)");
+    auto *markersMenu = menuBar()->addMenu("Marker(&K)");
 
-    auto *addMarkerAction = markersMenu->addAction("再生ヘッドにマーカー追加");
+    auto *addMarkerAction = markersMenu->addAction("Add Marker at Playhead");
     addMarkerAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_M));
     connect(addMarkerAction, &QAction::triggered, this, &MainWindow::addMarker);
     m_menuHelpEntries.append({addMarkerAction,
-        QStringLiteral("今の再生位置に名前付きの目印を付けます。「あとで直す場所」を見失いません。")});
+        QStringLiteral("Place a named marker at the current playback position. Never lose track of \"places to fix later\".")});
 
     // Quick "M" key — Premiere/Resolve parity. Uses default red marker
     // colour and an empty label so the user gets a marker without a
     // dialog interrupt; rename via 全マーカーを表示...
-    auto *quickMarkerAction = markersMenu->addAction("マーカー追加 (クイック)");
+    auto *quickMarkerAction = markersMenu->addAction("Add Marker (Quick)");
     quickMarkerAction->setShortcut(QKeySequence(Qt::Key_M));
     connect(quickMarkerAction, &QAction::triggered, this, &MainWindow::addQuickMarker);
     m_menuHelpEntries.append({quickMarkerAction,
-        QStringLiteral("名前を聞かれずにサッと目印を 1 つ置きます（M キー）。名前はあとで付けられます。")});
+        QStringLiteral("Quickly drop one marker without being asked for a name (M key). You can name it later.")});
 
     // Shift+M — open colour picker first, then drop a marker tagged with
     // the chosen colour. Persists colour into Timeline marker data via
     // Timeline::addMarker(timelineUs, label, color).
-    auto *colouredMarkerAction = markersMenu->addAction("色付きマーカー追加...");
+    auto *colouredMarkerAction = markersMenu->addAction("Add Colored Marker...");
     colouredMarkerAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_M));
     connect(colouredMarkerAction, &QAction::triggered, this, &MainWindow::addColoredMarker);
     m_menuHelpEntries.append({colouredMarkerAction,
-        QStringLiteral("色を選んでから目印を置きます。「赤＝要修正」「青＝後で確認」など色分けに便利です。")});
+        QStringLiteral("Choose a color before placing a marker. Handy for color-coding like \"red = needs fixing\" and \"blue = check later\".")});
 
-    auto *nextMarkerAction = markersMenu->addAction("次のマーカーへジャンプ");
+    auto *nextMarkerAction = markersMenu->addAction("Jump to Next Marker");
     nextMarkerAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Right));
     connect(nextMarkerAction, &QAction::triggered, this, &MainWindow::jumpToNextMarker);
     m_menuHelpEntries.append({nextMarkerAction,
-        QStringLiteral("再生ヘッドを次の目印（マーカー）の位置まで一気に移動します。")});
+        QStringLiteral("Jump the playhead straight to the next marker.")});
 
-    auto *prevMarkerAction = markersMenu->addAction("前のマーカーへジャンプ");
+    auto *prevMarkerAction = markersMenu->addAction("Jump to Previous Marker");
     prevMarkerAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Left));
     connect(prevMarkerAction, &QAction::triggered, this, &MainWindow::jumpToPrevMarker);
     m_menuHelpEntries.append({prevMarkerAction,
-        QStringLiteral("再生ヘッドを 1 つ前の目印（マーカー）の位置まで戻します。")});
+        QStringLiteral("Move the playhead back to the previous marker.")});
 
-    auto *showMarkersAction = markersMenu->addAction("全マーカーを表示...");
+    auto *showMarkersAction = markersMenu->addAction("Show All Markers...");
     connect(showMarkersAction, &QAction::triggered, this, &MainWindow::showMarkers);
     m_menuHelpEntries.append({showMarkersAction,
-        QStringLiteral("付けた目印を一覧で確認し、名前の変更や削除ができます。")});
+        QStringLiteral("View all placed markers in a list; rename or delete them.")});
 
-    auto *exportChapAction = markersMenu->addAction("YouTubeチャプターをエクスポート...");
+    auto *exportChapAction = markersMenu->addAction("Export YouTube Chapters...");
     connect(exportChapAction, &QAction::triggered, this, &MainWindow::exportChapters);
     m_menuHelpEntries.append({exportChapAction,
-        QStringLiteral("マーカーをもとに、YouTube の概要欄に貼れるチャプター一覧（時刻＋見出し）を書き出します。")});
+        QStringLiteral("Generate a chapter list (timestamps + headings) from markers that you can paste into a YouTube description.")});
 
     // MK-2: マーカー パネル ドックの表示トグル。ドックはこのメニュー構築より
     // 後で生成されるため、トグル時に runtime で m_markerPanelDock を参照する。
     markersMenu->addSeparator();
-    auto *markerPanelAction = markersMenu->addAction("マーカー パネル");
+    auto *markerPanelAction = markersMenu->addAction("Marker Panel");
     markerPanelAction->setCheckable(true);
     connect(markerPanelAction, &QAction::toggled, this,
             [this](bool on) {
@@ -5089,102 +5089,102 @@ void MainWindow::setupMenuBar()
                 markerPanelAction, &QAction::setChecked);
     }, Qt::QueuedConnection);
     m_menuHelpEntries.append({markerPanelAction,
-        QStringLiteral("タイムライン上のマーカーを表形式で一覧表示するパネルを出し入れします。行をダブルクリックでその時刻へジャンプ、ノートの編集や削除ができます。")});
+        QStringLiteral("Toggle a panel listing timeline markers in a table. Double-click a row to jump to that time; edit or delete notes.")});
 
     // TR-4: トリム メニュー (プロ NLE のリップル/ロール/スリップ/スライド)。
     // 再生ヘッド駆動なので追加のドラッグ UI なしで成立する。実体は純粋エンジン
     // trimops:: で、Timeline::applyTrimActive() が選択クリップへ適用する。
-    auto *trimMenu = menuBar()->addMenu("トリム(&T)");
+    auto *trimMenu = menuBar()->addMenu("Trim(&T)");
 
-    auto *rippleInAction = trimMenu->addAction("選択クリップの先頭を再生ヘッドへ (リップル)");
+    auto *rippleInAction = trimMenu->addAction("Trim Selected Clip Start to Playhead (Ripple)");
     rippleInAction->setShortcut(QKeySequence(Qt::Key_Q));
     connect(rippleInAction, &QAction::triggered, this, &MainWindow::rippleTrimInToPlayhead);
     m_menuHelpEntries.append({rippleInAction,
-        QStringLiteral("選んだクリップの先頭を今の再生位置まで詰めます（リップル）。後ろのクリップは隙間なくついてきます。")});
+        QStringLiteral("Pull the selected clip's start to the current playback position (ripple). Later clips follow with no gap.")});
 
-    auto *rippleOutAction = trimMenu->addAction("選択クリップの末尾を再生ヘッドへ (リップル)");
+    auto *rippleOutAction = trimMenu->addAction("Trim Selected Clip End to Playhead (Ripple)");
     rippleOutAction->setShortcut(QKeySequence(Qt::Key_W));
     connect(rippleOutAction, &QAction::triggered, this, &MainWindow::rippleTrimOutToPlayhead);
     m_menuHelpEntries.append({rippleOutAction,
-        QStringLiteral("選んだクリップの末尾を今の再生位置まで伸縮します（リップル）。後ろのクリップは隙間なくついてきます。")});
+        QStringLiteral("Stretch the selected clip's end to the current playback position (ripple). Later clips follow with no gap.")});
 
-    auto *rollEditAction = trimMenu->addAction("編集点を再生ヘッドへ (ロール)");
+    auto *rollEditAction = trimMenu->addAction("Move Edit Point to Playhead (Roll)");
     rollEditAction->setShortcut(QKeySequence(Qt::Key_R));
     connect(rollEditAction, &QAction::triggered, this, &MainWindow::rollEditToPlayhead);
     m_menuHelpEntries.append({rollEditAction,
-        QStringLiteral("選んだクリップと次のクリップの境目（編集点）を今の再生位置へ動かします。全体の長さは変わりません（ロール）。")});
+        QStringLiteral("Move the edit point between the selected clip and the next clip to the current playback position. Total length stays the same (roll).")});
 
     trimMenu->addSeparator();
 
-    auto *slipAction = trimMenu->addAction("スリップ...");
+    auto *slipAction = trimMenu->addAction("Slip...");
     connect(slipAction, &QAction::triggered, this, &MainWindow::slipSelectedClip);
     m_menuHelpEntries.append({slipAction,
-        QStringLiteral("クリップの位置と長さはそのままで、中で見せる範囲だけを前後にずらします（スリップ）。秒数を入力します。")});
+        QStringLiteral("Keep the clip's position and length, but shift only the visible range forward/backward (slip). Enter seconds.")});
 
-    auto *slideAction = trimMenu->addAction("スライド...");
+    auto *slideAction = trimMenu->addAction("Slide...");
     connect(slideAction, &QAction::triggered, this, &MainWindow::slideSelectedClip);
     m_menuHelpEntries.append({slideAction,
-        QStringLiteral("クリップの中身はそのままで、タイムライン上の位置だけを前後にずらします。隣のクリップが伸縮して吸収します（スライド）。秒数を入力します。")});
+        QStringLiteral("Keep the clip's content, but shift only its timeline position forward/backward. Neighboring clips stretch to absorb it (slide). Enter seconds.")});
 
     // エフェクト メニュー
-    auto *effectsMenu = menuBar()->addMenu("エフェクト(&F)");
+    auto *effectsMenu = menuBar()->addMenu("Effects(&F)");
 
-    auto *ccAction = effectsMenu->addAction("色補正 / グレーディング(&C)...");
+    auto *ccAction = effectsMenu->addAction("Color Correction / Grading(&C)...");
     ccAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
     connect(ccAction, &QAction::triggered, this, &MainWindow::colorCorrection);
     m_menuHelpEntries.append({ccAction,
-        QStringLiteral("映像の明るさ・色合い・コントラストを整えます。映画風の色味に寄せることもできます。")});
+        QStringLiteral("Adjust the video's brightness, color, and contrast. You can also give it a cinematic look.")});
 
-    auto *autoColorAction = effectsMenu->addAction(QStringLiteral("自動カラー"));
+    auto *autoColorAction = effectsMenu->addAction(QStringLiteral("Auto Color"));
     connect(autoColorAction, &QAction::triggered, this, &MainWindow::autoColorSelectedClip);
     m_menuHelpEntries.append({autoColorAction,
-        QStringLiteral("表示中のフレームを解析し、選択中クリップのホワイトバランスと明るさ・コントラストを自動補正します。")});
+        QStringLiteral("Analyze the displayed frame and auto-correct the selected clip's white balance, brightness, and contrast.")});
 
-    auto *fxAction = effectsMenu->addAction("ビデオエフェクト(&V)...");
+    auto *fxAction = effectsMenu->addAction("Video Effects(&V)...");
     fxAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F));
     connect(fxAction, &QAction::triggered, this, &MainWindow::videoEffects);
     m_menuHelpEntries.append({fxAction,
-        QStringLiteral("ぼかし・モザイク・光らせるなど、映像に視覚効果を追加します。")});
+        QStringLiteral("Add visual effects such as blur, mosaic, and glow to the video.")});
 
     effectsMenu->addSeparator();
 
-    auto *sharpenFxAction = effectsMenu->addAction("シャープン...");
+    auto *sharpenFxAction = effectsMenu->addAction("Sharpen...");
     connect(sharpenFxAction, &QAction::triggered, this, &MainWindow::applySharpenEffect);
     m_menuHelpEntries.append({sharpenFxAction,
-        QStringLiteral("映像の輪郭をくっきりさせます。少しぼやけた映像をシャキッと見せたいときに。")});
+        QStringLiteral("Crisp up the video's edges. Use when you want slightly blurry footage to look sharper.")});
 
-    auto *mosaicFxAction = effectsMenu->addAction("モザイク...");
+    auto *mosaicFxAction = effectsMenu->addAction("Mosaic...");
     connect(mosaicFxAction, &QAction::triggered, this, &MainWindow::applyMosaicEffect);
     m_menuHelpEntries.append({mosaicFxAction,
-        QStringLiteral("顔やナンバープレートなど、見せたくない部分をモザイクで隠します。")});
+        QStringLiteral("Hide parts you don't want shown, such as faces and license plates, with a mosaic.")});
 
-    auto *chromaFxAction = effectsMenu->addAction("クロマキー...");
+    auto *chromaFxAction = effectsMenu->addAction("Chroma Key...");
     connect(chromaFxAction, &QAction::triggered, this, &MainWindow::applyChromaKeyEffect);
     m_menuHelpEntries.append({chromaFxAction,
-        QStringLiteral("緑や青の背景（グリーンバック）を透明にして、別の映像と合成します。")});
+        QStringLiteral("Make a green or blue background (green screen) transparent and composite it with other footage.")});
 
     effectsMenu->addSeparator();
 
-    auto *pluginAction = effectsMenu->addAction("プラグインエフェクト(&P)...");
+    auto *pluginAction = effectsMenu->addAction("Plugin Effects(&P)...");
     connect(pluginAction, &QAction::triggered, this, &MainWindow::pluginEffects);
     m_menuHelpEntries.append({pluginAction,
-        QStringLiteral("追加でインストールした映像エフェクト（プラグイン）を使います。")});
+        QStringLiteral("Use additionally installed video effect plugins.")});
 
     effectsMenu->addSeparator();
 
-    auto *lutAction = effectsMenu->addAction("LUT適用 (.cube)...");
+    auto *lutAction = effectsMenu->addAction("Apply LUT (.cube)...");
     connect(lutAction, &QAction::triggered, this, &MainWindow::applyLut);
     m_menuHelpEntries.append({lutAction,
-        QStringLiteral("用意された色味のレシピ（LUT ファイル）を読み込んで、映像の色を一発で変えます。")});
+        QStringLiteral("Load a prepared color recipe (LUT file) and change the video's colors in one go.")});
 
-    auto *manageLutAction = effectsMenu->addAction("LUT管理...");
+    auto *manageLutAction = effectsMenu->addAction("Manage LUTs...");
     connect(manageLutAction, &QAction::triggered, this, &MainWindow::manageLuts);
     m_menuHelpEntries.append({manageLutAction,
-        QStringLiteral("登録済みの色味レシピ（LUT）を整理・追加・削除します。")});
+        QStringLiteral("Organize, add, and delete registered color recipes (LUTs).")});
 
     effectsMenu->addSeparator();
 
-    auto *loadLutCubeAction = effectsMenu->addAction("LUT を読み込み…");
+    auto *loadLutCubeAction = effectsMenu->addAction("Load LUT...");
     connect(loadLutCubeAction, &QAction::triggered, this, &MainWindow::loadLutCubeFile);
 
     m_lutIntensitySlider = new QSlider(Qt::Horizontal, this);
@@ -5199,34 +5199,34 @@ void MainWindow::setupMenuBar()
     lutSliderAction->setDefaultWidget(m_lutIntensitySlider);
     effectsMenu->addAction(lutSliderAction);
 
-    auto *clearLutMenuAction = effectsMenu->addAction("LUT 解除");
+    auto *clearLutMenuAction = effectsMenu->addAction("Clear LUT");
     connect(clearLutMenuAction, &QAction::triggered, this, &MainWindow::clearLutIntensity);
 
     effectsMenu->addSeparator();
 
-    auto *applyPresetAction = effectsMenu->addAction("エフェクトプリセット適用...");
+    auto *applyPresetAction = effectsMenu->addAction("Apply Effect Preset...");
     applyPresetAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
     connect(applyPresetAction, &QAction::triggered, this, &MainWindow::applyEffectPreset);
     m_menuHelpEntries.append({applyPresetAction,
-        QStringLiteral("保存済みのエフェクト設定の組み合わせを、選んだクリップにまとめて適用します。")});
+        QStringLiteral("Apply a saved combination of effect settings to the selected clip all at once.")});
 
-    auto *savePresetAction = effectsMenu->addAction("現在設定をプリセットに保存...");
+    auto *savePresetAction = effectsMenu->addAction("Save Current Settings as Preset...");
     connect(savePresetAction, &QAction::triggered, this, &MainWindow::saveEffectPreset);
     m_menuHelpEntries.append({savePresetAction,
-        QStringLiteral("今のクリップに付けているエフェクトの組み合わせに名前を付けて保存し、後で使い回せます。")});
+        QStringLiteral("Name and save the effect combination on the current clip so you can reuse it later.")});
 
-    auto *managePresetsAction = effectsMenu->addAction("プリセット管理...");
+    auto *managePresetsAction = effectsMenu->addAction("Manage Presets...");
     connect(managePresetsAction, &QAction::triggered, this, &MainWindow::manageEffectPresets);
     m_menuHelpEntries.append({managePresetsAction,
-        QStringLiteral("保存したエフェクトプリセットの名前変更・削除をします。")});
+        QStringLiteral("Rename or delete saved effect presets.")});
 
     effectsMenu->addSeparator();
 
-    auto *kfAction = effectsMenu->addAction("キーフレーム編集(&K)...");
+    auto *kfAction = effectsMenu->addAction("Edit Keyframes(&K)...");
     kfAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_K));
     connect(kfAction, &QAction::triggered, this, &MainWindow::editKeyframes);
     m_menuHelpEntries.append({kfAction,
-        QStringLiteral("時間とともに動く・色が変わるなどの動きを「キーフレーム」で細かく設定します。")});
+        QStringLiteral("Fine-tune motion over time - movement, color changes, etc. - with \"keyframes\".")});
 
     effectsMenu->addSeparator();
 
@@ -5235,44 +5235,44 @@ void MainWindow::setupMenuBar()
     m_trackMotionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_T));
     connect(m_trackMotionAction, &QAction::triggered, this, &MainWindow::trackMotion);
     m_menuHelpEntries.append({m_trackMotionAction,
-        QStringLiteral("映像の中で動く対象を追いかけ、その動きにテロップやモザイクを追従させます。")});
+        QStringLiteral("Track a moving subject in the video and make captions or mosaics follow its motion.")});
 
     effectsMenu->addSeparator();
 
-    auto *shaderFxAction = effectsMenu->addAction("GPUシェーダーエフェクト...");
+    auto *shaderFxAction = effectsMenu->addAction("GPU Shader Effects...");
     connect(shaderFxAction, &QAction::triggered, this, &MainWindow::applyShaderEffect);
     m_menuHelpEntries.append({shaderFxAction,
-        QStringLiteral("グラフィックボードの力で動く特殊なエフェクトを使います。上級者向けです。")});
+        QStringLiteral("Use special effects powered by the GPU. For advanced users.")});
 
-    auto *manageShaderAction = effectsMenu->addAction("GPUシェーダー管理...");
+    auto *manageShaderAction = effectsMenu->addAction("Manage GPU Shaders...");
     connect(manageShaderAction, &QAction::triggered, this, &MainWindow::manageShaderEffects);
     m_menuHelpEntries.append({manageShaderAction,
-        QStringLiteral("登録済みの GPU シェーダーエフェクトを整理・追加・削除します。")});
+        QStringLiteral("Organize, add, and delete registered GPU shader effects.")});
 
     // 再生 メニュー
-    auto *playbackMenu = menuBar()->addMenu("再生(&P)");
+    auto *playbackMenu = menuBar()->addMenu("Playback(&P)");
 
-    auto *jklNote = playbackMenu->addAction("J/K/L 速度コントロール");
+    auto *jklNote = playbackMenu->addAction("J/K/L Speed Control");
     jklNote->setEnabled(false);
     m_menuHelpEntries.append({jklNote,
-        QStringLiteral("J＝逆再生 / K＝停止 / L＝再生。押すたびに早送り・早戻しが速くなります（参考表示）。")});
+        QStringLiteral("J = reverse / K = stop / L = play. Each press speeds up fast-forward/rewind (reference display).")});
 
     playbackMenu->addSeparator();
 
-    auto *markInAction = playbackMenu->addAction("イン点をマーク(&I)");
+    auto *markInAction = playbackMenu->addAction("Mark In Point(&I)");
     markInAction->setShortcut(QKeySequence(Qt::Key_I));
     connect(markInAction, &QAction::triggered, this, &MainWindow::markIn);
     m_menuHelpEntries.append({markInAction,
-        QStringLiteral("使いたい範囲の「開始位置」を今の再生位置に決めます（I キー）。")});
+        QStringLiteral("Set the \"start position\" of the range you want to use at the current playback position (I key).")});
 
-    auto *markOutAction = playbackMenu->addAction("アウト点をマーク(&O)");
+    auto *markOutAction = playbackMenu->addAction("Mark Out Point(&O)");
     markOutAction->setShortcut(QKeySequence(Qt::Key_O));
     connect(markOutAction, &QAction::triggered, this, &MainWindow::markOut);
     m_menuHelpEntries.append({markOutAction,
-        QStringLiteral("使いたい範囲の「終了位置」を今の再生位置に決めます（O キー）。")});
+        QStringLiteral("Set the \"end position\" of the range you want to use at the current playback position (O key).")});
 
     auto *gpuCompositeAction =
-        playbackMenu->addAction(QStringLiteral("GPU合成プレビュー (実験的)"));
+        playbackMenu->addAction(QStringLiteral("GPU Composite Preview (Experimental)"));
     gpuCompositeAction->setCheckable(true);
     {
         QSettings settings;
@@ -5284,34 +5284,34 @@ void MainWindow::setupMenuBar()
         settings.setValue(QStringLiteral("gpuComposite"), checked);
     });
     m_menuHelpEntries.append({gpuCompositeAction,
-        QStringLiteral("GPU 合成プレビューの ON/OFF を保存します。次回のプレビュー再構築から反映されます (既定OFF)。"
-                       "VEDITOR_GPU_COMPOSITE が設定されている場合は環境変数が優先されます。")});
+        QStringLiteral("Save the GPU composite preview ON/OFF setting. Takes effect from the next preview rebuild (default OFF)."
+                       "If VEDITOR_GPU_COMPOSITE is set, the environment variable takes precedence.")});
 
     // 検索 メニュー — 機能発見性 (初心者向け)。機能が増えてどこに何があるか
     // 分かりにくいため、機能名や「音量を均一にしたい」のような操作内容の言葉で
     // 機能を探して呼び出せる導線をトップレベルに用意する (Ctrl+Shift+P と等価)。
-    auto *searchMenu = menuBar()->addMenu(QStringLiteral("検索(&S)"));
+    auto *searchMenu = menuBar()->addMenu(QStringLiteral("Search(&S)"));
     auto *featureSearchAction =
-        searchMenu->addAction(QStringLiteral("🔍 機能を検索... (Ctrl+Shift+P)"));
+        searchMenu->addAction(QStringLiteral("Search Features... (Ctrl+Shift+P)"));
     featureSearchAction->setObjectName("action_feature_search");
     connect(featureSearchAction, &QAction::triggered,
             this, &MainWindow::openCommandPalette);
     m_menuHelpEntries.append({featureSearchAction,
-        QStringLiteral("機能名や『音量を均一にしたい』のような操作内容の言葉で、使いたい機能を"
-                       "探して呼び出せます。どこにあるか分からない機能はここから検索してください。")});
+        QStringLiteral("Find and call the feature you want by feature name or by describing what you want to do, like \"even out the volume\"."
+                       "Search here for features when you don't know where they are.")});
 
     // ツール メニュー (AI / 自動編集)
-    auto *toolsMenu = menuBar()->addMenu("ツール(&T)");
+    auto *toolsMenu = menuBar()->addMenu("Tools(&T)");
 
     // US-CP-4: コマンドパレット (VS Code 風 機能検索)。Ctrl+Shift+P と
     // このメニュー項目の両方から openCommandPalette() を起動する。
     auto *commandPaletteAction =
-        toolsMenu->addAction(QStringLiteral("コマンドパレット... (Ctrl+Shift+P)"));
+        toolsMenu->addAction(QStringLiteral("Command Palette... (Ctrl+Shift+P)"));
     commandPaletteAction->setObjectName("action_command_palette");
     connect(commandPaletteAction, &QAction::triggered,
             this, &MainWindow::openCommandPalette);
     m_menuHelpEntries.append({commandPaletteAction,
-        QStringLiteral("ツール名や『こういう操作がしたい』という語で機能を検索し、選んで即実行できるパレットを開きます。")});
+        QStringLiteral("Open a palette to search for features by tool name or by describing what you want to do, then run them immediately.")});
     auto *commandPaletteShortcut =
         new QShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+P")), this);
     connect(commandPaletteShortcut, &QShortcut::activated,
@@ -5319,136 +5319,136 @@ void MainWindow::setupMenuBar()
     toolsMenu->addSeparator();
 
     // Phase 6 Wave 2 (US-6B-4): 動画→Whisper 文字起こし (既存ツールメニューへ配置)
-    auto *whisperTranscribeAction = toolsMenu->addAction(QStringLiteral("動画を文字起こし..."));
+    auto *whisperTranscribeAction = toolsMenu->addAction(QStringLiteral("Transcribe Video..."));
     whisperTranscribeAction->setObjectName("action_whisper_transcribe");
     connect(whisperTranscribeAction, &QAction::triggered,
             this, &MainWindow::openWhisperTranscribeDialog);
     m_menuHelpEntries.append({whisperTranscribeAction,
-        QStringLiteral("動画・音声から音声を抽出し、Whisper などの ASR エンジンで自動的に字幕クリップを生成します。")});
+        QStringLiteral("Extract audio from video/audio and automatically generate subtitle clips with ASR engines such as Whisper.")});
 
     // Phase 6 Wave 3 (US-6C-4): 文字起こしからハイライト検出 (既存ツールメニューへ配置)
-    auto *transcriptHighlightAction = toolsMenu->addAction(QStringLiteral("文字起こしからハイライト検出..."));
+    auto *transcriptHighlightAction = toolsMenu->addAction(QStringLiteral("Detect Highlights from Transcription..."));
     transcriptHighlightAction->setObjectName("action_transcript_highlight");
     connect(transcriptHighlightAction, &QAction::triggered,
             this, &MainWindow::openTranscriptHighlightDialog);
     m_menuHelpEntries.append({transcriptHighlightAction,
-        QStringLiteral("現在の字幕トラックを AI に渡し、最も見どころとなる瞬間を自動検出します。")});
+        QStringLiteral("Pass the current subtitle track to the AI and automatically detect the most highlight-worthy moments.")});
 
     // Phase 6 Wave 4 (US-6D-4): ハイライトから自動カット (既存ツールメニューへ配置)
-    auto *autoClipAction = toolsMenu->addAction(QStringLiteral("ハイライトから自動カット..."));
+    auto *autoClipAction = toolsMenu->addAction(QStringLiteral("Auto Cut from Highlights..."));
     autoClipAction->setObjectName("action_auto_clip");
     connect(autoClipAction, &QAction::triggered,
             this, &MainWindow::openAutoClipDialog);
     m_menuHelpEntries.append({autoClipAction,
-        QStringLiteral("検出済みハイライトから自動でカット範囲を計算し、タイムラインに追加します。")});
+        QStringLiteral("Automatically compute cut ranges from detected highlights and add them to the timeline.")});
 
     // TB-4: テキストベース編集 (文字起こし駆動のリップル削除)
-    auto *textBasedEditAction = toolsMenu->addAction(QStringLiteral("テキストベース編集..."));
+    auto *textBasedEditAction = toolsMenu->addAction(QStringLiteral("Text-Based Editing..."));
     textBasedEditAction->setObjectName("action_text_based_edit");
     connect(textBasedEditAction, &QAction::triggered,
             this, &MainWindow::openTextBasedEdit);
     m_menuHelpEntries.append({textBasedEditAction,
-        QStringLiteral("文字起こし結果を文章のように一覧表示し、削除したいセリフの区間を"
-                       "選んでタイムラインからまとめてリップル削除します (Descript 風)。")});
+        QStringLiteral("List transcription results like a document and select the dialogue ranges you want to delete"
+                       "to ripple-delete them from the timeline all at once (Descript-style).")});
 
-    auto *silenceAction = toolsMenu->addAction("無音検出...");
+    auto *silenceAction = toolsMenu->addAction("Detect Silence...");
     connect(silenceAction, &QAction::triggered, this, &MainWindow::autoSilenceDetect);
     m_menuHelpEntries.append({silenceAction,
-        QStringLiteral("しゃべっていない静かな部分を自動で見つけます。間延びカットの下準備に。")});
+        QStringLiteral("Automatically find quiet parts with no speech. A preparatory step for cutting dead air.")});
 
-    auto *jumpCutAction = toolsMenu->addAction("自動ジャンプカット...");
+    auto *jumpCutAction = toolsMenu->addAction("Auto Jump Cut...");
     connect(jumpCutAction, &QAction::triggered, this, &MainWindow::autoJumpCut);
     m_menuHelpEntries.append({jumpCutAction,
-        QStringLiteral("無音部分を自動で切り取って、テンポの良い動画にします（実況・解説系で人気）。")});
+        QStringLiteral("Automatically cut silent parts for a snappier video (popular for commentary/explainer videos).")});
 
-    auto *sceneAction = toolsMenu->addAction("シーン変化検出...");
+    auto *sceneAction = toolsMenu->addAction("Detect Scene Changes...");
     connect(sceneAction, &QAction::triggered, this, &MainWindow::autoSceneDetect);
     m_menuHelpEntries.append({sceneAction,
-        QStringLiteral("映像が大きく切り替わる場所を自動で見つけて、そこに目印を付けます。")});
+        QStringLiteral("Automatically find places where the video changes significantly and mark them.")});
 
     // US-HW-10: scene-cut detection backed by SceneCutScanner / SceneCutDialog.
-    auto *sceneCutDetectAction = toolsMenu->addAction("シーンカット検出...");
+    auto *sceneCutDetectAction = toolsMenu->addAction("Detect Scene Cuts...");
     sceneCutDetectAction->setObjectName("action_scene_cut_detect");
     connect(sceneCutDetectAction, &QAction::triggered, this, &MainWindow::onSceneCutDetect);
     m_menuHelpEntries.append({sceneCutDetectAction,
-        QStringLiteral("シーンカット検出を実行し、マーカー追加またはクリップ分割を行う。")});
+        QStringLiteral("Run scene cut detection and add markers or split clips.")});
 
     toolsMenu->addSeparator();
 
-    auto *stabilizeAction = toolsMenu->addAction("手ブレ補正...");
+    auto *stabilizeAction = toolsMenu->addAction("Stabilize Footage...");
     connect(stabilizeAction, &QAction::triggered, this, &MainWindow::stabilizeVideo);
     m_menuHelpEntries.append({stabilizeAction,
-        QStringLiteral("カメラのブレでガタガタ揺れる映像を、なめらかに見えるよう自動で補正します。")});
+        QStringLiteral("Automatically smooth out shaky footage caused by camera shake.")});
 
-    auto *deflickerAction = toolsMenu->addAction(QStringLiteral("フリッカー除去..."));
+    auto *deflickerAction = toolsMenu->addAction(QStringLiteral("Remove Flicker..."));
     deflickerAction->setObjectName(QStringLiteral("action_deflicker"));
     connect(deflickerAction, &QAction::triggered,
             this, &MainWindow::openDeflicker);
     m_menuHelpEntries.append({deflickerAction,
-        QStringLiteral("フレーム間の明滅を解析し、全体輝度・RGB・ローリングバンド単位で補正します。")});
+        QStringLiteral("Analyze frame-to-frame flicker and correct it by overall brightness, RGB, and rolling band.")});
 
-    auto *speedRampAction = toolsMenu->addAction("スピードランプ (可変速)...");
+    auto *speedRampAction = toolsMenu->addAction("Speed Ramp (Variable Speed)...");
     connect(speedRampAction, &QAction::triggered, this, &MainWindow::setSpeedRamp);
     m_menuHelpEntries.append({speedRampAction,
-        QStringLiteral("途中から徐々にスローになる／速くなるなど、再生速度を時間ごとに変化させます。")});
+        QStringLiteral("Vary playback speed over time, e.g. gradually slowing down or speeding up partway through.")});
 
     toolsMenu->addSeparator();
 
-    auto *motionTrackAction = toolsMenu->addAction("モーショントラッキング...");
+    auto *motionTrackAction = toolsMenu->addAction("Motion Tracking...");
     connect(motionTrackAction, &QAction::triggered, this, &MainWindow::motionTrackSetup);
     m_menuHelpEntries.append({motionTrackAction,
-        QStringLiteral("動く対象を追いかけて、テロップやモザイクをその動きにくっつけて移動させます。")});
+        QStringLiteral("Track a moving subject and stick captions or mosaics to its motion.")});
 
     toolsMenu->addSeparator();
 
-    auto *audioDenoiseAction = toolsMenu->addAction("音声ノイズ除去...");
+    auto *audioDenoiseAction = toolsMenu->addAction("Remove Audio Noise...");
     connect(audioDenoiseAction, &QAction::triggered, this, &MainWindow::audioNoiseDenoise);
     m_menuHelpEntries.append({audioDenoiseAction,
-        QStringLiteral("録音に入った「サーッ」というノイズや空調音を減らして、声を聞き取りやすくします。")});
+        QStringLiteral("Reduce \"hiss\" noise and air-conditioning hum in recordings to make voices clearer.")});
 
-    auto *videoDenoiseAction = toolsMenu->addAction("映像ノイズ除去...");
+    auto *videoDenoiseAction = toolsMenu->addAction("Remove Video Noise...");
     connect(videoDenoiseAction, &QAction::triggered, this, &MainWindow::videoNoiseDenoise);
     m_menuHelpEntries.append({videoDenoiseAction,
-        QStringLiteral("暗い場所で撮ったときに出るザラザラしたノイズを減らして、映像をきれいにします。")});
+        QStringLiteral("Reduce the grainy noise that appears in footage shot in dark places and clean up the video.")});
 
     toolsMenu->addSeparator();
 
-    auto *subtitleGenAction = toolsMenu->addAction("字幕自動生成 (Whisper)...");
+    auto *subtitleGenAction = toolsMenu->addAction("Auto-Generate Subtitles (Whisper)...");
     connect(subtitleGenAction, &QAction::triggered, this, &MainWindow::generateSubtitles);
     m_menuHelpEntries.append({subtitleGenAction,
-        QStringLiteral("しゃべっている内容を AI が聞き取って、字幕（テロップ）を自動で作ります。")});
+        QStringLiteral("The AI listens to what's being said and automatically creates subtitles (captions).")});
 
-    auto *highlightAction = toolsMenu->addAction("AI自動ハイライト...");
+    auto *highlightAction = toolsMenu->addAction("AI Auto Highlights...");
     connect(highlightAction, &QAction::triggered, this, &MainWindow::analyzeHighlights);
     m_menuHelpEntries.append({highlightAction,
-        QStringLiteral("長い映像の中から盛り上がっている見せ場を AI が探して、候補として並べます。")});
+        QStringLiteral("The AI finds exciting highlight moments in long footage and lists them as candidates.")});
 
     toolsMenu->addSeparator();
 
-    auto *screenRecAction = toolsMenu->addAction("画面録画を開始...");
+    auto *screenRecAction = toolsMenu->addAction("Start Screen Recording...");
     connect(screenRecAction, &QAction::triggered, this, &MainWindow::startScreenRecording);
     m_menuHelpEntries.append({screenRecAction,
-        QStringLiteral("パソコンの画面を動画として録画します。ゲーム実況や操作説明動画に。")});
+        QStringLiteral("Record your computer screen as a video. For gameplay commentary or tutorial videos.")});
 
-    auto *stopRecAction = toolsMenu->addAction("画面録画を停止");
+    auto *stopRecAction = toolsMenu->addAction("Stop Screen Recording");
     connect(stopRecAction, &QAction::triggered, this, &MainWindow::stopScreenRecording);
     m_menuHelpEntries.append({stopRecAction,
-        QStringLiteral("実行中の画面録画を終了して、録画した動画を保存します。")});
+        QStringLiteral("Stop the ongoing screen recording and save the recorded video.")});
 
     toolsMenu->addSeparator();
 
-    auto *proxySettingsAction = toolsMenu->addAction("プロキシ設定...");
+    auto *proxySettingsAction = toolsMenu->addAction("Proxy Settings...");
     connect(proxySettingsAction, &QAction::triggered, this, &MainWindow::openProxySettings);
     m_menuHelpEntries.append({proxySettingsAction,
-        QStringLiteral("重い動画を軽い「代理映像（プロキシ）」に置き換えて、編集中の動作を軽くする設定です。")});
+        QStringLiteral("Settings to replace heavy video with lightweight \"proxy\" footage for smoother editing.")});
 
-    auto *proxyToggle = toolsMenu->addAction("プロキシモード切替");
+    auto *proxyToggle = toolsMenu->addAction("Toggle Proxy Mode");
     proxyToggle->setCheckable(true);
     connect(proxyToggle, &QAction::triggered, this, &MainWindow::toggleProxyMode);
     m_menuHelpEntries.append({proxyToggle,
-        QStringLiteral("編集中に軽い代理映像を使うか、元の高画質映像を使うかを切り替えます。書き出しは常に高画質です。")});
+        QStringLiteral("Switch between lightweight proxy footage and the original high-quality footage while editing. Export is always high quality.")});
 
-    auto *fullResPlaybackAction = toolsMenu->addAction("再生プレビューをフル解像度");
+    auto *fullResPlaybackAction = toolsMenu->addAction("Full-Resolution Playback Preview");
     fullResPlaybackAction->setCheckable(true);
     fullResPlaybackAction->setChecked(
         QSettings("VSimpleEditor", "Preferences").value("playbackProxyDivisor", 2).toInt() == 1);
@@ -5458,393 +5458,393 @@ void MainWindow::setupMenuBar()
             m_player->applyPlaybackQualityChanged();
     });
     m_menuHelpEntries.append({fullResPlaybackAction,
-        QStringLiteral("再生中のプレビューを元の高画質で表示します。オフ（既定）は動作を軽くするため半分の解像度で表示します。書き出しには影響しません。")});
+        QStringLiteral("Show the playback preview at the original high quality. When off (default), it shows at half resolution for smoother performance. Does not affect the export.")});
 
-    auto *genProxiesAction = toolsMenu->addAction("プロキシ生成...");
+    auto *genProxiesAction = toolsMenu->addAction("Generate Proxies...");
     connect(genProxiesAction, &QAction::triggered, this, &MainWindow::generateProxies);
     m_menuHelpEntries.append({genProxiesAction,
-        QStringLiteral("読み込んだ素材から、編集を軽くするための代理映像（プロキシ）を作ります。")});
+        QStringLiteral("Create proxy footage from imported media to make editing lighter.")});
 
-    auto *proxyMgmtAction = toolsMenu->addAction("プロキシ管理...");
+    auto *proxyMgmtAction = toolsMenu->addAction("Manage Proxies...");
     connect(proxyMgmtAction, &QAction::triggered, this, &MainWindow::openProxyManagement);
     m_menuHelpEntries.append({proxyMgmtAction,
-        QStringLiteral("作成済みの代理映像（プロキシ）の一覧確認・削除をします。")});
+        QStringLiteral("View and delete created proxy footage.")});
 
     // マルチトラック自動プロキシ (プレビュー専用) のトグル。多トラック かつ
     // 重コーデック/高解像度のとき再生プレビューを自動でプロキシへ切り替える。
     // checkable + QSettings("autoMultitrackProxy") 永続化 (既定 ON)。実体は
     // setAutoMultitrackProxy で、プロキシ設定ダイアログのチェックとも連動する。
     m_autoMultitrackProxyAction =
-        toolsMenu->addAction("マルチトラック自動プロキシ");
+        toolsMenu->addAction("Multi-Track Auto Proxy");
     m_autoMultitrackProxyAction->setCheckable(true);
     m_autoMultitrackProxyAction->setChecked(m_autoMultitrackProxy);
     connect(m_autoMultitrackProxyAction, &QAction::toggled,
             this, &MainWindow::setAutoMultitrackProxy);
     m_menuHelpEntries.append({m_autoMultitrackProxyAction,
-        QStringLiteral("トラックが多く重い素材があるとき、再生だけ自動で軽いプロキシに切り替えます（書き出しは元の画質のまま）。")});
+        QStringLiteral("When there are many tracks or heavy media, automatically switch to lightweight proxies for playback only (export keeps the original quality).")});
 
-    auto *renderQueueAction = toolsMenu->addAction("レンダーキュー...");
+    auto *renderQueueAction = toolsMenu->addAction("Render Queue...");
     renderQueueAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_R));
     connect(renderQueueAction, &QAction::triggered, this, &MainWindow::openRenderQueue);
     m_menuHelpEntries.append({renderQueueAction,
-        QStringLiteral("複数の書き出しをまとめて順番に処理する待ち行列を開きます。")});
+        QStringLiteral("Opens a queue to batch-process multiple exports in order.")});
 
-    auto *networkRenderAction = toolsMenu->addAction("ネットワークレンダー...");
+    auto *networkRenderAction = toolsMenu->addAction("Network Render...");
     connect(networkRenderAction, &QAction::triggered, this, &MainWindow::openNetworkRender);
     m_menuHelpEntries.append({networkRenderAction,
-        QStringLiteral("他のパソコンの力も借りて、動画の書き出しを分担して速くします。上級者向けです。")});
+        QStringLiteral("Borrow other computers' power to split and speed up video export. For advanced users.")});
 
     toolsMenu->addSeparator();
 
-    auto *scriptAction = toolsMenu->addAction("Pythonスクリプトコンソール...");
+    auto *scriptAction = toolsMenu->addAction("Python Script Console...");
     scriptAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_P));
     connect(scriptAction, &QAction::triggered, this, &MainWindow::openScriptConsole);
     m_menuHelpEntries.append({scriptAction,
-        QStringLiteral("Python のプログラムで編集作業を自動化します。プログラミングに詳しい人向けです。")});
+        QStringLiteral("Automate editing tasks with Python programs. For people familiar with programming.")});
 
     toolsMenu->addSeparator();
 
-    auto *multiCamSetupAction = toolsMenu->addAction("マルチカメラセットアップ...");
+    auto *multiCamSetupAction = toolsMenu->addAction("Multi-Camera Setup...");
     connect(multiCamSetupAction, &QAction::triggered, this, &MainWindow::multiCamSetup);
     m_menuHelpEntries.append({multiCamSetupAction,
-        QStringLiteral("複数カメラの映像を音で合わせて、切り替え編集できる状態にまとめます。")});
+        QStringLiteral("Sync multi-camera footage by audio and prepare it for switching edits.")});
 
-    auto *multiCamSwitchAction = toolsMenu->addAction("マルチカメラ切替...");
+    auto *multiCamSwitchAction = toolsMenu->addAction("Multi-Camera Switching...");
     connect(multiCamSwitchAction, &QAction::triggered, this, &MainWindow::multiCamSwitch);
     m_menuHelpEntries.append({multiCamSwitchAction,
-        QStringLiteral("再生しながらカメラを切り替えていくと、その通りに編集されます。")});
+        QStringLiteral("Switch cameras while playing, and the edit follows your switching.")});
 
     toolsMenu->addSeparator();
 
     // US-EXT-10: Sprint 10 pro extensions — AI upscale / frame interpolation + Plugin browser.
-    auto *aiProcessingAction = toolsMenu->addAction("AI アップスケール / フレーム補間...");
+    auto *aiProcessingAction = toolsMenu->addAction("AI Upscale / Frame Interpolation...");
     aiProcessingAction->setObjectName("action_ai_processing");
     connect(aiProcessingAction, &QAction::triggered, this, &MainWindow::onAIProcessing);
     m_menuHelpEntries.append({aiProcessingAction,
-        QStringLiteral("AI アップスケール (Lanczos/Bicubic) とフレーム補間 (Linear/Motion-Blend) の処理を設定する。")});
+        QStringLiteral("Configure AI upscaling (Lanczos/Bicubic) and frame interpolation (Linear/Motion-Blend).")});
 
-    auto *pluginBrowserAction = toolsMenu->addAction("プラグインブラウザ...");
+    auto *pluginBrowserAction = toolsMenu->addAction("Plugin Browser...");
     pluginBrowserAction->setObjectName("action_plugin_browser");
     connect(pluginBrowserAction, &QAction::triggered, this, &MainWindow::onPluginBrowser);
     m_menuHelpEntries.append({pluginBrowserAction,
-        QStringLiteral("OFX 風 plugin manifest を持つプラグインを検出して一覧表示する (実行は将来対応)。")});
+        QStringLiteral("Detect and list plugins with an OFX-style plugin manifest (execution support planned for the future).")});
 
     // US-WF-D: Sprint 11 workflow — AI auto-mask generation.
-    auto *aiMaskAction = toolsMenu->addAction("AI マスクを生成…");
+    auto *aiMaskAction = toolsMenu->addAction("Generate AI Mask...");
     aiMaskAction->setObjectName("action_aimask_dialog");
     connect(aiMaskAction, &QAction::triggered, this, &MainWindow::openAIMaskDialog);
     m_menuHelpEntries.append({aiMaskAction,
-        QStringLiteral("輝度しきい値 / 色域 / 外部プラグインで自動マスクを生成するダイアログを開く。")});
+        QStringLiteral("Open a dialog to generate auto masks via luminance threshold / color range / external plugins.")});
 
     // US-PT-B: Sprint 15 — Planar (4-corner) tracker dialog.
-    auto *planarTrackerAction = toolsMenu->addAction(QStringLiteral("プラナートラッカー…"));
+    auto *planarTrackerAction = toolsMenu->addAction(QStringLiteral("Planar Tracker..."));
     planarTrackerAction->setObjectName("action_planar_tracker");
     connect(planarTrackerAction, &QAction::triggered,
             this, &MainWindow::openPlanarTrackerDialog);
     m_menuHelpEntries.append({planarTrackerAction,
-        QStringLiteral("4 点コーナーピンで平面 (看板・画面・顔など) を時系列追跡し、AI マスクや 2D エフェクトを貼り付けに使えます。")});
+        QStringLiteral("Track planes (signs, screens, faces, etc.) over time with 4-point corner pins, for attaching AI masks or 2D effects.")});
 
     // US-INT-3: Sprint 17/18/19 — YouTube upload / collaboration / auto color match.
     toolsMenu->addSeparator();
 #ifdef HAVE_YOUTUBE
     auto *youtubeUploadAction = toolsMenu->addAction(
-        QStringLiteral("YouTube アップロード(&Y)…"));
+        QStringLiteral("Upload to YouTube(&Y)..."));
     youtubeUploadAction->setObjectName("action_youtube_upload");
     connect(youtubeUploadAction, &QAction::triggered,
             this, &MainWindow::onYoutubeUpload);
     m_menuHelpEntries.append({youtubeUploadAction,
-        QStringLiteral("Google アカウントで認証し、書き出し済みの動画を YouTube に直接アップロードします (resumable upload + 自動 retry)。")});
+        QStringLiteral("Authenticate with a Google account and upload the exported video directly to YouTube (resumable upload + auto retry).")});
 #endif
 
 #ifdef HAVE_COLLAB
     auto *commentsPanelAction = toolsMenu->addAction(
-        QStringLiteral("コラボレーションパネル(&L)…"));
+        QStringLiteral("Collaboration Panel(&L)..."));
     commentsPanelAction->setObjectName("action_comments_panel");
     connect(commentsPanelAction, &QAction::triggered,
             this, &MainWindow::onCommentsPanel);
     m_menuHelpEntries.append({commentsPanelAction,
-        QStringLiteral("クリップにタイムコード付きコメントを残せる Frame.io 風コラボパネルを表示します (返信/解決/履歴対応)。")});
+        QStringLiteral("Show a Frame.io-style collaboration panel for leaving timecoded comments on clips (supports replies/resolve/history).")});
 
     auto *collabHistoryAction = toolsMenu->addAction(
-        QStringLiteral("変更履歴(&H)…"));
+        QStringLiteral("Change History(&H)..."));
     collabHistoryAction->setObjectName("action_collab_history");
     connect(collabHistoryAction, &QAction::triggered,
             this, &MainWindow::onCollabHistory);
     m_menuHelpEntries.append({collabHistoryAction,
-        QStringLiteral("プロジェクトの変更履歴 (誰がいつ何をしたか) を一覧し、過去のスナップショットへ戻すためのダイアログを開きます。")});
+        QStringLiteral("Open a dialog listing the project's change history (who did what and when) to revert to past snapshots.")});
 #endif
 
 #ifdef HAVE_COLORMATCH
     auto *colorMatchAction = toolsMenu->addAction(
-        QStringLiteral("自動カラーマッチ(&C)…"));
+        QStringLiteral("Auto Color Match(&C)..."));
     colorMatchAction->setObjectName("action_color_match");
     connect(colorMatchAction, &QAction::triggered,
             this, &MainWindow::onColorMatch);
     m_menuHelpEntries.append({colorMatchAction,
-        QStringLiteral("基準クリップと対象クリップを選び、平均/分散から 3D LUT を生成して色味を自動的に合わせます (.cube 書き出し対応)。")});
+        QStringLiteral("Select a reference clip and a target clip, generate a 3D LUT from mean/variance, and automatically match colors (.cube export supported).")});
 #endif
 
     toolsMenu->addSeparator();
 
     auto *vimeoUploadAction = toolsMenu->addAction(
-        QStringLiteral("Vimeo 直送アップロード(&V)…"));
+        QStringLiteral("Upload Directly to Vimeo(&V)..."));
     vimeoUploadAction->setObjectName("action_vimeo_upload");
     connect(vimeoUploadAction, &QAction::triggered,
             this, &MainWindow::openVimeoUploadDialog);
     m_menuHelpEntries.append({vimeoUploadAction,
-        QStringLiteral("Vimeo アカウントで認証し、書き出し済み動画を resumable upload で直接送信します。")});
+        QStringLiteral("Authenticate with a Vimeo account and send the exported video directly via resumable upload.")});
 
     auto *twitchStreamAction = toolsMenu->addAction(
-        QStringLiteral("Twitch 配信設定(&W)…"));
+        QStringLiteral("Twitch Streaming Settings(&W)..."));
     twitchStreamAction->setObjectName("action_twitch_stream");
     connect(twitchStreamAction, &QAction::triggered,
             this, &MainWindow::openTwitchStreamDialog);
     m_menuHelpEntries.append({twitchStreamAction,
-        QStringLiteral("Twitch 向け RTMP 配信設定を作り、ffmpeg コマンドを確認・コピーできます。")});
+        QStringLiteral("Create RTMP streaming settings for Twitch, and view/copy the ffmpeg command.")});
 
     auto *frameIoImportAction = toolsMenu->addAction(
-        QStringLiteral("Frame.io コメント取り込み(&F)…"));
+        QStringLiteral("Import Frame.io Comments(&F)..."));
     frameIoImportAction->setObjectName("action_frameio_import");
     connect(frameIoImportAction, &QAction::triggered,
             this, &MainWindow::openFrameIoImportDialog);
     m_menuHelpEntries.append({frameIoImportAction,
-        QStringLiteral("Frame.io の asset comments を取得し、コラボコメントトラックへ流し込みます。")});
+        QStringLiteral("Fetch Frame.io asset comments and feed them into the collaboration comment track.")});
 
     auto *davinciExportAction = toolsMenu->addAction(
-        QStringLiteral("DaVinci Resolve XML 書き出し(&D)…"));
+        QStringLiteral("Export DaVinci Resolve XML(&D)..."));
     davinciExportAction->setObjectName("action_davinci_export");
     connect(davinciExportAction, &QAction::triggered,
             this, &MainWindow::openDavinciExportDialog);
     m_menuHelpEntries.append({davinciExportAction,
-        QStringLiteral("Final Cut Pro 7 XML 互換の DaVinci Resolve XML を書き出します。")});
+        QStringLiteral("Export DaVinci Resolve XML compatible with Final Cut Pro 7 XML.")});
 
     auto *fcpxmlExportAction = toolsMenu->addAction(
-        QStringLiteral("FCPXML 書き出し(&X)…"));
+        QStringLiteral("Export FCPXML(&X)..."));
     fcpxmlExportAction->setObjectName("action_fcpxml_export");
     connect(fcpxmlExportAction, &QAction::triggered,
             this, &MainWindow::openFcpxmlExportDialog);
     m_menuHelpEntries.append({fcpxmlExportAction,
-        QStringLiteral("Final Cut Pro X 用の FCPXML を書き出します。")});
+        QStringLiteral("Export FCPXML for Final Cut Pro X.")});
 
     auto *edlExportAction = toolsMenu->addAction(
-        QStringLiteral("EDL (CMX3600) を書き出し(&E)…"));
+        QStringLiteral("Export EDL (CMX3600)(&E)..."));
     edlExportAction->setObjectName("action_edl_export");
     connect(edlExportAction, &QAction::triggered,
             this, &MainWindow::exportEdl);
     m_menuHelpEntries.append({edlExportAction,
-        QStringLiteral("Avid / DaVinci / 放送ワークフロー互換の CMX3600 EDL を書き出します。")});
+        QStringLiteral("Export a CMX3600 EDL compatible with Avid / DaVinci / broadcast workflows.")});
 
     // PPTX: 文字起こし / マーカー / タイトルから PowerPoint 資料 (.pptx) を書き出す。
     auto *pptxExportAction = toolsMenu->addAction(
-        QStringLiteral("PowerPoint 資料を書き出し(&P)… (.pptx)"));
+        QStringLiteral("Export PowerPoint Slides(&P)... (.pptx)"));
     pptxExportAction->setObjectName("action_pptx_export");
     connect(pptxExportAction, &QAction::triggered,
             this, &MainWindow::openPptxExport);
     m_menuHelpEntries.append({pptxExportAction,
-        QStringLiteral("文字起こし / マーカー / タイトルから PowerPoint スライド資料 (.pptx) を書き出します。")});
+        QStringLiteral("Export PowerPoint slide decks (.pptx) from transcriptions / markers / titles.")});
 
     // ASC CDL: 現在のカラーグレーディングを ASC CDL (.cc/.ccc/.cdl) として書き出す。
     auto *ascCdlExportAction = toolsMenu->addAction(
-        QStringLiteral("ASC CDL 書き出し(&C)… (.cc/.ccc/.cdl)"));
+        QStringLiteral("Export ASC CDL(&C)... (.cc/.ccc/.cdl)"));
     ascCdlExportAction->setObjectName("action_asc_cdl_export");
     connect(ascCdlExportAction, &QAction::triggered,
             this, &MainWindow::exportAscCdl);
     m_menuHelpEntries.append({ascCdlExportAction,
-        QStringLiteral("現在のカラーグレーディング (Lift/Gamma/Gain + 彩度) を ASC CDL の SOP として書き出します。")});
+        QStringLiteral("Export the current color grading (Lift/Gamma/Gain + saturation) as ASC CDL SOP.")});
 
     auto *smartEditAction = toolsMenu->addAction(
-        QStringLiteral("Smart Edit アシスタント(&M)…"));
+        QStringLiteral("Smart Edit Assistant(&M)..."));
     smartEditAction->setObjectName("action_smart_edit");
     connect(smartEditAction, &QAction::triggered,
             this, &MainWindow::openSmartEditDialog);
     m_menuHelpEntries.append({smartEditAction,
-        QStringLiteral("無音検出とシーン変化検出を組み合わせた自動カット候補を確認できます。")});
+        QStringLiteral("Review auto-cut candidates combining silence detection and scene change detection.")});
 
     auto *cloudRenderAction = toolsMenu->addAction(
-        QStringLiteral("クラウドレンダリング(&U)…"));
+        QStringLiteral("Cloud Rendering(&U)..."));
     cloudRenderAction->setObjectName("action_cloud_render");
     connect(cloudRenderAction, &QAction::triggered,
             this, &MainWindow::openCloudRenderDialog);
     m_menuHelpEntries.append({cloudRenderAction,
-        QStringLiteral("リモート ffmpeg ジョブの送信と進捗監視を行うクラウドレンダリング画面を開きます。")});
+        QStringLiteral("Open the cloud rendering screen to submit remote ffmpeg jobs and monitor progress.")});
 
     // US-INT-2: Sprint 21 — platform expansion / mastering / batch export.
     auto *xVideoAction = toolsMenu->addAction(
-        QStringLiteral("X(Twitter) に動画投稿(&X)…"));
+        QStringLiteral("Post Video to X (Twitter)(&X)..."));
     xVideoAction->setObjectName("action_x_video");
     connect(xVideoAction, &QAction::triggered,
             this, &MainWindow::openXVideoDialog);
     m_menuHelpEntries.append({xVideoAction,
-        QStringLiteral("X(Twitter) アカウントで認証し、書き出し済み動画を chunked upload で直接投稿します。")});
+        QStringLiteral("Authenticate with an X (Twitter) account and post the exported video directly via chunked upload.")});
 
     auto *instagramAction = toolsMenu->addAction(
-        QStringLiteral("Instagram Reels に投稿(&I)…"));
+        QStringLiteral("Post to Instagram Reels(&I)..."));
     instagramAction->setObjectName("action_instagram_publish");
     connect(instagramAction, &QAction::triggered,
             this, &MainWindow::openInstagramDialog);
     m_menuHelpEntries.append({instagramAction,
-        QStringLiteral("Instagram Graph API で Reels コンテナを作成し、書き出し済み動画を公開します。")});
+        QStringLiteral("Create a Reels container via the Instagram Graph API and publish the exported video.")});
 
     auto *projectTemplateAction = toolsMenu->addAction(
-        QStringLiteral("プロジェクトテンプレート(&T)…"));
+        QStringLiteral("Project Templates(&T)..."));
     projectTemplateAction->setObjectName("action_project_template");
     connect(projectTemplateAction, &QAction::triggered,
             this, &MainWindow::openProjectTemplateDialog);
     m_menuHelpEntries.append({projectTemplateAction,
-        QStringLiteral("用途別のプロジェクトテンプレートを選んで新規プロジェクトを素早く作成します。")});
+        QStringLiteral("Quickly create a new project from purpose-specific project templates.")});
 
     auto *loudnessMasterAction = toolsMenu->addAction(
-        QStringLiteral("ラウドネスマスタリング(&L)…"));
+        QStringLiteral("Loudness Mastering(&L)..."));
     loudnessMasterAction->setObjectName("action_loudness_master");
     connect(loudnessMasterAction, &QAction::triggered,
             this, &MainWindow::openLoudnessDialog);
     m_menuHelpEntries.append({loudnessMasterAction,
-        QStringLiteral("配信プラットフォーム基準 (EBU R128 / -14 LUFS 等) に合わせてラウドネスを最終調整します。")});
+        QStringLiteral("Finalize loudness to match delivery platform standards (EBU R128 / -14 LUFS, etc.).")});
 
     auto *hdrGradingAction = toolsMenu->addAction(
-        QStringLiteral("HDR カラーグレーディング(&H)…"));
+        QStringLiteral("HDR Color Grading(&H)..."));
     hdrGradingAction->setObjectName("action_hdr_grading");
     connect(hdrGradingAction, &QAction::triggered,
             this, &MainWindow::openHdrDialog);
     m_menuHelpEntries.append({hdrGradingAction,
-        QStringLiteral("HDR10 / HLG / PQ トーンマッピングを使った HDR カラーグレーディングを行います。")});
+        QStringLiteral("Perform HDR color grading using HDR10 / HLG / PQ tone mapping.")});
 
     // AC-4: ACES シーンリファード色管理 (IDT/RRT/ODT)。
     m_colorManagementAction = toolsMenu->addAction(
-        QStringLiteral("カラーマネジメント (ACES)…"));
+        QStringLiteral("Color Management (ACES)..."));
     m_colorManagementAction->setObjectName("action_color_management");
     m_colorManagementAction->setCheckable(true);
     connect(m_colorManagementAction, &QAction::triggered,
             this, &MainWindow::openColorManagement);
     m_menuHelpEntries.append({m_colorManagementAction,
-        QStringLiteral("ACES のシーンリファード色管理 (入力/作業/出力色空間) を設定します。")});
+        QStringLiteral("Configure ACES scene-referred color management (input/working/output color spaces).")});
     updateAcesUiState();
 
     // DV-4: Dolby Vision 動的メタデータ (Level1/2/5/6) の編集 + DV XML エクスポート。
     auto *dolbyVisionAction = toolsMenu->addAction(
-        QStringLiteral("Dolby Vision メタデータ…"));
+        QStringLiteral("Dolby Vision Metadata..."));
     dolbyVisionAction->setObjectName("action_dolby_vision");
     connect(dolbyVisionAction, &QAction::triggered,
             this, &MainWindow::openDolbyVision);
     m_menuHelpEntries.append({dolbyVisionAction,
-        QStringLiteral("Dolby Vision の動的メタデータ (プロファイル/CLL-FALL/ショット輝度) を編集し、DV XML を書き出します。")});
+        QStringLiteral("Edit Dolby Vision dynamic metadata (profile/CLL-FALL/shot brightness) and export DV XML.")});
 
     // CC-4: 放送用クローズドキャプション (CEA-608/708) の設定 + SCC エクスポート。
     auto *broadcastCaptionAction = toolsMenu->addAction(
-        QStringLiteral("放送用クローズドキャプション…"));
+        QStringLiteral("Broadcast Closed Captions..."));
     broadcastCaptionAction->setObjectName("action_broadcast_caption");
     connect(broadcastCaptionAction, &QAction::triggered,
             this, &MainWindow::openBroadcastCaption);
     m_menuHelpEntries.append({broadcastCaptionAction,
-        QStringLiteral("放送納品向けの CEA-608/708 クローズドキャプションを設定し、SCC サイドカーを書き出します。")});
+        QStringLiteral("Set up CEA-608/708 closed captions for broadcast delivery and export an SCC sidecar.")});
 
     auto *batchExportAction = toolsMenu->addAction(
-        QStringLiteral("バッチエクスポート(&B)…"));
+        QStringLiteral("Batch Export(&B)..."));
     batchExportAction->setObjectName("action_batch_export");
     connect(batchExportAction, &QAction::triggered,
             this, &MainWindow::openBatchExportDialog);
     m_menuHelpEntries.append({batchExportAction,
-        QStringLiteral("複数の書き出しジョブをキューに登録し、まとめてバッチ処理します。")});
+        QStringLiteral("Queue multiple export jobs and process them together in a batch.")});
 
     // US-INT-2: Sprint 22 — keying / restoration / animated export / easing /
     // subtitle translation / lower-third / watermark.
     auto *chromaKeyAction = toolsMenu->addAction(
-        QStringLiteral("クロマキー精緻化(&K)…"));
+        QStringLiteral("Refine Chroma Key(&K)..."));
     chromaKeyAction->setObjectName("action_chroma_key_refine");
     connect(chromaKeyAction, &QAction::triggered,
             this, &MainWindow::openChromaKeyDialog);
     m_menuHelpEntries.append({chromaKeyAction,
-        QStringLiteral("スピル除去・エッジ調整などでクロマキー合成の抜きを精緻に仕上げます。")});
+        QStringLiteral("Refine chroma key mattes with spill removal, edge adjustment, etc.")});
 
     // AM-4: グリーンバック不要の自動背景除去 / マッティング。
     auto *autoMatteAction = toolsMenu->addAction(
-        QStringLiteral("自動背景除去 / マッティング(&A)…"));
+        QStringLiteral("Auto Background Removal / Matting(&A)..."));
     autoMatteAction->setObjectName("action_auto_matte");
     connect(autoMatteAction, &QAction::triggered,
             this, &MainWindow::openAutoMatte);
     m_menuHelpEntries.append({autoMatteAction,
-        QStringLiteral("グリーンバック無しでも被写体を自動で抜き、透過 PNG や別背景との合成として書き出します。")});
+        QStringLiteral("Automatically cut out subjects even without a green screen, and export as transparent PNG or composited with another background.")});
 
     auto *objectRemovalAction = toolsMenu->addAction(
-        QStringLiteral("オブジェクト除去（コンテンツに応じた塗りつぶし）…"));
+        QStringLiteral("Remove Object (Content-Aware Fill)..."));
     objectRemovalAction->setObjectName("action_object_removal");
     connect(objectRemovalAction, &QAction::triggered,
             this, &MainWindow::openObjectRemoval);
     m_menuHelpEntries.append({objectRemovalAction,
-        QStringLiteral("クリップマスクまたはロトブラシで指定した対象を、前後フレームの背景と空間補完で除去し、新しい連番クリップとして取り込みます。")});
+        QStringLiteral("Remove the target specified by clip mask or rotobrush using surrounding frames' backgrounds and spatial inpainting, and import it as a new image sequence clip.")});
 
     auto *audioRestoreAction = toolsMenu->addAction(
-        QStringLiteral("音声リストア(&R)…"));
+        QStringLiteral("Restore Audio(&R)..."));
     audioRestoreAction->setObjectName("action_audio_restoration");
     connect(audioRestoreAction, &QAction::triggered,
             this, &MainWindow::openAudioRestoreDialog);
     m_menuHelpEntries.append({audioRestoreAction,
-        QStringLiteral("ノイズ・クリック・ハムなどの劣化を取り除き、収録音声を復元します。")});
+        QStringLiteral("Remove degradations such as noise, clicks, and hum to restore recorded audio.")});
 
     auto *voiceIsolationAction = toolsMenu->addAction(
-        QStringLiteral("音声分離（スピーチ強調）…"));
+        QStringLiteral("Separate Audio (Speech Enhancement)..."));
     voiceIsolationAction->setObjectName(QStringLiteral("action_voice_isolation"));
     connect(voiceIsolationAction, &QAction::triggered,
             this, &MainWindow::openVoiceIsolationDialog);
     m_menuHelpEntries.append({voiceIsolationAction,
-        QStringLiteral("周波数領域で会話と背景を分離し、音声のみ・背景のみ・ミックスを作成します。")});
+        QStringLiteral("Separate speech and background in the frequency domain to create voice-only, background-only, and mix versions.")});
 
     // SP-4: iZotope RX 風スペクトル音声修復 (時間×周波数の矩形領域を減衰)。
     auto *spectralRepairAction = toolsMenu->addAction(
-        QStringLiteral("スペクトル音声修復(&S)…"));
+        QStringLiteral("Spectral Audio Repair(&S)..."));
     spectralRepairAction->setObjectName("action_spectral_repair");
     connect(spectralRepairAction, &QAction::triggered,
             this, &MainWindow::openSpectralRepair);
     m_menuHelpEntries.append({spectralRepairAction,
-        QStringLiteral("スペクトログラム上で時間×周波数の矩形を選択し、ノイズ成分を減衰させて音声を修復します。")});
+        QStringLiteral("Select a time x frequency rectangle on the spectrogram and attenuate noise components to repair the audio.")});
 
     auto *animExportAction = toolsMenu->addAction(
-        QStringLiteral("アニメGIF・WebP書き出し(&G)…"));
+        QStringLiteral("Export Animated GIF / WebP(&G)..."));
     animExportAction->setObjectName("action_animated_export");
     connect(animExportAction, &QAction::triggered,
             this, &MainWindow::openAnimExportDialog);
     m_menuHelpEntries.append({animExportAction,
-        QStringLiteral("選択範囲をアニメーション GIF / WebP として最適化して書き出します。")});
+        QStringLiteral("Export the selected range optimized as an animated GIF / WebP.")});
 
     auto *easingEditorAction = toolsMenu->addAction(
-        QStringLiteral("イージングカーブエディタ(&E)…"));
+        QStringLiteral("Easing Curve Editor(&E)..."));
     easingEditorAction->setObjectName("action_easing_curve_editor");
     connect(easingEditorAction, &QAction::triggered,
             this, &MainWindow::openEasingEditorDialog);
     m_menuHelpEntries.append({easingEditorAction,
-        QStringLiteral("ベジェ制御点でキーフレーム間のイージングカーブを視覚的に編集します。")});
+        QStringLiteral("Visually edit easing curves between keyframes with bezier control points.")});
 
     auto *subtitleTranslatorAction = toolsMenu->addAction(
-        QStringLiteral("字幕翻訳(&Z)…"));
+        QStringLiteral("Translate Subtitles(&Z)..."));
     subtitleTranslatorAction->setObjectName("action_subtitle_translator");
     connect(subtitleTranslatorAction, &QAction::triggered,
             this, &MainWindow::openSubtitleTranslatorDialog);
     m_menuHelpEntries.append({subtitleTranslatorAction,
-        QStringLiteral("既存の字幕トラックを別言語へ翻訳し、多言語字幕を生成します。")});
+        QStringLiteral("Translate an existing subtitle track into another language to generate multilingual subtitles.")});
 
     auto *lowerThirdAction = toolsMenu->addAction(
-        QStringLiteral("ローワーサード(&D)…"));
+        QStringLiteral("Lower Third(&D)..."));
     lowerThirdAction->setObjectName("action_lower_third");
     connect(lowerThirdAction, &QAction::triggered,
             this, &MainWindow::openLowerThirdDialog);
     m_menuHelpEntries.append({lowerThirdAction,
-        QStringLiteral("名前・肩書きなどを表示する下三分の一テロップ (ローワーサード) を作成します。")});
+        QStringLiteral("Create a lower-third caption showing names, titles, etc.")});
 
     auto *watermarkAction = toolsMenu->addAction(
-        QStringLiteral("ウォーターマーク(&W)…"));
+        QStringLiteral("Watermark(&W)..."));
     watermarkAction->setObjectName("action_watermark");
     connect(watermarkAction, &QAction::triggered,
             this, &MainWindow::openWatermarkDialog);
     m_menuHelpEntries.append({watermarkAction,
-        QStringLiteral("ロゴ画像やテキストの透かしを映像へ重ねて、位置・不透明度を調整します。")});
+        QStringLiteral("Overlay a logo image or text watermark on the video and adjust position and opacity.")});
 
     // PRD-MCP: ツールメニューの末尾に追加し、保存済みお気に入りの id をずらさない。
-    auto *mcpMenu = toolsMenu->addMenu(QStringLiteral("MCP サーバ"));
+    auto *mcpMenu = toolsMenu->addMenu(QStringLiteral("MCP Server"));
     m_menuHelpEntries.append({mcpMenu->menuAction(),
-        QStringLiteral("Claude Code / Codex CLI から、このエディタのタイムラインを操作する MCP サーバを設定します。")});
+        QStringLiteral("Set up an MCP server to operate this editor's timeline from Claude Code / Codex CLI.")});
 
     m_mcpToggleAction = mcpMenu->addAction(
-        QStringLiteral("MCP サーバを有効にする"));
+        QStringLiteral("Enable MCP Server"));
     m_mcpToggleAction->setCheckable(true);
     // ここでは保存値でチェックを入れない。入れてしまうと、コンストラクタ末尾の
     // 自動起動が setChecked(true) を no-op にしてしまい toggled が飛ばず、
@@ -5854,18 +5854,18 @@ void MainWindow::setupMenuBar()
     connect(m_mcpToggleAction, &QAction::toggled,
             this, &MainWindow::toggleMcpServer);
     m_menuHelpEntries.append({m_mcpToggleAction,
-        QStringLiteral("localhost の MCP HTTP サーバを起動し、外部 LLM からタイムライン操作を受け付けます。")});
+        QStringLiteral("Start a localhost MCP HTTP server and accept timeline operations from external LLMs.")});
 
     m_mcpConnectionInfoAction = mcpMenu->addAction(
-        QStringLiteral("接続情報..."));
+        QStringLiteral("Connection Info..."));
     m_mcpConnectionInfoAction->setEnabled(false);
     connect(m_mcpConnectionInfoAction, &QAction::triggered,
             this, &MainWindow::showMcpConnectionInfo);
     m_menuHelpEntries.append({m_mcpConnectionInfoAction,
-        QStringLiteral("エンドポイント、トークン、Claude Code / Codex CLI 用の設定例を表示します。")});
+        QStringLiteral("Show the endpoint, token, and configuration examples for Claude Code / Codex CLI.")});
 
     // US-SNS-7: LoudnessPanel dock (created here so menu action can reference it)
-    m_loudnessDock = new QDockWidget("ラウドネスパネル", this);
+    m_loudnessDock = new QDockWidget("Loudness Panel", this);
     m_loudnessDock->setObjectName("LoudnessPanelDock");
     m_loudnessPanel = new LoudnessPanel(m_loudnessDock);
     m_loudnessDock->setWidget(m_loudnessPanel);
@@ -5924,7 +5924,7 @@ void MainWindow::setupMenuBar()
         m_activeStillId = id;
         m_stillCompare.still = image;
         applyStillCompareConfig();
-        statusBar()->showMessage(QStringLiteral("比較対象のスチルを設定しました。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Set the still for comparison."), 3000);
     });
     connect(m_stillGalleryDock, &StillGalleryDock::stillRemoved,
             this, [this](const QString &id) {
@@ -5962,21 +5962,21 @@ void MainWindow::setupMenuBar()
             this, &MainWindow::onAudioBusRoutingChanged);
 
     // US-SNS-7: 配信向け submenu
-    auto *streamMenu = menuBar()->addMenu("配信向け(&S)");
+    auto *streamMenu = menuBar()->addMenu("Streaming(&S)");
 
-    auto *smartReframeAction = streamMenu->addAction("スマートリフレーム (縦/正方形)...");
+    auto *smartReframeAction = streamMenu->addAction("Smart Reframe (Vertical/Square)...");
     connect(smartReframeAction, &QAction::triggered, this, &MainWindow::openSmartReframe);
     m_menuHelpEntries.append({smartReframeAction,
-        QStringLiteral("横長の動画を、TikTok 等の縦型や正方形に自動で切り出し直します。被写体を追って枠を合わせます。")});
+        QStringLiteral("Automatically re-crop landscape video to vertical or square for TikTok, etc. Follows the subject to frame it.")});
 
-    auto *subtitleTrackAction = streamMenu->addAction("字幕トラックを生成・表示");
+    auto *subtitleTrackAction = streamMenu->addAction("Generate/Show Subtitle Track");
     connect(subtitleTrackAction, &QAction::triggered, this, &MainWindow::renderSubtitleTrack);
     m_menuHelpEntries.append({subtitleTrackAction,
-        QStringLiteral("作成済みの字幕をタイムライン上のトラックとして表示し、見た目を調整できるようにします。")});
+        QStringLiteral("Display created subtitles as a track on the timeline so you can adjust their appearance.")});
 
     streamMenu->addSeparator();
 
-    auto *loudnessPanelAction = streamMenu->addAction("ラウドネスパネル");
+    auto *loudnessPanelAction = streamMenu->addAction("Loudness Panel");
     loudnessPanelAction->setCheckable(true);
     connect(loudnessPanelAction, &QAction::toggled, this, [this](bool visible) {
         if (m_loudnessDock) m_loudnessDock->setVisible(visible);
@@ -5984,103 +5984,103 @@ void MainWindow::setupMenuBar()
     connect(m_loudnessDock, &QDockWidget::visibilityChanged, loudnessPanelAction, &QAction::setChecked);
 
     // コンポジション メニュー (After Effects風)
-    auto *compMenu = menuBar()->addMenu("コンポジション(&C)");
+    auto *compMenu = menuBar()->addMenu("Composition(&C)");
 
-    auto *addShapeAction = compMenu->addAction("シェイプレイヤー追加...");
+    auto *addShapeAction = compMenu->addAction("Add Shape Layer...");
     connect(addShapeAction, &QAction::triggered, this, &MainWindow::addShapeLayer);
     m_menuHelpEntries.append({addShapeAction,
-        QStringLiteral("四角・丸・線などの図形を作って画面に重ねます。装飾や下地に使えます。")});
+        QStringLiteral("Create shapes such as rectangles, circles, and lines and overlay them on the screen. Use for decoration or backgrounds.")});
 
-    auto *addParticleAction = compMenu->addAction("パーティクルエフェクト追加...");
+    auto *addParticleAction = compMenu->addAction("Add Particle Effect...");
     connect(addParticleAction, &QAction::triggered, this, &MainWindow::addParticleEffect);
     m_menuHelpEntries.append({addParticleAction,
-        QStringLiteral("キラキラ・雪・煙などの粒が舞うエフェクトを追加します。")});
+        QStringLiteral("Add effects with dancing particles such as sparkles, snow, and smoke.")});
 
-    auto *textAnimAction = compMenu->addAction("テキストアニメーション追加...");
+    auto *textAnimAction = compMenu->addAction("Add Text Animation...");
     connect(textAnimAction, &QAction::triggered, this, &MainWindow::addTextAnimation);
     m_menuHelpEntries.append({textAnimAction,
-        QStringLiteral("文字が出てくる・流れる・揺れるなどの動きをテロップに付けます。")});
+        QStringLiteral("Add motion to captions such as text appearing, scrolling, or shaking.")});
 
     compMenu->addSeparator();
 
-    auto *transformKfAction = compMenu->addAction("トランスフォームキーフレーム編集...");
+    auto *transformKfAction = compMenu->addAction("Edit Transform Keyframes...");
     connect(transformKfAction, &QAction::triggered, this, &MainWindow::editTransformKeyframes);
     m_menuHelpEntries.append({transformKfAction,
-        QStringLiteral("位置・大きさ・回転を時間に沿って変化させ、動くアニメーションを作ります。")});
+        QStringLiteral("Change position, size, and rotation over time to create motion animation.")});
 
-    auto *dynamicZoomAction = compMenu->addAction(QStringLiteral("ダイナミックズーム…"));
+    auto *dynamicZoomAction = compMenu->addAction(QStringLiteral("Dynamic Zoom..."));
     connect(dynamicZoomAction, &QAction::triggered,
             this, &MainWindow::openDynamicZoom);
     m_menuHelpEntries.append({dynamicZoomAction,
-        QStringLiteral("開始枠と終了枠を指定し、パンやズームのキーフレームを一度に作成します。")});
+        QStringLiteral("Specify start and end frames to create pan and zoom keyframes in one go.")});
 
-    auto *maskAction = compMenu->addAction("マスク追加...");
+    auto *maskAction = compMenu->addAction("Add Mask...");
     connect(maskAction, &QAction::triggered, this, &MainWindow::addMask);
     m_menuHelpEntries.append({maskAction,
-        QStringLiteral("映像の一部分だけを見せる／隠す「窓」を作ります。一部だけ色を変える・切り抜くのに。")});
+        QStringLiteral("Create a \"window\" that shows/hides only part of the video. For recoloring or cutting out part of it.")});
 
-    auto *warpAction = compMenu->addAction("ワープ / 歪みエフェクト...");
+    auto *warpAction = compMenu->addAction("Warp / Distortion Effects...");
     connect(warpAction, &QAction::triggered, this, &MainWindow::applyWarpEffect);
     m_menuHelpEntries.append({warpAction,
-        QStringLiteral("映像をぐにゃっと曲げたり波打たせたりして変形させます。")});
+        QStringLiteral("Bend or ripple the video to distort it.")});
 
-    auto *rotoToolsAction = compMenu->addAction(QStringLiteral("ロトツール..."));
+    auto *rotoToolsAction = compMenu->addAction(QStringLiteral("Roto Tool..."));
     connect(rotoToolsAction, &QAction::triggered, this, &MainWindow::openRotoToolsDialog);
     m_menuHelpEntries.append({rotoToolsAction,
-        QStringLiteral("人や物の輪郭をなぞって切り抜きます。コマが進んでも形を自動で追従させられます。")});
+        QStringLiteral("Trace and cut out the outlines of people or objects. The shape auto-tracks as frames advance.")});
 
-    auto *timeRemapAction = compMenu->addAction(QStringLiteral("タイムリマップ..."));
+    auto *timeRemapAction = compMenu->addAction(QStringLiteral("Time Remap..."));
     connect(timeRemapAction, &QAction::triggered, this, &MainWindow::openTimeRemapDialog);
     m_menuHelpEntries.append({timeRemapAction,
-        QStringLiteral("クリップの再生速度を時間ごとに自由に変えます（だんだん遅く→速く 等）。なめらかに補間されます。")});
+        QStringLiteral("Freely change a clip's playback speed over time (gradually slower -> faster, etc.). Smoothly interpolated.")});
 
-    auto *trackMatteAction = compMenu->addAction(QStringLiteral("トラックマット..."));
+    auto *trackMatteAction = compMenu->addAction(QStringLiteral("Track Matte..."));
     connect(trackMatteAction, &QAction::triggered, this, &MainWindow::configureTrackMatte);
     m_menuHelpEntries.append({trackMatteAction,
-        QStringLiteral("上のレイヤーの形や明るさを「型」にして、下のレイヤーをその形に切り抜きます。")});
+        QStringLiteral("Use the upper layer's shape or brightness as a \"mold\" to cut out the lower layer into that shape.")});
 
     compMenu->addSeparator();
 
-    auto *exprAction = compMenu->addAction("エクスプレッション...");
+    auto *exprAction = compMenu->addAction("Expressions...");
     connect(exprAction, &QAction::triggered, this, &MainWindow::editExpressions);
     m_menuHelpEntries.append({exprAction,
-        QStringLiteral("簡単な数式で値を自動で動かします（例：ずっと揺らし続ける）。上級者向けです。")});
+        QStringLiteral("Automatically animate values with simple formulas (e.g. keep shaking forever). For advanced users.")});
 
-    auto *precompAction = compMenu->addAction("選択をプリコンポーズ...");
+    auto *precompAction = compMenu->addAction("Pre-compose Selection...");
     connect(precompAction, &QAction::triggered, this, &MainWindow::precomposeSelected);
     m_menuHelpEntries.append({precompAction,
-        QStringLiteral("複数のレイヤーを 1 つにまとめて扱いやすくします。整理整頓に便利です。")});
+        QStringLiteral("Combine multiple layers into one for easier handling. Handy for tidying up.")});
 
     // US-3D-11: motion-graphics sprint — 4 new menu actions (3D extruded text /
     // expressions / wiggle handheld / camera motion).
     compMenu->addSeparator();
 
-    auto *extrudeTextAction = compMenu->addAction(QStringLiteral("3D 押し出しテキスト..."));
+    auto *extrudeTextAction = compMenu->addAction(QStringLiteral("3D Extruded Text..."));
     connect(extrudeTextAction, &QAction::triggered, this, &MainWindow::open3DExtrudedText);
     m_menuHelpEntries.append({extrudeTextAction,
-        QStringLiteral("文字を立体的に「押し出して」厚みや面取りを付け、選択中のクリップに重ねます。")});
+        QStringLiteral("\"Extrude\" text into 3D with thickness and bevels, and overlay it on the selected clip.")});
 
-    auto *clipExprAction = compMenu->addAction(QStringLiteral("式（エクスプレッション）..."));
+    auto *clipExprAction = compMenu->addAction(QStringLiteral("Expressions..."));
     connect(clipExprAction, &QAction::triggered, this, &MainWindow::editClipExpressionBindings);
     m_menuHelpEntries.append({clipExprAction,
-        QStringLiteral("位置・大きさ・回転・不透明度を簡単な数式で自動的に動かします。上級者向けです。")});
+        QStringLiteral("Automatically animate position, size, rotation, and opacity with simple formulas. For advanced users.")});
 
-    auto *clipWiggleAction = compMenu->addAction(QStringLiteral("ウィグル / 手持ちカメラ風..."));
+    auto *clipWiggleAction = compMenu->addAction(QStringLiteral("Wiggle / Handheld Camera Style..."));
     connect(clipWiggleAction, &QAction::triggered, this, &MainWindow::editClipWiggle);
     m_menuHelpEntries.append({clipWiggleAction,
-        QStringLiteral("クリップを小刻みに揺らして、手持ちカメラで撮ったような動きを足します。")});
+        QStringLiteral("Shake the clip in small increments to add handheld-camera-like motion.")});
 
-    auto *cameraMotionAction = compMenu->addAction(QStringLiteral("カメラモーション..."));
+    auto *cameraMotionAction = compMenu->addAction(QStringLiteral("Camera Motion..."));
     connect(cameraMotionAction, &QAction::triggered, this, &MainWindow::openCameraMotionDialog);
     m_menuHelpEntries.append({cameraMotionAction,
-        QStringLiteral("仮想 3D カメラの動き（ドリー・パン・周回・手ぶれ）をプロジェクト全体に設定します。")});
+        QStringLiteral("Set virtual 3D camera motion (dolly, pan, orbit, shake) for the whole project.")});
 
-    auto *light3DAction = compMenu->addAction(QStringLiteral("3D ライト…"));
+    auto *light3DAction = compMenu->addAction(QStringLiteral("3D Lights..."));
     light3DAction->setObjectName(QStringLiteral("action_light3d"));
     connect(light3DAction, &QAction::triggered,
             this, &MainWindow::openLight3DDialog);
     m_menuHelpEntries.append({light3DAction,
-        QStringLiteral("Ambient / Parallel / Point / Spot の3Dライトと、選択クリップの受光マテリアルを設定します。")});
+        QStringLiteral("Set up Ambient / Parallel / Point / Spot 3D lights and the selected clip's receiving material.")});
 
     // --- カラーグレーディングパネル ---
     m_colorGradingPanel = new ColorGradingPanel(this);
@@ -6206,7 +6206,7 @@ void MainWindow::setupMenuBar()
         track->setClips(clips);
         remapTrackMatteEntriesAfterMutation(m_timeline, m_trackMatteClipEntries, snap);
         syncTrackMatteEntriesToTimeline(m_timeline, m_trackMatteClipEntries);
-        m_timeline->saveUndoState(QStringLiteral("グレードのキーフレーム追加"));
+        m_timeline->saveUndoState(QStringLiteral("Add Grade Keyframe"));
         m_timeline->refreshPlaybackSequence();
         pushAnimatedHslPreview(m_timeline->playheadPosition());
     });
@@ -6214,7 +6214,7 @@ void MainWindow::setupMenuBar()
     connect(m_colorGradingPanel, &ColorGradingPanel::hueSatWarpChanged,
             this, [this, sameColorCorrection, dirty = false](const ColorCorrection &cc, bool finished) mutable {
         if (finished) {
-            if (dirty) m_timeline->saveUndoState(QStringLiteral("カラーワーパー"));
+            if (dirty) m_timeline->saveUndoState(QStringLiteral("Color Warper"));
             dirty = false;
             return;
         }
@@ -6531,7 +6531,7 @@ void MainWindow::setupMenuBar()
             graphEditorPanel, &GraphEditorPanel::refreshFromTimeline);
 
     m_vfxControlsPanel = new VfxControlsPanel(this);
-    m_vfxControlsDock = new QDockWidget(QStringLiteral("VFX コントロール"), this);
+    m_vfxControlsDock = new QDockWidget(QStringLiteral("VFX Controls"), this);
     m_vfxControlsDock->setObjectName(QStringLiteral("VfxControlsDock"));
     m_vfxControlsDock->setWidget(m_vfxControlsPanel);
     addDockWidget(Qt::RightDockWidgetArea, m_vfxControlsDock);
@@ -6575,7 +6575,7 @@ void MainWindow::setupMenuBar()
         m_player->setPreviewRotation3D(xDeg, yDeg, zDeg, persDist);
     });
 
-    // US-EF-2: "マスクを描画" → enter the mask drawing overlay on the
+    // US-EF-2: "Draw Mask" → enter the mask drawing overlay on the
     // VideoPlayer. The callback feeds the normalized QRectF back to the
     // panel via setMaskRect, which re-emits maskChanged so GLPreview picks
     // up the new geometry. Reuses the US-WIRE-3 region picker overlay.
@@ -6596,11 +6596,11 @@ void MainWindow::setupMenuBar()
     });
 
     viewMenu->addSeparator();
-    auto *saveStillAction = viewMenu->addAction(QStringLiteral("スチルを保存"));
+    auto *saveStillAction = viewMenu->addAction(QStringLiteral("Save Still"));
     connect(saveStillAction, &QAction::triggered, this, [this]() {
         if (!m_timeline) {
-            QMessageBox::warning(this, QStringLiteral("スチルを保存"),
-                                 QStringLiteral("タイムラインがありません。"));
+            QMessageBox::warning(this, QStringLiteral("Save Still"),
+                                 QStringLiteral("No timeline."));
             return;
         }
 
@@ -6611,8 +6611,8 @@ void MainWindow::setupMenuBar()
         QImage frame = tlrender::renderFrameAt(m_timeline, usec, canvasSize);
         if (frame.isNull()) {
             QMessageBox::warning(
-                this, QStringLiteral("スチルを保存"),
-                QStringLiteral("現在位置の合成フレームをレンダリングできませんでした。"));
+                this, QStringLiteral("Save Still"),
+                QStringLiteral("Could not render the composited frame at the current position."));
             return;
         }
         frame = frame.convertToFormat(QImage::Format_RGBA8888);
@@ -6621,11 +6621,11 @@ void MainWindow::setupMenuBar()
         if (projectName.isEmpty() && !m_projectFilePath.isEmpty())
             projectName = QFileInfo(m_projectFilePath).completeBaseName();
         if (projectName.isEmpty())
-            projectName = QStringLiteral("無題");
+            projectName = QStringLiteral("Untitled");
         stillstore::Still saved;
         QString error;
         if (!m_stillStore.save(frame, projectName, QString(), &saved, &error)) {
-            QMessageBox::warning(this, QStringLiteral("スチルを保存"), error);
+            QMessageBox::warning(this, QStringLiteral("Save Still"), error);
             return;
         }
 
@@ -6638,19 +6638,19 @@ void MainWindow::setupMenuBar()
             m_stillGalleryDock->show();
             m_stillGalleryDock->raise();
         }
-        statusBar()->showMessage(QStringLiteral("スチルを保存しました。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Still saved."), 3000);
     });
     m_menuHelpEntries.append({saveStillAction,
-        QStringLiteral("現在のタイムラインフレームをスチルギャラリーへ PNG で保存します。")});
+        QStringLiteral("Save the current timeline frame to the still gallery as PNG.")});
 
-    m_stillCompareAction = viewMenu->addAction(QStringLiteral("ワイプ比較 (オン/オフ)"));
+    m_stillCompareAction = viewMenu->addAction(QStringLiteral("Wipe Compare (On/Off)"));
     m_stillCompareAction->setCheckable(true);
     m_stillCompareAction->setChecked(false);
     connect(m_stillCompareAction, &QAction::toggled, this, [this](bool enabled) {
         if (enabled && m_stillCompare.still.isNull()) {
             QMessageBox::information(
-                this, QStringLiteral("ワイプ比較"),
-                QStringLiteral("スチルギャラリーで比較するスチルをダブルクリックしてください。"));
+                this, QStringLiteral("Wipe Compare"),
+                QStringLiteral("Double-click the still to compare in the still gallery."));
             const QSignalBlocker blocker(m_stillCompareAction);
             m_stillCompareAction->setChecked(false);
             return;
@@ -6659,10 +6659,10 @@ void MainWindow::setupMenuBar()
         applyStillCompareConfig();
     });
     m_menuHelpEntries.append({m_stillCompareAction,
-        QStringLiteral("保存したスチルと現在のプレビューを比較します。書き出しには影響しません。")});
+        QStringLiteral("Compare a saved still with the current preview. Does not affect the export.")});
 
     if (m_stillGalleryDock) {
-        auto *stillGalleryAction = viewMenu->addAction(QStringLiteral("スチルギャラリー"));
+        auto *stillGalleryAction = viewMenu->addAction(QStringLiteral("Still Gallery"));
         stillGalleryAction->setCheckable(true);
         stillGalleryAction->setChecked(m_stillGalleryDock->isVisible());
         connect(stillGalleryAction, &QAction::toggled,
@@ -6670,49 +6670,49 @@ void MainWindow::setupMenuBar()
         connect(m_stillGalleryDock, &QDockWidget::visibilityChanged,
                 stillGalleryAction, &QAction::setChecked);
         m_menuHelpEntries.append({stillGalleryAction,
-            QStringLiteral("保存したスチルの一覧とワイプ位置を表示します。")});
+            QStringLiteral("Show the list of saved stills and the wipe position.")});
     }
 
     viewMenu->addSeparator();
-    auto *colorPanelAction = viewMenu->addAction("カラーグレーディングパネル(&G)");
+    auto *colorPanelAction = viewMenu->addAction("Color Grading Panel(&G)");
     colorPanelAction->setCheckable(true);
     colorPanelAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_G));
     connect(colorPanelAction, &QAction::toggled, m_colorGradingPanel, &QDockWidget::setVisible);
     connect(m_colorGradingPanel, &QDockWidget::visibilityChanged, colorPanelAction, &QAction::setChecked);
     m_menuHelpEntries.append({colorPanelAction,
-        QStringLiteral("色味・明るさを細かく調整する作業パネルを出し入れします。閉じてもここから戻せます。")});
+        QStringLiteral("Toggle the work panel for fine-tuning color and brightness. You can bring it back here even after closing it.")});
 
     auto *effectControlsAction = viewMenu->addAction("Effect Controls");
     effectControlsAction->setCheckable(true);
     connect(effectControlsAction, &QAction::toggled, m_effectControlsPanel, &QDockWidget::setVisible);
     connect(m_effectControlsPanel, &QDockWidget::visibilityChanged, effectControlsAction, &QAction::setChecked);
     m_menuHelpEntries.append({effectControlsAction,
-        QStringLiteral("選んだクリップに付いているエフェクトの設定値を編集するパネルを出し入れします。")});
+        QStringLiteral("Toggle the panel for editing effect settings on the selected clip.")});
 
-    auto *effectLibraryAction = viewMenu->addAction(QStringLiteral("エフェクトライブラリ"));
+    auto *effectLibraryAction = viewMenu->addAction(QStringLiteral("Effect Library"));
     effectLibraryAction->setCheckable(true);
     connect(effectLibraryAction, &QAction::toggled,
             m_effectLibraryPanel, &QDockWidget::setVisible);
     connect(m_effectLibraryPanel, &QDockWidget::visibilityChanged,
             effectLibraryAction, &QAction::setChecked);
     m_menuHelpEntries.append({effectLibraryAction,
-        QStringLiteral("既存のシェーダー、パーティクル、プラグイン、AE系エフェクト、プリセットを検索して適用します。")});
+        QStringLiteral("Search and apply existing shaders, particles, plugins, AE-style effects, and presets.")});
 
     auto *graphEditorAction = viewMenu->addAction(QStringLiteral("Graph Editor"));
     graphEditorAction->setCheckable(true);
     connect(graphEditorAction, &QAction::toggled, graphEditorPanel, &QDockWidget::setVisible);
     connect(graphEditorPanel, &QDockWidget::visibilityChanged, graphEditorAction, &QAction::setChecked);
     m_menuHelpEntries.append({graphEditorAction,
-        QStringLiteral("選択中クリップのキーフレームトラックと値カーブを表示し、選択トラックのループ出力を編集します。")});
+        QStringLiteral("Show the selected clip's keyframe tracks and value curves, and edit the loop output of the selected track.")});
 
-    m_vfxControlsAction = viewMenu->addAction(QStringLiteral("VFX コントロール"));
+    m_vfxControlsAction = viewMenu->addAction(QStringLiteral("VFX Controls"));
     m_vfxControlsAction->setCheckable(true);
     connect(m_vfxControlsAction, &QAction::toggled, m_vfxControlsDock, &QDockWidget::setVisible);
     connect(m_vfxControlsDock, &QDockWidget::visibilityChanged, m_vfxControlsAction, &QAction::setChecked);
     m_menuHelpEntries.append({m_vfxControlsAction,
-        QStringLiteral("グロー（光らせる）やにじみなどの特殊効果を調整するパネルを出し入れします。")});
+        QStringLiteral("Toggle the panel for adjusting special effects such as glow and bleed.")});
 
-    auto *maskPathDock = new QDockWidget(QStringLiteral("マスクパス"), this);
+    auto *maskPathDock = new QDockWidget(QStringLiteral("Mask Path"), this);
     maskPathDock->setObjectName(QStringLiteral("MaskPathEditorDock"));
     auto *maskPathWidget = new QWidget(maskPathDock);
     auto *maskPathLayout = new QVBoxLayout(maskPathWidget);
@@ -6722,10 +6722,10 @@ void MainWindow::setupMenuBar()
     maskList->setObjectName(QStringLiteral("MaskPathList"));
     maskPathLayout->addWidget(maskList, 1);
     auto *maskButtonRow = new QHBoxLayout();
-    auto *addRectMaskButton = new QPushButton(QStringLiteral("矩形"), maskPathWidget);
-    auto *addEllipseMaskButton = new QPushButton(QStringLiteral("楕円"), maskPathWidget);
-    auto *addPathMaskButton = new QPushButton(QStringLiteral("パス"), maskPathWidget);
-    auto *deleteMaskButton = new QPushButton(QStringLiteral("削除"), maskPathWidget);
+    auto *addRectMaskButton = new QPushButton(QStringLiteral("Rectangle"), maskPathWidget);
+    auto *addEllipseMaskButton = new QPushButton(QStringLiteral("Ellipse"), maskPathWidget);
+    auto *addPathMaskButton = new QPushButton(QStringLiteral("Path"), maskPathWidget);
+    auto *deleteMaskButton = new QPushButton(QStringLiteral("Delete"), maskPathWidget);
     maskButtonRow->addWidget(addRectMaskButton);
     maskButtonRow->addWidget(addEllipseMaskButton);
     maskButtonRow->addWidget(addPathMaskButton);
@@ -6813,11 +6813,11 @@ void MainWindow::setupMenuBar()
             QSignalBlocker blocker(maskList);
             maskList->clear();
             if (!hasClip) {
-                auto *item = new QListWidgetItem(QStringLiteral("クリップ未選択"));
+                auto *item = new QListWidgetItem(QStringLiteral("No clip selected"));
                 item->setFlags(Qt::NoItemFlags);
                 maskList->addItem(item);
             } else if (count == 0) {
-                auto *item = new QListWidgetItem(QStringLiteral("マスクなし"));
+                auto *item = new QListWidgetItem(QStringLiteral("No mask"));
                 item->setFlags(Qt::NoItemFlags);
                 maskList->addItem(item);
             } else {
@@ -6842,7 +6842,7 @@ void MainWindow::setupMenuBar()
     auto appendDefaultMask = [=](MaskShape shape) {
         const MaskEditorClipState state = resolveMaskClipState();
         if (!state.valid) {
-            statusBar()->showMessage(QStringLiteral("マスクを追加するクリップを選択してください"), 3000);
+            statusBar()->showMessage(QStringLiteral("Please select a clip to add a mask to"), 3000);
             return;
         }
 
@@ -6931,12 +6931,12 @@ void MainWindow::setupMenuBar()
             (*refreshMaskUi)();
     });
 
-    auto *maskPathAction = viewMenu->addAction(QStringLiteral("マスクパス編集"));
+    auto *maskPathAction = viewMenu->addAction(QStringLiteral("Edit Mask Path"));
     maskPathAction->setCheckable(true);
     connect(maskPathAction, &QAction::toggled, maskPathDock, &QDockWidget::setVisible);
     connect(maskPathDock, &QDockWidget::visibilityChanged, maskPathAction, &QAction::setChecked);
     m_menuHelpEntries.append({maskPathAction,
-        QStringLiteral("選択中クリップのマスク一覧を表示し、プレビュー上で頂点とベジェハンドルを編集します。")});
+        QStringLiteral("Show the selected clip's mask list and edit vertices and bezier handles on the preview.")});
 
     // Lumetri Scopes dock — Histogram + Luma Waveform + Vectorscope. Off
     // by default so first-run users aren't paying CPU on scope math; the
@@ -6956,7 +6956,7 @@ void MainWindow::setupMenuBar()
     connect(scopesAction, &QAction::toggled, scopesDock, &QDockWidget::setVisible);
     connect(scopesDock, &QDockWidget::visibilityChanged, scopesAction, &QAction::setChecked);
     m_menuHelpEntries.append({scopesAction,
-        QStringLiteral("映像の明るさや色の分布をグラフで確認するパネルを出し入れします。色調整の目安に。")});
+        QStringLiteral("Toggle the panel showing the video's brightness and color distribution as graphs. A guide for color adjustment.")});
 
     // Audio Meters dock
     m_audioMetersDock = new QDockWidget("Audio Meters", this);
@@ -6969,7 +6969,7 @@ void MainWindow::setupMenuBar()
     connect(audioMetersAction, &QAction::toggled, m_audioMetersDock, &QDockWidget::setVisible);
     connect(m_audioMetersDock, &QDockWidget::visibilityChanged, audioMetersAction, &QAction::setChecked);
     m_menuHelpEntries.append({audioMetersAction,
-        QStringLiteral("音の大きさをメーターで表示するパネルを出し入れします。音割れしていないか確認できます。")});
+        QStringLiteral("Toggle the panel showing audio levels as meters. Check for clipping.")});
 
     // History dock
     m_historyDock = new HistoryDockWidget(m_timeline->undoManager(), this);
@@ -6981,61 +6981,61 @@ void MainWindow::setupMenuBar()
     connect(historyAction, &QAction::toggled, m_historyDock, &QDockWidget::setVisible);
     connect(m_historyDock, &QDockWidget::visibilityChanged, historyAction, &QAction::setChecked);
     m_menuHelpEntries.append({historyAction,
-        QStringLiteral("これまでの操作の履歴を一覧で表示するパネルを出し入れします。前の状態まで一気に戻れます。")});
+        QStringLiteral("Toggle the panel listing the history of operations. Jump back to an earlier state in one go.")});
 
     // MP-5: メディアプール ドックの表示トグル
     if (m_mediaPoolDock) {
-        auto *mediaPoolAction = viewMenu->addAction("メディアプール");
+        auto *mediaPoolAction = viewMenu->addAction("Media Pool");
         mediaPoolAction->setCheckable(true);
         mediaPoolAction->setChecked(m_mediaPoolDock->isVisible());
         connect(mediaPoolAction, &QAction::toggled, m_mediaPoolDock, &QDockWidget::setVisible);
         connect(m_mediaPoolDock, &QDockWidget::visibilityChanged, mediaPoolAction, &QAction::setChecked);
         m_menuHelpEntries.append({mediaPoolAction,
-            QStringLiteral("取り込んだ動画・音声・画像をビン（フォルダ）で整理するパネルを出し入れします。素材をダブルクリックでタイムラインへ追加できます。")});
+            QStringLiteral("Toggle the panel for organizing imported video, audio, and images in bins (folders). Double-click media to add it to the timeline.")});
     }
 
     // SM-5: ソースモニター ドックの表示トグル
     if (m_sourceMonitorDock) {
-        auto *sourceMonitorAction = viewMenu->addAction("ソースモニター");
+        auto *sourceMonitorAction = viewMenu->addAction("Source Monitor");
         sourceMonitorAction->setCheckable(true);
         sourceMonitorAction->setChecked(m_sourceMonitorDock->isVisible());
         connect(sourceMonitorAction, &QAction::toggled, m_sourceMonitorDock, &QDockWidget::setVisible);
         connect(m_sourceMonitorDock, &QDockWidget::visibilityChanged, sourceMonitorAction, &QAction::setChecked);
         m_menuHelpEntries.append({sourceMonitorAction,
-            QStringLiteral("素材を再生しながらマークイン/マークアウトで使う範囲を決め、再生ヘッド位置へ挿入/上書きするパネルを出し入れします。")});
+            QStringLiteral("Toggle the panel for playing media, setting the usable range with mark in/out, and inserting/overwriting at the playhead position.")});
     }
 
     // AB-5: オーディオ バス パネル ドックの表示トグル
     if (m_audioBusPanel) {
-        auto *audioBusAction = viewMenu->addAction("オーディオ バス");
+        auto *audioBusAction = viewMenu->addAction("Audio Bus");
         audioBusAction->setCheckable(true);
         audioBusAction->setChecked(m_audioBusPanel->isVisible());
         connect(audioBusAction, &QAction::toggled, m_audioBusPanel, &QDockWidget::setVisible);
         connect(m_audioBusPanel, &QDockWidget::visibilityChanged, audioBusAction, &QAction::setChecked);
         m_menuHelpEntries.append({audioBusAction,
-            QStringLiteral("複数のオーディオトラックをバス（グループ）へまとめ、ゲイン・ミュート・ソロ・サブミックスをまとめて調整するパネルを出し入れします。")});
+            QStringLiteral("Toggle the panel for grouping multiple audio tracks into buses and adjusting gain, mute, solo, and submix together.")});
     }
 
     // US-NODE-9: Node compositing mode toggle
-    m_nodeModeAction = viewMenu->addAction("ノードコンポジットモード");
+    m_nodeModeAction = viewMenu->addAction("Node Composite Mode");
     m_nodeModeAction->setCheckable(true);
     m_nodeModeAction->setChecked(false);
     connect(m_nodeModeAction, &QAction::toggled, this, &MainWindow::toggleNodeCompositingMode);
     m_menuHelpEntries.append({m_nodeModeAction,
-        QStringLiteral("高度な合成を、箱（ノード）を線でつなぐ方式の画面に切り替えます。上級者向けです。")});
+        QStringLiteral("Switch advanced compositing to a node-based view where boxes (nodes) are connected by lines. For advanced users.")});
 
     // 表示メニュー追加項目
-    auto *themeAction = viewMenu->addAction("テーマ変更...");
+    auto *themeAction = viewMenu->addAction("Change Theme...");
     connect(themeAction, &QAction::triggered, this, &MainWindow::changeTheme);
     m_menuHelpEntries.append({themeAction,
-        QStringLiteral("画面の見た目（暗いテーマ／明るいテーマなど）を変えます。")});
+        QStringLiteral("Change the screen appearance (dark theme / light theme, etc.).")});
 
     viewMenu->addSeparator();
 
-    auto *tooltipAction = viewMenu->addAction("ツールバーのツールチップを表示");
+    auto *tooltipAction = viewMenu->addAction("Show Toolbar Tooltips");
     tooltipAction->setCheckable(true);
     m_menuHelpEntries.append({tooltipAction,
-        QStringLiteral("上のボタン列にマウスを当てたとき、ボタンの説明を吹き出しで出すかどうかを切り替えます。")});
+        QStringLiteral("Toggle whether hovering over the top button row shows button descriptions as tooltips.")});
     {
         QSettings prefSettings("VSimpleEditor", "Preferences");
         tooltipAction->setChecked(prefSettings.value("showTooltips", true).toBool());
@@ -7047,18 +7047,18 @@ void MainWindow::setupMenuBar()
         auto *toolbar = findChild<QToolBar *>("Main");
         if (!toolbar) return;
         if (checked) {
-            statusBar()->showMessage("ツールチップ有効 — 再起動で反映");
+            statusBar()->showMessage("Tooltips enabled - takes effect after restart");
         } else {
             for (auto *action : toolbar->actions())
                 action->setToolTip("");
-            statusBar()->showMessage("ツールバーのツールチップを無効化");
+            statusBar()->showMessage("Toolbar tooltips disabled");
         }
     });
 
     // メニュー項目に初心者向けの説明（hover ヘルプ）を出すかどうかのトグル。
     // デフォルト ON。QSettings("VSimpleEditor","Preferences") キー
     // "showMenuHints" に保存し、即座に applyMenuHelpTooltips() で反映する。
-    auto *menuHintsAction = viewMenu->addAction("メニューの説明を表示");
+    auto *menuHintsAction = viewMenu->addAction("Show Menu Descriptions");
     menuHintsAction->setCheckable(true);
     {
         QSettings prefSettings("VSimpleEditor", "Preferences");
@@ -7069,13 +7069,13 @@ void MainWindow::setupMenuBar()
         prefSettings.setValue("showMenuHints", checked);
         applyMenuHelpTooltips(checked);
         statusBar()->showMessage(checked
-            ? QStringLiteral("メニューの説明（hover ヘルプ）を表示します")
-            : QStringLiteral("メニューの説明（hover ヘルプ）を非表示にしました"));
+            ? QStringLiteral("Show menu descriptions (hover help)")
+            : QStringLiteral("Menu descriptions (hover help) hidden"));
     });
     m_menuHelpEntries.append({menuHintsAction,
-        QStringLiteral("この説明（メニューにマウスを当てると出る吹き出し）を表示するかどうかを切り替えます。")});
+        QStringLiteral("Toggle whether this description (the tooltip shown when hovering menus) is displayed.")});
 
-    auto *toolbarStyleAction = viewMenu->addAction("ツールバーをアイコンのみ表示");
+    auto *toolbarStyleAction = viewMenu->addAction("Show Toolbar as Icons Only");
     toolbarStyleAction->setCheckable(true);
     connect(toolbarStyleAction, &QAction::toggled, this, [this](bool iconOnly) {
         auto *toolbar = findChild<QToolBar *>();
@@ -7086,11 +7086,11 @@ void MainWindow::setupMenuBar()
         }
     });
     m_menuHelpEntries.append({toolbarStyleAction,
-        QStringLiteral("上のボタン列を、アイコンだけの小さい表示にするか、文字付きの表示にするかを切り替えます。")});
+        QStringLiteral("Toggle the top button row between a small icon-only display and a labeled display.")});
 
     // US-007: 初回表示時だけ Dock を生成する。表示メニューの末尾へ追加し、
     // 既存の favoritable QAction の id を変更しない。
-    auto *aiChatAction = viewMenu->addAction(QStringLiteral("AI チャット"));
+    auto *aiChatAction = viewMenu->addAction(QStringLiteral("AI Chat"));
     aiChatAction->setCheckable(true);
     m_aiChatAction = aiChatAction;
     connect(aiChatAction, &QAction::toggled, this, [this, aiChatAction](bool visible) {
@@ -7105,12 +7105,12 @@ void MainWindow::setupMenuBar()
             m_aiChatDock->setVisible(visible);
     });
     m_menuHelpEntries.append({aiChatAction,
-        QStringLiteral("ログイン済みの Claude Code CLI と MCP で、会話しながらタイムラインを編集します。")});
+        QStringLiteral("Edit the timeline conversationally via the logged-in Claude Code CLI and MCP.")});
 
     // ステータスバー右端の「LLM に指示を出す」ボタンの表示切替 (設定に保存)。
     // 表示メニューの末尾に追加し、既存の favoritable QAction の id を変更しない。
     m_llmAssistantToggleAction = viewMenu->addAction(
-        QStringLiteral("「LLM に指示を出す」ボタンを表示"));
+        QStringLiteral("Show \"Instruct LLM\" Button"));
     m_llmAssistantToggleAction->setCheckable(true);
     {
         QSettings prefSettings("VSimpleEditor", "Preferences");
@@ -7123,19 +7123,19 @@ void MainWindow::setupMenuBar()
         if (m_llmAssistantButton)
             m_llmAssistantButton->setVisible(visible);
         statusBar()->showMessage(visible
-            ? QStringLiteral("「LLM に指示を出す」ボタンを表示しました")
-            : QStringLiteral("「LLM に指示を出す」ボタンを隠しました (表示メニューから戻せます)"));
+            ? QStringLiteral("Showed the \"Instruct LLM\" button")
+            : QStringLiteral("Hid the \"Instruct LLM\" button (restore it from the View menu)"));
     });
     m_menuHelpEntries.append({m_llmAssistantToggleAction,
-        QStringLiteral("画面右下の「LLM に指示を出す」ボタンを表示するかどうかを切り替えます。")});
+        QStringLiteral("Toggle whether the \"Instruct LLM\" button at the bottom right of the screen is shown.")});
 
     // 取り込み配置ポリシー: 並列トラック (V2/A2...) か 現在トラック追加 (V1/A1 連結)
     auto *importPlacementGroup = new QActionGroup(this);
     importPlacementGroup->setExclusive(true);
-    auto *importParallelAction = new QAction("取り込み：新しいトラックに並列配置", this);
+    auto *importParallelAction = new QAction("Import: Place in Parallel on New Track", this);
     importParallelAction->setCheckable(true);
     importParallelAction->setActionGroup(importPlacementGroup);
-    auto *importAppendAction = new QAction("取り込み：現在のトラックに追加", this);
+    auto *importAppendAction = new QAction("Import: Append to Current Track", this);
     importAppendAction->setCheckable(true);
     importAppendAction->setActionGroup(importPlacementGroup);
     {
@@ -7151,25 +7151,25 @@ void MainWindow::setupMenuBar()
         if (!checked) return;
         QSettings prefSettings("VSimpleEditor", "Preferences");
         prefSettings.setValue("importPlacement", static_cast<int>(ImportPlacement::ParallelTrack));
-        statusBar()->showMessage("取り込み先を V2/A2 並列配置に設定");
+        statusBar()->showMessage("Import destination set to V2/A2 parallel placement");
     });
     connect(importAppendAction, &QAction::toggled, this, [this](bool checked) {
         if (!checked) return;
         QSettings prefSettings("VSimpleEditor", "Preferences");
         prefSettings.setValue("importPlacement", static_cast<int>(ImportPlacement::AppendToFirstTrack));
-        statusBar()->showMessage("取り込み先を V1/A1 追加に設定");
+        statusBar()->showMessage("Import destination set to V1/A1 append");
     });
 
     // 自動プロキシ生成: 重い素材 (AV1 / QHD+) 取り込み時の挙動 3 択
     auto *autoProxyGroup = new QActionGroup(this);
     autoProxyGroup->setExclusive(true);
-    auto *autoProxyDisabledAction = new QAction("自動プロキシ生成: しない", this);
+    auto *autoProxyDisabledAction = new QAction("Auto Proxy Generation: Off", this);
     autoProxyDisabledAction->setCheckable(true);
     autoProxyDisabledAction->setActionGroup(autoProxyGroup);
-    auto *autoProxyMultiAction = new QAction("自動プロキシ生成: V2 以降のみ", this);
+    auto *autoProxyMultiAction = new QAction("Auto Proxy Generation: V2+ Only", this);
     autoProxyMultiAction->setCheckable(true);
     autoProxyMultiAction->setActionGroup(autoProxyGroup);
-    auto *autoProxyAlwaysAction = new QAction("自動プロキシ生成: 常時", this);
+    auto *autoProxyAlwaysAction = new QAction("Auto Proxy Generation: Always", this);
     autoProxyAlwaysAction->setCheckable(true);
     autoProxyAlwaysAction->setActionGroup(autoProxyGroup);
     {
@@ -7187,26 +7187,26 @@ void MainWindow::setupMenuBar()
         if (!checked) return;
         QSettings("VSimpleEditor", "Preferences").setValue("autoProxyMode",
             static_cast<int>(AutoProxyMode::Disabled));
-        statusBar()->showMessage("自動プロキシ生成を無効化");
+        statusBar()->showMessage("Auto proxy generation disabled");
     });
     connect(autoProxyMultiAction, &QAction::toggled, this, [this](bool checked) {
         if (!checked) return;
         QSettings("VSimpleEditor", "Preferences").setValue("autoProxyMode",
             static_cast<int>(AutoProxyMode::MultiTrackOnly));
-        statusBar()->showMessage("自動プロキシ生成: V2 以降のみ");
+        statusBar()->showMessage("Auto Proxy Generation: V2+ Only");
     });
     connect(autoProxyAlwaysAction, &QAction::toggled, this, [this](bool checked) {
         if (!checked) return;
         QSettings("VSimpleEditor", "Preferences").setValue("autoProxyMode",
             static_cast<int>(AutoProxyMode::Always));
-        statusBar()->showMessage("自動プロキシ生成: 常時");
+        statusBar()->showMessage("Auto Proxy Generation: Always");
     });
 
     // 自動保存（バックアップ）トグル — デフォルトOFF、30分周期
-    auto *autoSaveAction = new QAction("自動保存を有効化 (30分ごと)", this);
+    auto *autoSaveAction = new QAction("Enable Auto Save (every 30 minutes)", this);
     autoSaveAction->setCheckable(true);
     m_menuHelpEntries.append({autoSaveAction,
-        QStringLiteral("一定時間ごとに自動でバックアップを保存します。万一のクラッシュ対策に ON がおすすめです。")});
+        QStringLiteral("Automatically save backups at regular intervals. We recommend turning it ON as crash protection.")});
     {
         QSettings prefSettings("VSimpleEditor", "Preferences");
         autoSaveAction->setChecked(prefSettings.value("autoSaveEnabled", false).toBool());
@@ -7222,10 +7222,10 @@ void MainWindow::setupMenuBar()
             cfg.interval = prefSettings.value("autoSaveIntervalSec", 1800).toInt();
             m_autoSave->setProperty("cleanShutdownBeforeAutoSaveStart", AutoSave::wasCleanShutdown());
             m_autoSave->start(cfg);
-            statusBar()->showMessage(QString("自動保存 ON (%1分ごと)").arg(cfg.interval / 60));
+            statusBar()->showMessage(QString("Auto Save ON (every %1 min)").arg(cfg.interval / 60));
         } else {
             m_autoSave->stop();
-            statusBar()->showMessage("自動保存 OFF");
+            statusBar()->showMessage("Auto Save OFF");
         }
     });
 
@@ -7244,7 +7244,7 @@ void MainWindow::setupMenuBar()
     prefsMenu->addAction(autoProxyAlwaysAction);
     prefsMenu->addSeparator();
 
-    auto *gpuEffectsAction = new QAction("GPUエフェクトを使用", this);
+    auto *gpuEffectsAction = new QAction("Use GPU Effects", this);
     gpuEffectsAction->setCheckable(true);
     {
         QSettings gpuFxSettings("VSimpleEditor", "Preferences");
@@ -7261,7 +7261,7 @@ void MainWindow::setupMenuBar()
     });
     prefsMenu->addAction(gpuEffectsAction);
     m_menuHelpEntries.append({gpuEffectsAction,
-        QStringLiteral("グラフィックボードを使ってエフェクト処理を速くします。動作が不安定なときは OFF にしてください。")});
+        QStringLiteral("Use the graphics card to speed up effect processing. Turn it OFF if behavior is unstable.")});
     prefsMenu->addSeparator();
 
     // Iteration 12: toggle for auto-play on first clip drop. Default OFF
@@ -7270,7 +7270,7 @@ void MainWindow::setupMenuBar()
     // reads QSettings("VSimpleEditor", "Preferences")/autoPlayOnFirstSequence
     // every setSequence call so the toggle takes effect immediately
     // without a restart.
-    auto *autoPlayAction = new QAction("クリップ追加で自動再生", this);
+    auto *autoPlayAction = new QAction("Auto-play When Clip Added", this);
     autoPlayAction->setCheckable(true);
     {
         QSettings autoPlaySettings("VSimpleEditor", "Preferences");
@@ -7285,30 +7285,30 @@ void MainWindow::setupMenuBar()
     prefsMenu->addSeparator();
 
     auto *loudnessAction = new QAction(
-        QStringLiteral("オーディオ均一化..."), this);
+        QStringLiteral("Normalize Audio..."), this);
     loudnessAction->setStatusTip(QStringLiteral(
-        "全トラックの出力レベルを動的に均一化 (FCP の Loudness 風)"));
+        "Dynamically normalize output levels across all tracks (FCP Loudness-style)"));
     connect(loudnessAction, &QAction::triggered,
             this, &MainWindow::openLoudnessSettings);
     prefsMenu->addAction(loudnessAction);
     m_menuHelpEntries.append({loudnessAction,
-        QStringLiteral("動画全体の音量を均一にそろえます (音量を均一に / 音量をそろえる / "
-                       "ノーマライズ / ラウドネス均一化)。配信向けの音量調整に。")});
+        QStringLiteral("Even out the volume across the whole video (normalize volume / even out volume / "
+                       "normalize / loudness normalization). Volume adjustment for delivery.")});
     prefsMenu->addSeparator();
 
     // US-T39 Snap strength submenu — pulls/flushes the video source onto
     // the 16:9 canvas edges when dragging. Persisted via QSettings so the
     // user's preference survives restart.
-    auto *snapMenu = prefsMenu->addMenu("画面フィット強度");
+    auto *snapMenu = prefsMenu->addMenu("Screen Fit Strength");
     auto *snapGroup = new QActionGroup(this);
     snapGroup->setExclusive(true);
     struct SnapPreset { const char *label; double px; };
     const SnapPreset snapPresets[] = {
-        {"オフ",  0.0},
-        {"弱",   6.0},
-        {"中",  12.0},
-        {"強",  24.0},
-        {"最強", 48.0},
+        {"Off",  0.0},
+        {"Weak",   6.0},
+        {"Medium",  12.0},
+        {"Strong",  24.0},
+        {"Strongest", 48.0},
     };
     double savedSnap = 12.0;
     {
@@ -7331,7 +7331,7 @@ void MainWindow::setupMenuBar()
             QSettings prefSettings("VSimpleEditor", "Preferences");
             prefSettings.setValue("snapStrength", px);
             statusBar()->showMessage(
-                QString("画面フィット強度: %1 px").arg(px == 0.0 ? QStringLiteral("オフ") : QString::number(px)));
+                QString("Screen Fit Strength: %1 px").arg(px == 0.0 ? QStringLiteral("Off") : QString::number(px)));
         });
         snapMenu->addAction(act);
     }
@@ -7339,20 +7339,20 @@ void MainWindow::setupMenuBar()
     prefsMenu->addAction(autoSaveAction);
 
     // ヘルプ メニュー
-    auto *helpMenu = menuBar()->addMenu("ヘルプ(&H)");
+    auto *helpMenu = menuBar()->addMenu("Help(&H)");
 
-    auto *resourceGuideAction = helpMenu->addAction("無料素材ガイド...");
+    auto *resourceGuideAction = helpMenu->addAction("Free Assets Guide...");
     resourceGuideAction->setShortcut(QKeySequence(Qt::Key_F1));
     connect(resourceGuideAction, &QAction::triggered, this, &MainWindow::showResourceGuide);
     m_menuHelpEntries.append({resourceGuideAction,
-        QStringLiteral("商用利用 OK の無料動画・音楽・画像が手に入るサイトの一覧を開きます。")});
+        QStringLiteral("Open a list of sites where you can get free videos, music, and images OK for commercial use.")});
 
     helpMenu->addSeparator();
 
-    auto *aboutAction = helpMenu->addAction("バージョン情報(&A)");
+    auto *aboutAction = helpMenu->addAction("About(&A)");
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
     m_menuHelpEntries.append({aboutAction,
-        QStringLiteral("このアプリのバージョンや情報を表示します。")});
+        QStringLiteral("Show this app's version and info.")});
 
     // 全メニュー（サブメニュー含む）でツールチップを有効化。これをしないと
     // Qt のメニューはマウスを当てても説明（ツールチップ）を出さない。
@@ -7381,21 +7381,21 @@ void MainWindow::setupMenuBar()
     // label / menuPath は FavoritesEditDialog の表示・グルーピング専用である。
     {
         static const QHash<QString, QString> menuKeyByTitle = {
-            {QStringLiteral("ファイル"),       QStringLiteral("file")},
-            {QStringLiteral("編集"),           QStringLiteral("edit")},
-            {QStringLiteral("表示"),           QStringLiteral("view")},
-            {QStringLiteral("トラック"),       QStringLiteral("track")},
-            {QStringLiteral("挿入"),           QStringLiteral("insert")},
-            {QStringLiteral("オーディオ"),     QStringLiteral("audio")},
-            {QStringLiteral("マーカー"),       QStringLiteral("marker")},
-            {QStringLiteral("トリム"),         QStringLiteral("trim")},
-            {QStringLiteral("エフェクト"),     QStringLiteral("effect")},
-            {QStringLiteral("再生"),           QStringLiteral("playback")},
-            {QStringLiteral("検索"),           QStringLiteral("search")},
-            {QStringLiteral("ツール"),         QStringLiteral("tools")},
-            {QStringLiteral("配信向け"),       QStringLiteral("stream")},
-            {QStringLiteral("コンポジション"), QStringLiteral("comp")},
-            {QStringLiteral("ヘルプ"),         QStringLiteral("help")},
+            {QStringLiteral("File"),       QStringLiteral("file")},
+            {QStringLiteral("Edit"),           QStringLiteral("edit")},
+            {QStringLiteral("View"),           QStringLiteral("view")},
+            {QStringLiteral("Track"),       QStringLiteral("track")},
+            {QStringLiteral("Insert"),           QStringLiteral("insert")},
+            {QStringLiteral("Audio"),     QStringLiteral("audio")},
+            {QStringLiteral("Markers"),       QStringLiteral("marker")},
+            {QStringLiteral("Trim"),         QStringLiteral("trim")},
+            {QStringLiteral("Effects"),     QStringLiteral("effect")},
+            {QStringLiteral("Playback"),           QStringLiteral("playback")},
+            {QStringLiteral("Search"),           QStringLiteral("search")},
+            {QStringLiteral("Tools"),         QStringLiteral("tools")},
+            {QStringLiteral("Streaming"),       QStringLiteral("stream")},
+            {QStringLiteral("Composition"), QStringLiteral("comp")},
+            {QStringLiteral("Help"),         QStringLiteral("help")},
         };
 
         // 省略記号だけでは判定できない既知のアクションを明示する。
@@ -7405,24 +7405,24 @@ void MainWindow::setupMenuBar()
         // それ以外は Safe と推定する。省略記号の慣習だけに依存しないための
         // 明示テーブル + 既定推定の二段構えである。
         static const QHash<QString, FavoritableActionRisk> explicitActionRisks = {
-            {QStringLiteral("終了(&Q)"), FavoritableActionRisk::Quit},
+            {QStringLiteral("Quit(&Q)"), FavoritableActionRisk::Quit},
             // QMessageBox::about はモーダルだが末尾に省略記号が無い。
-            {QStringLiteral("バージョン情報(&A)"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("プロジェクトを保存(&S)"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("About(&A)"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Save Project(&S)"), FavoritableActionRisk::Blocking},
             {QStringLiteral("action_versioned_save"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("スリップ..."), FavoritableActionRisk::Blocking},
-            {QStringLiteral("スライド..."), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Slip..."), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Slide..."), FavoritableActionRisk::Blocking},
             {QStringLiteral("action_feature_search"), FavoritableActionRisk::Blocking},
             {QStringLiteral("action_command_palette"), FavoritableActionRisk::Blocking},
             {QStringLiteral("action_pptx_export"), FavoritableActionRisk::Blocking},
             {QStringLiteral("action_asc_cdl_export"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("調整レイヤー"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("ソーステキスト keyframe"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("自動カラー"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("タイムラインギャップを詰める (Demo)"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("再生ヘッドにマーカー追加"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("画面録画を停止"), FavoritableActionRisk::Blocking},
-            {QStringLiteral("字幕トラックを生成・表示"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Adjustment Layer"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Source Text keyframe"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Auto Color"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Close Timeline Gaps (Demo)"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Add Marker at Playhead"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Stop Screen Recording"), FavoritableActionRisk::Blocking},
+            {QStringLiteral("Generate/Show Subtitle Track"), FavoritableActionRisk::Blocking},
         };
 
         const auto riskForAction = [](QAction *action) {
@@ -7453,8 +7453,8 @@ void MainWindow::setupMenuBar()
             if (!menu || menu == m_favoritesMenu)
                 continue;
             // Sanitize the title for display: drop the "(&X)" mnemonic hint
-            // — e.g. "ファイル(&F)" → "ファイル", "配信向け(&S)" → "配信向け",
-            // "コンポジション(&C)" → "コンポジション". Falls back to a generic
+            // — e.g. "File(&F)" → "File", "Streaming(&S)" → "Streaming",
+            // "Composition(&C)" → "Composition". Falls back to a generic
             // "&"-strip for any title that doesn't follow the "...(&X)" form.
             QString title = menu->title();
             const int mnemonicAt = title.indexOf(QStringLiteral("(&"));
@@ -7463,7 +7463,7 @@ void MainWindow::setupMenuBar()
             title.remove(QLatin1Char('&'));
             title = title.trimmed();
             if (title.isEmpty())
-                title = QStringLiteral("その他");
+                title = QStringLiteral("Other");
             const QString menuKey = menuKeyByTitle.value(title, QStringLiteral("menu"));
             int index = 0;
             const QList<QAction *> acts = menu->actions();
@@ -7518,7 +7518,7 @@ void MainWindow::rebuildFavoritesMenu()
         proxy->setEnabled(original->isEnabled());
         connect(proxy, &QAction::triggered, original, &QAction::trigger);
         // Keep the proxy in sync with the original so a context-sensitive
-        // command (e.g. "クリップを分割") greys out / re-labels here too.
+        // command (e.g. "Split Clip") greys out / re-labels here too.
         connect(original, &QAction::changed, proxy, [original, proxy]() {
             proxy->setEnabled(original->isEnabled());
             proxy->setText(original->text());
@@ -7531,7 +7531,7 @@ void MainWindow::rebuildFavoritesMenu()
 
     if (added == 0) {
         auto *placeholder = m_favoritesMenu->addAction(
-            QStringLiteral("（「お気に入りを編集...」から機能を追加してください）"));
+            QStringLiteral("(Add features from \"Edit Favorites...\")"));
         placeholder->setEnabled(false);
     }
 
@@ -7568,7 +7568,7 @@ void MainWindow::editFavorites()
     }
     rebuildFavoritesMenu();
     statusBar()->showMessage(
-        QStringLiteral("お気に入りを更新しました（%1 件）").arg(chosen.size()), 4000);
+        QStringLiteral("Favorites updated (%1 items)").arg(chosen.size()), 4000);
 }
 
 void MainWindow::applyMenuHelpTooltips(bool enabled)
@@ -7600,31 +7600,31 @@ void MainWindow::setupToolBar()
         return action;
     };
 
-    addBtn("new", "新規", "新規プロジェクト (Ctrl+N)", &MainWindow::newProject);
-    addBtn("open", "開く", "ファイルを開く (Ctrl+O)", &MainWindow::openFile);
-    addBtn("save", "保存", "プロジェクトを保存 (Ctrl+S)", &MainWindow::saveProject);
+    addBtn("new", "New", "New Project (Ctrl+N)", &MainWindow::newProject);
+    addBtn("open", "Open", "Open File (Ctrl+O)", &MainWindow::openFile);
+    addBtn("save", "Save", "Save Project (Ctrl+S)", &MainWindow::saveProject);
     toolbar->addSeparator();
-    addBtn("undo", "元に戻す", "元に戻す (Ctrl+Z)", &MainWindow::undoAction);
-    addBtn("redo", "やり直し", "やり直し (Ctrl+Shift+Z)", &MainWindow::redoAction);
+    addBtn("undo", "Undo", "Undo (Ctrl+Z)", &MainWindow::undoAction);
+    addBtn("redo", "Redo", "Redo (Ctrl+Shift+Z)", &MainWindow::redoAction);
     toolbar->addSeparator();
-    addBtn("split", "分割", "再生ヘッドで分割 (S)", &MainWindow::splitClip);
-    addBtn("delete", "削除", "クリップ削除 (Del)", &MainWindow::deleteClip);
-    addBtn("copy", "コピー", "クリップをコピー (Ctrl+C)", &MainWindow::copyClip);
-    addBtn("paste", "貼付", "クリップを貼り付け (Ctrl+V)", &MainWindow::pasteClip);
+    addBtn("split", "Split", "Split at Playhead (S)", &MainWindow::splitClip);
+    addBtn("delete", "Delete", "Delete Clip (Del)", &MainWindow::deleteClip);
+    addBtn("copy", "Copy", "Copy Clip (Ctrl+C)", &MainWindow::copyClip);
+    addBtn("paste", "Paste", "Paste Clip (Ctrl+V)", &MainWindow::pasteClip);
     toolbar->addSeparator();
     // Text tool: toolbar button toggles Adobe-style text-tool mode instead
     // of opening the modal dialog directly. The legacy dialog is still
     // reachable via 挿入 → テキスト / テロップ追加 for users who prefer it.
-    m_textToolAction = toolbar->addAction(icon("text"), "テキスト");
-    m_textToolAction->setToolTip("テキストツール (T) — ドラッグでテキスト枠を指定");
+    m_textToolAction = toolbar->addAction(icon("text"), "Text");
+    m_textToolAction->setToolTip("Text Tool (T) - Drag to define a text box");
     m_textToolAction->setCheckable(true);
     connect(m_textToolAction, &QAction::toggled, this, &MainWindow::onTextToolToggled);
-    addBtn("color", "色補正", "色補正 (Ctrl+G)", &MainWindow::colorCorrection);
-    addBtn("effects", "効果", "ビデオエフェクト (Ctrl+Shift+F)", &MainWindow::videoEffects);
-    addBtn("marker", "マーカー", "マーカー追加 (Ctrl+M)", &MainWindow::addMarker);
+    addBtn("color", "Color Correction", "Color Correction (Ctrl+G)", &MainWindow::colorCorrection);
+    addBtn("effects", "Effects", "Video Effects (Ctrl+Shift+F)", &MainWindow::videoEffects);
+    addBtn("marker", "Markers", "Add Marker (Ctrl+M)", &MainWindow::addMarker);
     toolbar->addSeparator();
-    addBtn("export", "出力", "動画をエクスポート (Ctrl+E)", &MainWindow::exportVideo);
-    addBtn("record", "録画", "画面録画を開始", &MainWindow::startScreenRecording);
+    addBtn("export", "Export", "Export Video (Ctrl+E)", &MainWindow::exportVideo);
+    addBtn("record", "Record", "Start Screen Recording", &MainWindow::startScreenRecording);
 
     // Apply saved tooltip preference
     QSettings settings("VSimpleEditor", "Preferences");
@@ -8599,7 +8599,7 @@ void MainWindow::applyLoadedProjectData(const ProjectData &loadedData,
         QString relinkError;
         if (!relinkMediaPaths(relinkMapping, &relinkError)) {
             statusBar()->showMessage(
-                QStringLiteral("メディアの再リンクに失敗しました: %1")
+                QStringLiteral("Failed to relink media: %1")
                     .arg(relinkError),
                 5000);
         } else {
@@ -8622,7 +8622,7 @@ bool MainWindow::relinkMediaPaths(
 {
     if (!m_timeline) {
         if (errorOut)
-            *errorOut = QStringLiteral("タイムラインを利用できません");
+            *errorOut = QStringLiteral("Timeline unavailable");
         return false;
     }
 
@@ -8818,7 +8818,7 @@ void MainWindow::newProject()
         if (m_timeline && m_timeline->undoManager()) {
             m_timeline->undoManager()->clear();
             m_timeline->undoManager()->saveState(m_timeline->currentState(),
-                                                 QStringLiteral("新規プロジェクト"));
+                                                 QStringLiteral("New Project"));
         }
         hideWelcomeScreen();
         updateStatusInfo();
@@ -8874,7 +8874,7 @@ void MainWindow::editProjectSettings()
         if (sizeChanged && m_timeline && m_timeline->undoManager())
             m_timeline->undoManager()->saveState(
                 m_timeline->currentState(),
-                QStringLiteral("プロジェクト設定変更"));
+                QStringLiteral("Change Project Settings"));
 
         updateStatusInfo();
     }
@@ -8882,13 +8882,13 @@ void MainWindow::editProjectSettings()
 
 void MainWindow::compareSavedProject()
 {
-    const QString path = QFileDialog::getOpenFileName(this, QStringLiteral("保存版と比較"),
-        m_projectFilePath, QStringLiteral("プロジェクト (*.veditor)"));
+    const QString path = QFileDialog::getOpenFileName(this, QStringLiteral("Compare with Saved"),
+        m_projectFilePath, QStringLiteral("Project (*.veditor)"));
     if (path.isEmpty() || !m_timeline) return;
     ProjectData saved;
     if (!ProjectFile::load(path, saved)) {
-        QMessageBox::warning(this, QStringLiteral("保存版と比較"),
-                             QStringLiteral("プロジェクトを読み込めませんでした: %1").arg(path));
+        QMessageBox::warning(this, QStringLiteral("Compare with Saved"),
+                             QStringLiteral("Could not load project: %1").arg(path));
         return;
     }
     ProjectData current;
@@ -8963,12 +8963,12 @@ bool MainWindow::saveProjectToPath(const QString &filePath, QString *errorMessag
     const QString path = filePath.trimmed();
     if (path.isEmpty()) {
         if (errorMessage)
-            *errorMessage = QStringLiteral("保存先のパスを指定してください");
+            *errorMessage = QStringLiteral("Please specify a destination path");
         return false;
     }
     if (!m_timeline) {
         if (errorMessage)
-            *errorMessage = QStringLiteral("エディタを利用できません");
+            *errorMessage = QStringLiteral("Editor unavailable");
         return false;
     }
 
@@ -8976,7 +8976,7 @@ bool MainWindow::saveProjectToPath(const QString &filePath, QString *errorMessag
     populateProjectData(data);
     if (!ProjectFile::save(path, data)) {
         if (errorMessage)
-            *errorMessage = QStringLiteral("プロジェクトを保存できませんでした: %1").arg(path);
+            *errorMessage = QStringLiteral("Failed to save project: %1").arg(path);
         return false;
     }
 
@@ -9022,20 +9022,20 @@ bool MainWindow::openProjectFromPath(const QString &filePath,
     const QString path = filePath.trimmed();
     if (path.isEmpty()) {
         if (errorMessage)
-            *errorMessage = QStringLiteral("プロジェクトのパスを指定してください");
+            *errorMessage = QStringLiteral("Please specify a project path");
         return false;
     }
     const QFileInfo info(path);
     if (!info.exists() || !info.isFile()) {
         if (errorMessage)
-            *errorMessage = QStringLiteral("ファイルが見つかりません: %1").arg(path);
+            *errorMessage = QStringLiteral("File not found: %1").arg(path);
         return false;
     }
 
     ProjectData data;
     if (!ProjectFile::load(path, data)) {
         if (errorMessage)
-            *errorMessage = QStringLiteral("プロジェクトを読み込めませんでした: %1").arg(path);
+            *errorMessage = QStringLiteral("Could not load project: %1").arg(path);
         return false;
     }
 
@@ -9064,7 +9064,7 @@ void MainWindow::importVideoFromUrl()
     const QString path = dialog.downloadedFilePath();
     if (path.isEmpty())
         return;
-    loadMediaFile(path, true, QStringLiteral("URL から取り込み"));
+    loadMediaFile(path, true, QStringLiteral("Import from URL"));
 }
 
 // MP-5: 拡張子からメディア種別を判定する小ヘルパー (importToMediaPool 専用)。
@@ -9093,11 +9093,11 @@ static mediapool::MediaType mediaTypeForExtension(const QString &suffix)
 void MainWindow::importToMediaPool()
 {
     const QString filter = QStringLiteral(
-        "メディアファイル (*.mp4 *.mkv *.mov *.webm *.flv *.avi "
+        "Media Files (*.mp4 *.mkv *.mov *.webm *.flv *.avi "
         "*.mp3 *.wav *.aac *.flac *.ogg *.m4a "
-        "*.png *.jpg *.jpeg *.bmp *.gif *.tiff *.webp);;すべてのファイル (*)");
+        "*.png *.jpg *.jpeg *.bmp *.gif *.tiff *.webp);;All Files (*)");
     const QStringList paths =
-        QFileDialog::getOpenFileNames(this, QStringLiteral("メディアプールへ取り込み"),
+        QFileDialog::getOpenFileNames(this, QStringLiteral("Import to Media Pool"),
                                       QString(), filter);
     if (paths.isEmpty())
         return;
@@ -9124,7 +9124,7 @@ void MainWindow::importToMediaPool()
         m_mediaPoolDock->refresh();
     if (added > 0) {
         statusBar()->showMessage(
-            QStringLiteral("メディアプールに %1 件取り込みました").arg(added));
+            QStringLiteral("Imported %1 items to media pool").arg(added));
     }
 }
 
@@ -9165,13 +9165,13 @@ void MainWindow::openInSourceMonitor(const QString &filePath,
     m_sourceMonitorDock->show();
     m_sourceMonitorDock->raise();
     statusBar()->showMessage(
-        QStringLiteral("ソースモニターに読み込みました: %1").arg(displayName));
+        QStringLiteral("Loaded into source monitor: %1").arg(displayName));
 }
 
 void MainWindow::matchFrame()
 {
     if (!m_timeline) {
-        statusBar()->showMessage(QStringLiteral("タイムラインがありません"));
+        statusBar()->showMessage(QStringLiteral("No timeline"));
         return;
     }
 
@@ -9179,13 +9179,13 @@ void MainWindow::matchFrame()
     QString error;
     if (!m_timeline->matchFrame(currentPlayheadSeconds(), &match, &error)) {
         statusBar()->showMessage(
-            QStringLiteral("マッチフレームできません: %1").arg(error), 5000);
+            QStringLiteral("Match frame failed: %1").arg(error), 5000);
         return;
     }
 
     openInSourceMonitor(match.filePath, match.sourceSec);
     statusBar()->showMessage(
-        QStringLiteral("マッチフレーム: %1 (%2 秒)")
+        QStringLiteral("Match frame: %1 (%2 seconds)")
             .arg(QFileInfo(match.filePath).fileName())
             .arg(match.sourceSec, 0, 'f', 3),
         5000);
@@ -9198,7 +9198,7 @@ void MainWindow::replaceSelectedClipFromMediaPool()
     int clipIndex = -1;
     if (!selectedClipRef(kind, trackIndex, clipIndex)) {
         statusBar()->showMessage(
-            QStringLiteral("置き換えるクリップを選択してください"), 5000);
+            QStringLiteral("Please select a clip to replace"), 5000);
         return;
     }
     replaceClipFromMediaPool(kind, trackIndex, clipIndex);
@@ -9207,34 +9207,34 @@ void MainWindow::replaceSelectedClipFromMediaPool()
 void MainWindow::renderClipInPlaceDialog(int trackIndex, int clipIndex)
 {
     QDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("効果を焼き込んで差し替え"));
+    dialog.setWindowTitle(QStringLiteral("Render and Replace Effect"));
     auto *form = new QFormLayout(&dialog);
     auto *codec = new QComboBox(&dialog);
-    codec->addItem(QStringLiteral("H.264（MP4）"), QStringLiteral("h264"));
-    codec->addItem(QStringLiteral("ProRes（MOV）"), QStringLiteral("prores"));
+    codec->addItem(QStringLiteral("H.264 (MP4)"), QStringLiteral("h264"));
+    codec->addItem(QStringLiteral("ProRes (MOV)"), QStringLiteral("prores"));
     auto *handles = new QDoubleSpinBox(&dialog);
     handles->setRange(0.0, 5.0);
     handles->setDecimals(3);
-    handles->setSuffix(QStringLiteral(" 秒"));
+    handles->setSuffix(QStringLiteral(" sec"));
     const QString base = m_projectFilePath.isEmpty()
         ? QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
         : QFileInfo(m_projectFilePath).absolutePath();
     auto *directory = new QLineEdit(QDir(base).filePath(QStringLiteral("RenderInPlace")), &dialog);
-    auto *browse = new QPushButton(QStringLiteral("参照…"), &dialog);
+    auto *browse = new QPushButton(QStringLiteral("Browse…"), &dialog);
     auto *outputRow = new QHBoxLayout;
     outputRow->addWidget(directory);
     outputRow->addWidget(browse);
     connect(browse, &QPushButton::clicked, &dialog, [&]() {
         const QString selected = QFileDialog::getExistingDirectory(&dialog,
-            QStringLiteral("出力先を選択"), directory->text());
+            QStringLiteral("Select Output Folder"), directory->text());
         if (!selected.isEmpty()) directory->setText(selected);
     });
-    form->addRow(QStringLiteral("コーデック"), codec);
-    form->addRow(QStringLiteral("ハンドル秒"), handles);
-    form->addRow(QStringLiteral("出力先"), outputRow);
+    form->addRow(QStringLiteral("Codec"), codec);
+    form->addRow(QStringLiteral("Handle Seconds"), handles);
+    form->addRow(QStringLiteral("Output"), outputRow);
     auto *buttons = new QDialogButtonBox(&dialog);
-    buttons->addButton(QStringLiteral("焼き込んで差し替え"), QDialogButtonBox::AcceptRole);
-    buttons->addButton(QStringLiteral("キャンセル"), QDialogButtonBox::RejectRole);
+    buttons->addButton(QStringLiteral("Burn In and Replace"), QDialogButtonBox::AcceptRole);
+    buttons->addButton(QStringLiteral("Cancel"), QDialogButtonBox::RejectRole);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     form->addRow(buttons);
@@ -9247,8 +9247,8 @@ void MainWindow::renderClipInPlaceDialog(int trackIndex, int clipIndex)
     options.projectFilePath = m_projectFilePath;
     options.outputSize = QSize(m_projectConfig.width, m_projectConfig.height);
     options.fps = m_projectConfig.fps;
-    QProgressDialog progress(QStringLiteral("効果を焼き込んでいます…"),
-                             QStringLiteral("キャンセル"), 0, 100, this);
+    QProgressDialog progress(QStringLiteral("Burning in effects..."),
+                             QStringLiteral("Cancel"), 0, 100, this);
     progress.setWindowModality(Qt::ApplicationModal);
     progress.setMinimumDuration(0);
     progress.setAutoClose(false);
@@ -9263,8 +9263,8 @@ void MainWindow::renderClipInPlaceDialog(int trackIndex, int clipIndex)
     const bool ok = renderinplace::renderClipInPlace(*m_timeline, trackIndex, clipIndex,
                                                    options, &path, &error);
     progress.close();
-    if (!ok) QMessageBox::warning(this, QStringLiteral("焼き込み"), error);
-    else statusBar()->showMessage(QStringLiteral("差し替えました: %1").arg(path), 5000);
+    if (!ok) QMessageBox::warning(this, QStringLiteral("Burn In"), error);
+    else statusBar()->showMessage(QStringLiteral("Replaced: %1").arg(path), 5000);
 }
 
 void MainWindow::replaceClipFromMediaPool(TrackKind kind, int trackIndex,
@@ -9276,7 +9276,7 @@ void MainWindow::replaceClipFromMediaPool(TrackKind kind, int trackIndex,
     const QString filePath = m_mediaPoolDock->selectedAssetPath();
     if (filePath.isEmpty()) {
         statusBar()->showMessage(
-            QStringLiteral("メディアプールで置き換え素材を選択してください"), 5000);
+            QStringLiteral("Please select replacement footage in the media pool"), 5000);
         return;
     }
 
@@ -9297,7 +9297,7 @@ void MainWindow::replaceClipFromMediaPool(TrackKind kind, int trackIndex,
                                       filePath, displayName, durationSec,
                                       &message)) {
         statusBar()->showMessage(
-            QStringLiteral("クリップを置き換えられません: %1").arg(message),
+            QStringLiteral("Cannot replace clip: %1").arg(message),
             6000);
         return;
     }
@@ -9307,7 +9307,7 @@ void MainWindow::replaceClipFromMediaPool(TrackKind kind, int trackIndex,
     updateEditActions();
     statusBar()->showMessage(
         message.isEmpty()
-            ? QStringLiteral("クリップを置き換えました: %1").arg(displayName)
+            ? QStringLiteral("Clip replaced: %1").arg(displayName)
             : message,
         6000);
 }
@@ -9319,11 +9319,11 @@ void MainWindow::onSourceInsertRequested(const threepoint::SourceSelection &sel)
     QString error;
     if (!threepoint::validate(sel, &error)) {
         statusBar()->showMessage(
-            QStringLiteral("挿入できません: %1").arg(error));
+            QStringLiteral("Cannot insert: %1").arg(error));
         return;
     }
     if (!m_timeline) {
-        statusBar()->showMessage(QStringLiteral("タイムラインがありません"));
+        statusBar()->showMessage(QStringLiteral("No timeline"));
         return;
     }
     ClipInfo clip = threepoint::buildClipInfo(sel);
@@ -9331,7 +9331,7 @@ void MainWindow::onSourceInsertRequested(const threepoint::SourceSelection &sel)
     m_timeline->insertClip3PointActive(playheadSec, clip);
     updateStatusInfo();
     statusBar()->showMessage(
-        QStringLiteral("再生ヘッド %1 秒に挿入しました: %2")
+        QStringLiteral("Inserted at playhead %1 s: %2")
             .arg(playheadSec, 0, 'f', 2)
             .arg(sel.displayName.isEmpty()
                      ? QFileInfo(sel.filePath).fileName()
@@ -9345,11 +9345,11 @@ void MainWindow::onSourceOverwriteRequested(const threepoint::SourceSelection &s
     QString error;
     if (!threepoint::validate(sel, &error)) {
         statusBar()->showMessage(
-            QStringLiteral("上書きできません: %1").arg(error));
+            QStringLiteral("Cannot overwrite: %1").arg(error));
         return;
     }
     if (!m_timeline) {
-        statusBar()->showMessage(QStringLiteral("タイムラインがありません"));
+        statusBar()->showMessage(QStringLiteral("No timeline"));
         return;
     }
     ClipInfo clip = threepoint::buildClipInfo(sel);
@@ -9357,7 +9357,7 @@ void MainWindow::onSourceOverwriteRequested(const threepoint::SourceSelection &s
     m_timeline->overwriteClip3PointActive(playheadSec, clip);
     updateStatusInfo();
     statusBar()->showMessage(
-        QStringLiteral("再生ヘッド %1 秒から上書きしました: %2")
+        QStringLiteral("Overwrote from playhead %1 s: %2")
             .arg(playheadSec, 0, 'f', 2)
             .arg(sel.displayName.isEmpty()
                      ? QFileInfo(sel.filePath).fileName()
@@ -9380,12 +9380,12 @@ void MainWindow::onAudioBusRoutingChanged()
 void MainWindow::rippleTrimInToPlayhead()
 {
     if (!m_timeline) {
-        statusBar()->showMessage(QStringLiteral("タイムラインがありません"));
+        statusBar()->showMessage(QStringLiteral("No timeline"));
         return;
     }
     int trackIdx = -1, clipIdx = -1;
     if (!selectedVideoClipRef(trackIdx, clipIdx)) {
-        statusBar()->showMessage(QStringLiteral("トリムするクリップを選択してください"));
+        statusBar()->showMessage(QStringLiteral("Select a clip to trim"));
         return;
     }
     const double clipStart = clipTimelineStartSeconds(trackIdx, clipIdx);
@@ -9395,10 +9395,10 @@ void MainWindow::rippleTrimInToPlayhead()
     if (m_timeline->applyTrimActive(trimops::TrimType::RippleIn, delta, &err)) {
         updateStatusInfo();
         statusBar()->showMessage(
-            QStringLiteral("先頭を再生ヘッドへリップルしました (%1 秒)")
+            QStringLiteral("Rippled clip start to playhead (%1 s)")
                 .arg(delta, 0, 'f', 2));
     } else {
-        statusBar()->showMessage(QStringLiteral("リップルできません: %1").arg(err));
+        statusBar()->showMessage(QStringLiteral("Cannot ripple: %1").arg(err));
     }
 }
 
@@ -9408,13 +9408,13 @@ void MainWindow::rippleTrimInToPlayhead()
 void MainWindow::rippleTrimOutToPlayhead()
 {
     if (!m_timeline) {
-        statusBar()->showMessage(QStringLiteral("タイムラインがありません"));
+        statusBar()->showMessage(QStringLiteral("No timeline"));
         return;
     }
     int trackIdx = -1, clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        statusBar()->showMessage(QStringLiteral("トリムするクリップを選択してください"));
+        statusBar()->showMessage(QStringLiteral("Select a clip to trim"));
         return;
     }
     const double clipEnd =
@@ -9425,10 +9425,10 @@ void MainWindow::rippleTrimOutToPlayhead()
     if (m_timeline->applyTrimActive(trimops::TrimType::RippleOut, delta, &err)) {
         updateStatusInfo();
         statusBar()->showMessage(
-            QStringLiteral("末尾を再生ヘッドへリップルしました (%1 秒)")
+            QStringLiteral("Rippled clip end to playhead (%1 s)")
                 .arg(delta, 0, 'f', 2));
     } else {
-        statusBar()->showMessage(QStringLiteral("リップルできません: %1").arg(err));
+        statusBar()->showMessage(QStringLiteral("Cannot ripple: %1").arg(err));
     }
 }
 
@@ -9437,13 +9437,13 @@ void MainWindow::rippleTrimOutToPlayhead()
 void MainWindow::rollEditToPlayhead()
 {
     if (!m_timeline) {
-        statusBar()->showMessage(QStringLiteral("タイムラインがありません"));
+        statusBar()->showMessage(QStringLiteral("No timeline"));
         return;
     }
     int trackIdx = -1, clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        statusBar()->showMessage(QStringLiteral("トリムするクリップを選択してください"));
+        statusBar()->showMessage(QStringLiteral("Select a clip to trim"));
         return;
     }
     const double editPoint =
@@ -9454,10 +9454,10 @@ void MainWindow::rollEditToPlayhead()
     if (m_timeline->applyTrimActive(trimops::TrimType::Roll, delta, &err)) {
         updateStatusInfo();
         statusBar()->showMessage(
-            QStringLiteral("編集点を再生ヘッドへロールしました (%1 秒)")
+            QStringLiteral("Rolled edit point to playhead (%1 s)")
                 .arg(delta, 0, 'f', 2));
     } else {
-        statusBar()->showMessage(QStringLiteral("ロールできません: %1").arg(err));
+        statusBar()->showMessage(QStringLiteral("Cannot roll: %1").arg(err));
     }
 }
 
@@ -9466,18 +9466,18 @@ void MainWindow::rollEditToPlayhead()
 void MainWindow::slipSelectedClip()
 {
     if (!m_timeline) {
-        statusBar()->showMessage(QStringLiteral("タイムラインがありません"));
+        statusBar()->showMessage(QStringLiteral("No timeline"));
         return;
     }
     int trackIdx = -1, clipIdx = -1;
     if (!selectedVideoClipRef(trackIdx, clipIdx)) {
-        statusBar()->showMessage(QStringLiteral("トリムするクリップを選択してください"));
+        statusBar()->showMessage(QStringLiteral("Select a clip to trim"));
         return;
     }
     bool ok = false;
     const double delta = QInputDialog::getDouble(
-        this, QStringLiteral("スリップ"),
-        QStringLiteral("ずらす秒数 (正=後ろ / 負=前):"),
+        this, QStringLiteral("Slip"),
+        QStringLiteral("Seconds to shift (positive = later / negative = earlier):"),
         0.0, -3600.0, 3600.0, 2, &ok);
     if (!ok || qFuzzyIsNull(delta))
         return;
@@ -9486,10 +9486,10 @@ void MainWindow::slipSelectedClip()
     if (m_timeline->applyTrimActive(trimops::TrimType::Slip, delta, &err)) {
         updateStatusInfo();
         statusBar()->showMessage(
-            QStringLiteral("クリップをスリップしました (%1 秒)")
+            QStringLiteral("Slipped clip (%1 s)")
                 .arg(delta, 0, 'f', 2));
     } else {
-        statusBar()->showMessage(QStringLiteral("スリップできません: %1").arg(err));
+        statusBar()->showMessage(QStringLiteral("Cannot slip: %1").arg(err));
     }
 }
 
@@ -9498,18 +9498,18 @@ void MainWindow::slipSelectedClip()
 void MainWindow::slideSelectedClip()
 {
     if (!m_timeline) {
-        statusBar()->showMessage(QStringLiteral("タイムラインがありません"));
+        statusBar()->showMessage(QStringLiteral("No timeline"));
         return;
     }
     int trackIdx = -1, clipIdx = -1;
     if (!selectedVideoClipRef(trackIdx, clipIdx)) {
-        statusBar()->showMessage(QStringLiteral("トリムするクリップを選択してください"));
+        statusBar()->showMessage(QStringLiteral("Select a clip to trim"));
         return;
     }
     bool ok = false;
     const double delta = QInputDialog::getDouble(
-        this, QStringLiteral("スライド"),
-        QStringLiteral("動かす秒数 (正=後ろ / 負=前):"),
+        this, QStringLiteral("Slide"),
+        QStringLiteral("Seconds to move (positive = later / negative = earlier):"),
         0.0, -3600.0, 3600.0, 2, &ok);
     if (!ok || qFuzzyIsNull(delta))
         return;
@@ -9518,10 +9518,10 @@ void MainWindow::slideSelectedClip()
     if (m_timeline->applyTrimActive(trimops::TrimType::Slide, delta, &err)) {
         updateStatusInfo();
         statusBar()->showMessage(
-            QStringLiteral("クリップをスライドしました (%1 秒)")
+            QStringLiteral("Slid clip (%1 s)")
                 .arg(delta, 0, 'f', 2));
     } else {
-        statusBar()->showMessage(QStringLiteral("スライドできません: %1").arg(err));
+        statusBar()->showMessage(QStringLiteral("Cannot slide: %1").arg(err));
     }
 }
 
@@ -9896,7 +9896,7 @@ void MainWindow::undoAction()
         m_projectCameraUndoSaveSerial = 0;
         syncProjectLightingToTimeline();
         refreshSpecialClipPreview();
-        statusBar()->showMessage(QStringLiteral("カメラ解析の適用を元に戻しました"));
+        statusBar()->showMessage(QStringLiteral("Undid camera analysis application"));
         updateEditActions();
         return;
     }
@@ -9980,13 +9980,13 @@ void MainWindow::toggleClipReversed(bool reversed)
         || !m_timeline->setClipReversed(kind, trackIndex,
                                         clipIndex, reversed, true)) {
         updateEditActions();
-        statusBar()->showMessage(QStringLiteral("逆再生を変更できるクリップを選択してください"),
+        statusBar()->showMessage(QStringLiteral("Please select a clip whose reverse playback can be changed"),
                                  3000);
         return;
     }
     statusBar()->showMessage(
-        reversed ? QStringLiteral("逆再生を有効にしました")
-                 : QStringLiteral("逆再生を解除しました"),
+        reversed ? QStringLiteral("Reverse playback enabled")
+                 : QStringLiteral("Reverse playback disabled"),
         3000);
     updateEditActions();
 }
@@ -10008,7 +10008,7 @@ void MainWindow::setClipPan()
     if (!m_timeline->hasSelection()) return;
     bool ok;
     double pan = QInputDialog::getDouble(this, QStringLiteral("Set Clip Pan"),
-        QStringLiteral("パン (-1.0 = L, 0.0 = C, +1.0 = R):"),
+        QStringLiteral("Pan (-1.0 = L, 0.0 = C, +1.0 = R):"),
         0.0, -1.0, 1.0, 2, &ok);
     if (ok) {
         m_timeline->setClipPan(pan);
@@ -10051,7 +10051,7 @@ void MainWindow::setupToolPropertyPanel()
     auto *emptyPage = new QWidget(m_toolPropertyStack);
     auto *emptyLayout = new QVBoxLayout(emptyPage);
     emptyLayout->addStretch();
-    auto *emptyLabel = new QLabel("ツール未選択", emptyPage);
+    auto *emptyLabel = new QLabel("No Tool Selected", emptyPage);
     emptyLabel->setAlignment(Qt::AlignCenter);
     emptyLabel->setStyleSheet("color: #888;");
     emptyLayout->addWidget(emptyLabel);
@@ -10062,7 +10062,7 @@ void MainWindow::setupToolPropertyPanel()
     auto *textPage = new QWidget(m_toolPropertyStack);
     auto *textLayout = new QVBoxLayout(textPage);
     textLayout->setContentsMargins(12, 12, 12, 12);
-    auto *titleLabel = new QLabel("テキストツール", textPage);
+    auto *titleLabel = new QLabel("Text Tool", textPage);
     QFont titleFont = titleLabel->font();
     titleFont.setBold(true);
     titleFont.setPointSize(titleFont.pointSize() + 1);
@@ -10072,8 +10072,8 @@ void MainWindow::setupToolPropertyPanel()
 
     auto *form = new QFormLayout();
     m_textToolLineEdit = new QLineEdit(textPage);
-    m_textToolLineEdit->setPlaceholderText("テキストを入力...");
-    form->addRow("テキスト", m_textToolLineEdit);
+    m_textToolLineEdit->setPlaceholderText("Enter text...");
+    form->addRow("Text", m_textToolLineEdit);
 
     m_textToolSizeSpin = new QSpinBox(textPage);
     m_textToolSizeSpin->setRange(6, 256);
@@ -10081,7 +10081,7 @@ void MainWindow::setupToolPropertyPanel()
     m_textToolSizeSpin->setSuffix(" pt");
     connect(m_textToolSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int) { pushTextToolStyleToPreview(); });
-    form->addRow("サイズ", m_textToolSizeSpin);
+    form->addRow("Size", m_textToolSizeSpin);
 
     auto *letterSpacingSpin = new QDoubleSpinBox(textPage);
     letterSpacingSpin->setObjectName(QString::fromLatin1(kTextToolLetterSpacingSpinName));
@@ -10092,7 +10092,7 @@ void MainWindow::setupToolPropertyPanel()
     letterSpacingSpin->setValue(0.0);
     connect(letterSpacingSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             this, [this](double) { pushTextToolStyleToPreview(); });
-    form->addRow("字間", letterSpacingSpin);
+    form->addRow("Letter Spacing", letterSpacingSpin);
 
     auto *lineSpacingSpin = new QDoubleSpinBox(textPage);
     lineSpacingSpin->setObjectName(QString::fromLatin1(kTextToolLineSpacingSpinName));
@@ -10103,14 +10103,14 @@ void MainWindow::setupToolPropertyPanel()
     lineSpacingSpin->setValue(0.0);
     connect(lineSpacingSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             this, [this](double) { pushTextToolStyleToPreview(); });
-    form->addRow("行間", lineSpacingSpin);
+    form->addRow("Line Spacing", lineSpacingSpin);
 
     m_textToolColor = Qt::white;
     m_textToolColorButton = new QPushButton(textPage);
-    m_textToolColorButton->setText("色を選択...");
+    m_textToolColorButton->setText("Select Color...");
     m_textToolColorButton->setStyleSheet("background-color: white; color: black;");
     connect(m_textToolColorButton, &QPushButton::clicked, this, [this]() {
-        QColor picked = QColorDialog::getColor(m_textToolColor, this, "テキスト色");
+        QColor picked = QColorDialog::getColor(m_textToolColor, this, "Text Color");
         if (picked.isValid()) {
             m_textToolColor = picked;
             m_textToolColorButton->setStyleSheet(
@@ -10120,7 +10120,7 @@ void MainWindow::setupToolPropertyPanel()
             pushTextToolStyleToPreview();
         }
     });
-    form->addRow("色", m_textToolColorButton);
+    form->addRow("Color", m_textToolColorButton);
 
     m_textToolStartSpin = new QDoubleSpinBox(textPage);
     m_textToolStartSpin->setRange(0.0, 36000.0);
@@ -10128,7 +10128,7 @@ void MainWindow::setupToolPropertyPanel()
     m_textToolStartSpin->setSingleStep(0.5);
     m_textToolStartSpin->setSuffix(" s");
     m_textToolStartSpin->setValue(0.0);
-    form->addRow("開始時間", m_textToolStartSpin);
+    form->addRow("Start Time", m_textToolStartSpin);
 
     // 表示時間 = duration (not absolute end time). applyTextToolOverlay
     // computes overlay.endTime = startTime + duration so the downstream
@@ -10139,10 +10139,10 @@ void MainWindow::setupToolPropertyPanel()
     m_textToolEndSpin->setSingleStep(0.5);
     m_textToolEndSpin->setSuffix(" s");
     m_textToolEndSpin->setValue(5.0);
-    form->addRow("表示時間", m_textToolEndSpin);
+    form->addRow("Duration", m_textToolEndSpin);
 
     // Gradient fill controls (read by applyTextToolOverlay on 適用).
-    m_textToolGradientCheck = new QCheckBox("グラデーション", textPage);
+    m_textToolGradientCheck = new QCheckBox("Gradient", textPage);
     form->addRow("", m_textToolGradientCheck);
     m_textToolGradientStart = Qt::white;
     m_textToolGradientEnd   = QColor(255, 200, 0);
@@ -10151,39 +10151,39 @@ void MainWindow::setupToolPropertyPanel()
                              .arg(c.name())
                              .arg(c.lightness() > 128 ? "black" : "white"));
     };
-    m_textToolGradientStartBtn = new QPushButton("開始色", textPage);
+    m_textToolGradientStartBtn = new QPushButton("Start Color", textPage);
     styleColorBtn(m_textToolGradientStartBtn, m_textToolGradientStart);
     connect(m_textToolGradientStartBtn, &QPushButton::clicked, this, [this, styleColorBtn]() {
-        QColor picked = QColorDialog::getColor(m_textToolGradientStart, this, "グラデーション開始色");
+        QColor picked = QColorDialog::getColor(m_textToolGradientStart, this, "Gradient Start Color");
         if (picked.isValid()) {
             m_textToolGradientStart = picked;
             styleColorBtn(m_textToolGradientStartBtn, picked);
         }
     });
-    form->addRow("開始色", m_textToolGradientStartBtn);
-    m_textToolGradientEndBtn = new QPushButton("終了色", textPage);
+    form->addRow("Start Color", m_textToolGradientStartBtn);
+    m_textToolGradientEndBtn = new QPushButton("End Color", textPage);
     styleColorBtn(m_textToolGradientEndBtn, m_textToolGradientEnd);
     connect(m_textToolGradientEndBtn, &QPushButton::clicked, this, [this, styleColorBtn]() {
-        QColor picked = QColorDialog::getColor(m_textToolGradientEnd, this, "グラデーション終了色");
+        QColor picked = QColorDialog::getColor(m_textToolGradientEnd, this, "Gradient End Color");
         if (picked.isValid()) {
             m_textToolGradientEnd = picked;
             styleColorBtn(m_textToolGradientEndBtn, picked);
         }
     });
-    form->addRow("終了色", m_textToolGradientEndBtn);
+    form->addRow("End Color", m_textToolGradientEndBtn);
     m_textToolGradientAngleSpin = new QDoubleSpinBox(textPage);
     m_textToolGradientAngleSpin->setRange(0.0, 360.0);
     m_textToolGradientAngleSpin->setDecimals(0);
     m_textToolGradientAngleSpin->setSingleStep(15.0);
     m_textToolGradientAngleSpin->setSuffix(" °");
     m_textToolGradientAngleSpin->setValue(90.0);
-    form->addRow("角度", m_textToolGradientAngleSpin);
+    form->addRow("Angle", m_textToolGradientAngleSpin);
 
     // Adobe-style fine controls: type (Linear/Radial), midpoint, reverse.
     m_textToolGradientTypeCombo = new QComboBox(textPage);
-    m_textToolGradientTypeCombo->addItem("線形", 0);
-    m_textToolGradientTypeCombo->addItem("放射状", 1);
-    form->addRow("種類", m_textToolGradientTypeCombo);
+    m_textToolGradientTypeCombo->addItem("Linear", 0);
+    m_textToolGradientTypeCombo->addItem("Radial", 1);
+    form->addRow("Type", m_textToolGradientTypeCombo);
 
     m_textToolGradientMidSpin = new QDoubleSpinBox(textPage);
     m_textToolGradientMidSpin->setRange(1.0, 99.0);
@@ -10191,25 +10191,25 @@ void MainWindow::setupToolPropertyPanel()
     m_textToolGradientMidSpin->setSingleStep(5.0);
     m_textToolGradientMidSpin->setSuffix(" %");
     m_textToolGradientMidSpin->setValue(50.0);
-    form->addRow("中点", m_textToolGradientMidSpin);
+    form->addRow("Midpoint", m_textToolGradientMidSpin);
 
-    m_textToolGradientReverseCheck = new QCheckBox("反転", textPage);
+    m_textToolGradientReverseCheck = new QCheckBox("Invert", textPage);
     form->addRow("", m_textToolGradientReverseCheck);
 
     // Illustrator-style multi-stop editor: horizontal gradient bar with
     // draggable markers. Click empty area to add, right-click to delete.
     m_textToolStopBar = new GradientStopBar(textPage);
-    form->addRow("ストップ", m_textToolStopBar);
+    form->addRow("Stop", m_textToolStopBar);
 
     // Per-stop property controls (active stop is set by GradientStopBar::stopSelected).
-    m_textToolStopColorBtn = new QPushButton("色を選択…", textPage);
+    m_textToolStopColorBtn = new QPushButton("Choose Color...", textPage);
     styleColorBtn(m_textToolStopColorBtn, Qt::white);
     connect(m_textToolStopColorBtn, &QPushButton::clicked, this, [this, styleColorBtn]() {
         if (!m_textToolStopBar) return;
         const int idx = m_textToolStopBar->selectedIndex();
         if (idx < 0 || idx >= m_textToolStopBar->stops().size()) return;
         QColor picked = QColorDialog::getColor(m_textToolStopBar->stops()[idx].color,
-                                               this, "ストップ色");
+                                               this, "Stop Color");
         if (!picked.isValid()) return;
         GradientStop s = m_textToolStopBar->stops()[idx];
         s.color = picked;
@@ -10217,7 +10217,7 @@ void MainWindow::setupToolPropertyPanel()
         styleColorBtn(m_textToolStopColorBtn, picked);
         pushTextToolStyleToPreview();
     });
-    form->addRow("ストップ色", m_textToolStopColorBtn);
+    form->addRow("Stop Color", m_textToolStopColorBtn);
 
     m_textToolStopOpacitySpin = new QDoubleSpinBox(textPage);
     m_textToolStopOpacitySpin->setRange(0.0, 100.0);
@@ -10235,7 +10235,7 @@ void MainWindow::setupToolPropertyPanel()
                 m_textToolStopBar->updateStop(idx, s);
                 pushTextToolStyleToPreview();
             });
-    form->addRow("ストップ不透明度", m_textToolStopOpacitySpin);
+    form->addRow("Stop Opacity", m_textToolStopOpacitySpin);
 
     m_textToolStopPosSpin = new QDoubleSpinBox(textPage);
     m_textToolStopPosSpin->setRange(0.0, 100.0);
@@ -10253,7 +10253,7 @@ void MainWindow::setupToolPropertyPanel()
                 m_textToolStopBar->updateStop(idx, s);
                 pushTextToolStyleToPreview();
             });
-    form->addRow("ストップ位置", m_textToolStopPosSpin);
+    form->addRow("Stop Position", m_textToolStopPosSpin);
 
     // Sync per-stop controls when a stop is selected on the bar.
     connect(m_textToolStopBar, &GradientStopBar::stopSelected, this, [this, styleColorBtn](int idx) {
@@ -10274,13 +10274,13 @@ void MainWindow::setupToolPropertyPanel()
     });
 
     // Gradient preset save / load buttons — JSON files under AppData/gradients.
-    m_textToolGradientPresetSaveBtn = new QPushButton("保存", textPage);
-    m_textToolGradientPresetLoadBtn = new QPushButton("呼び出し", textPage);
+    m_textToolGradientPresetSaveBtn = new QPushButton("Save", textPage);
+    m_textToolGradientPresetLoadBtn = new QPushButton("Load", textPage);
     connect(m_textToolGradientPresetSaveBtn, &QPushButton::clicked, this, [this]() {
         if (!m_textToolStopBar) return;
         bool ok = false;
-        const QString name = QInputDialog::getText(this, "プリセット保存",
-                                                   "名前:", QLineEdit::Normal, "preset", &ok);
+        const QString name = QInputDialog::getText(this, "Save Preset",
+                                                   "Name:", QLineEdit::Normal, "preset", &ok);
         if (!ok || name.trimmed().isEmpty()) return;
         const QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/gradients";
         QDir().mkpath(dir);
@@ -10302,16 +10302,16 @@ void MainWindow::setupToolPropertyPanel()
         QFile f(path);
         if (f.open(QIODevice::WriteOnly)) {
             f.write(QJsonDocument(root).toJson());
-            statusBar()->showMessage(QString("プリセット保存: %1").arg(path));
+            statusBar()->showMessage(QString("Preset saved: %1").arg(path));
         } else {
-            statusBar()->showMessage("プリセット保存失敗");
+            statusBar()->showMessage("Failed to save preset");
         }
     });
     connect(m_textToolGradientPresetLoadBtn, &QPushButton::clicked, this, [this]() {
         if (!m_textToolStopBar) return;
         const QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/gradients";
         QDir().mkpath(dir);
-        const QString path = QFileDialog::getOpenFileName(this, "プリセット呼び出し", dir, "JSON (*.json)");
+        const QString path = QFileDialog::getOpenFileName(this, "Load Preset", dir, "JSON (*.json)");
         if (path.isEmpty()) return;
         QFile f(path);
         if (!f.open(QIODevice::ReadOnly)) return;
@@ -10337,44 +10337,44 @@ void MainWindow::setupToolPropertyPanel()
         if (!stops.isEmpty())
             m_textToolStopBar->setStops(stops);
         pushTextToolStyleToPreview();
-        statusBar()->showMessage(QString("プリセット呼び出し: %1").arg(path));
+        statusBar()->showMessage(QString("Preset loaded: %1").arg(path));
     });
     auto *presetRow = new QHBoxLayout();
     presetRow->addWidget(m_textToolGradientPresetSaveBtn);
     presetRow->addWidget(m_textToolGradientPresetLoadBtn);
-    form->addRow("プリセット", presetRow);
+    form->addRow("Preset", presetRow);
 
     // Outline stroke controls.
-    m_textToolOutlineCheck = new QCheckBox("枠線", textPage);
+    m_textToolOutlineCheck = new QCheckBox("Outline", textPage);
     form->addRow("", m_textToolOutlineCheck);
     m_textToolOutlineColor = Qt::black;
-    m_textToolOutlineColorBtn = new QPushButton("枠線色", textPage);
+    m_textToolOutlineColorBtn = new QPushButton("Border Color", textPage);
     styleColorBtn(m_textToolOutlineColorBtn, m_textToolOutlineColor);
     connect(m_textToolOutlineColorBtn, &QPushButton::clicked, this, [this, styleColorBtn]() {
-        QColor picked = QColorDialog::getColor(m_textToolOutlineColor, this, "枠線色");
+        QColor picked = QColorDialog::getColor(m_textToolOutlineColor, this, "Border Color");
         if (picked.isValid()) {
             m_textToolOutlineColor = picked;
             styleColorBtn(m_textToolOutlineColorBtn, picked);
         }
     });
-    form->addRow("枠線色", m_textToolOutlineColorBtn);
+    form->addRow("Border Color", m_textToolOutlineColorBtn);
     m_textToolOutlineWidthSpin = new QSpinBox(textPage);
     m_textToolOutlineWidthSpin->setRange(0, 20);
     m_textToolOutlineWidthSpin->setValue(2);
     m_textToolOutlineWidthSpin->setSuffix(" px");
-    form->addRow("枠線幅", m_textToolOutlineWidthSpin);
+    form->addRow("Outline Width", m_textToolOutlineWidthSpin);
 
     textLayout->addLayout(form);
     textLayout->addSpacing(12);
 
-    auto *applyButton = new QPushButton("適用", textPage);
+    auto *applyButton = new QPushButton("Apply", textPage);
     applyButton->setMinimumHeight(32);
     connect(applyButton, &QPushButton::clicked, this, &MainWindow::applyTextToolOverlay);
     textLayout->addWidget(applyButton);
 
     auto *hint = new QLabel(
-        "プレビュー上でドラッグしてテキスト枠を指定してください。\n"
-        "ドラッグしない場合は中央に配置されます。", textPage);
+        "Drag on the preview to specify the text box.\n"
+        "If you don't drag, it will be centered.", textPage);
     hint->setWordWrap(true);
     hint->setStyleSheet("color: #888; font-size: 11px;");
     textLayout->addWidget(hint);
@@ -10409,12 +10409,12 @@ void MainWindow::onTextToolToggled(bool checked)
             m_textToolStartSpin->setValue(m_timeline->playheadPosition());
             m_textToolEndSpin->setValue(5.0);
         }
-        statusBar()->showMessage("テキストツール ON — プレビュー上でドラッグして枠を指定、その場で直接入力");
+        statusBar()->showMessage("Text Tool ON — drag on the preview to set the box, then type directly");
     } else {
         m_toolPropertyStack->setCurrentIndex(0);
         m_toolPropertyStack->hide();
         m_textToolHasPendingRect = false;
-        statusBar()->showMessage("テキストツール OFF");
+        statusBar()->showMessage("Text Tool OFF");
     }
 }
 
@@ -10429,7 +10429,7 @@ void MainWindow::onTextRectRequested(const QRectF &normalizedRect)
     // carries forward across multiple rect draws.
     if (m_timeline && m_textToolStartSpin)
         m_textToolStartSpin->setValue(m_timeline->playheadPosition());
-    statusBar()->showMessage(QString("テキスト枠指定: %1,%2 %3x%4 — プレビュー上で直接入力するか、右パネルで『適用』")
+    statusBar()->showMessage(QString("Text box set: %1,%2 %3x%4 — type directly on the preview, or click 'Apply' in the right panel")
         .arg(normalizedRect.x(), 0, 'f', 2)
         .arg(normalizedRect.y(), 0, 'f', 2)
         .arg(normalizedRect.width(), 0, 'f', 2)
@@ -10455,14 +10455,14 @@ void MainWindow::onTextOverlayEditCommitted(int overlayIndex, const QString &new
     // the rect / style / time range stay put. Push the updated overlay list
     // back to the player so the preview re-renders with the new text.
     if (!m_timeline->updateTextOverlayText(overlayIndex, newText)) {
-        statusBar()->showMessage("テキスト更新失敗");
+        statusBar()->showMessage("Failed to update text");
         return;
     }
     if (m_player)
         m_player->setTextOverlays(m_timeline->timelineTextOverlays());
     if (m_player)
         m_player->clearTextToolRect();
-    statusBar()->showMessage(QString("テキスト更新: 「%1」").arg(newText));
+    statusBar()->showMessage(QString("Text updated: \"%1\"").arg(newText));
 }
 
 void MainWindow::pushTextToolStyleToPreview()
@@ -10495,11 +10495,11 @@ void MainWindow::applyTextToolOverlay()
         return;
     }
     if (!m_textToolLineEdit || m_textToolLineEdit->text().isEmpty()) {
-        statusBar()->showMessage("テキストが空です");
+        statusBar()->showMessage("Text is empty");
         return;
     }
     if (!m_timeline || m_timeline->videoClips().isEmpty()) {
-        statusBar()->showMessage("先にクリップを選択してください");
+        statusBar()->showMessage("Please select a clip first");
         return;
     }
 
@@ -10546,7 +10546,7 @@ void MainWindow::applyTextToolOverlay()
     }
 
     if (!m_timeline->addTextOverlayToFirstVideoClip(overlay)) {
-        statusBar()->showMessage("テキスト追加失敗 — クリップが見つかりません");
+        statusBar()->showMessage("Failed to add text — clip not found");
         return;
     }
 
@@ -10555,7 +10555,7 @@ void MainWindow::applyTextToolOverlay()
     // owns the timeline → player forwarding.
     if (m_player)
         m_player->setTextOverlays(m_timeline->timelineTextOverlays());
-    statusBar()->showMessage(QString("テキストを追加しました: 「%1」").arg(overlay.text));
+    statusBar()->showMessage(QString("Added text: \"%1\"").arg(overlay.text));
 
     m_textToolLineEdit->clear();
     m_textToolHasPendingRect = false;
@@ -10576,19 +10576,19 @@ void MainWindow::addTextOverlay()
 void MainWindow::exportTextOverlays()
 {
     if (!m_timeline || m_timeline->videoClips().isEmpty()) {
-        QMessageBox::information(this, "テキスト書き出し",
-                                 "クリップにテキストオーバーレイがありません。");
+        QMessageBox::information(this, "Export Text",
+                                 "The clip has no text overlay.");
         return;
     }
     const QVector<EnhancedTextOverlay> overlays = m_timeline->timelineTextOverlays();
     if (overlays.isEmpty()) {
-        QMessageBox::information(this, "テキスト書き出し",
-                                 "V1 の先頭クリップにテキストがありません。");
+        QMessageBox::information(this, "Export Text",
+                                 "The first clip on V1 has no text.");
         return;
     }
     QString selectedFilter;
     const QString path = QFileDialog::getSaveFileName(
-        this, "テキストを書き出し", QString(),
+        this, "Export Text", QString(),
         "SubRip (*.srt);;CSV (*.csv);;All Files (*)", &selectedFilter);
     if (path.isEmpty())
         return;
@@ -10599,10 +10599,10 @@ void MainWindow::exportTextOverlays()
         ? TextManager::exportCSV(overlays, path)
         : TextManager::exportSRT(overlays, path);
     if (ok)
-        statusBar()->showMessage(QString("%1 にテキストを書き出しました").arg(path));
+        statusBar()->showMessage(QString("Exported text to %1").arg(path));
     else
-        QMessageBox::warning(this, "テキスト書き出し",
-                             QString("書き出しに失敗しました: %1").arg(path));
+        QMessageBox::warning(this, "Export Text",
+                             QString("Export failed: %1").arg(path));
 }
 
 void MainWindow::manageTextOverlays()
@@ -10733,7 +10733,7 @@ void MainWindow::editDefaultTransition()
         static_cast<int>(TransitionEasing::Linear)).toInt();
 
     QDialog dialog(this);
-    dialog.setWindowTitle("規定トランジション設定");
+    dialog.setWindowTitle("Default Transition Settings");
     auto *form = new QFormLayout(&dialog);
 
     auto *typeCombo = new QComboBox(&dialog);
@@ -10786,7 +10786,7 @@ void MainWindow::editDefaultTransition()
     };
     int curIdx = 0;
     for (size_t i = 0; i < sizeof(options) / sizeof(options[0]); ++i) {
-        typeCombo->addItem(options[i] == TransitionType::MorphCut ? QStringLiteral("モーフカット") : Transition::typeName(options[i]), static_cast<int>(options[i]));
+        typeCombo->addItem(options[i] == TransitionType::MorphCut ? QStringLiteral("Morph Cut") : Transition::typeName(options[i]), static_cast<int>(options[i]));
         if (static_cast<int>(options[i]) == curType) curIdx = static_cast<int>(i);
     }
     typeCombo->setCurrentIndex(curIdx);
@@ -10814,9 +10814,9 @@ void MainWindow::editDefaultTransition()
     }
     easingCombo->setCurrentIndex(curEasingIdx);
 
-    form->addRow("種類", typeCombo);
-    form->addRow("時間", durSpin);
-    form->addRow("イージング", easingCombo);
+    form->addRow("Type", typeCombo);
+    form->addRow("Duration", durSpin);
+    form->addRow("Easing", easingCombo);
 
     auto *buttons = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
@@ -10869,9 +10869,9 @@ void MainWindow::colorCorrection()
 
     // サブメニュー: 旧ダイアログ or 新パネル
     QMenu menu(this);
-    auto *autoAction = menu.addAction(QStringLiteral("自動カラー"));
-    auto *dialogAction = menu.addAction("色補正ダイアログ (クラシック)...");
-    auto *panelAction  = menu.addAction("カラーグレーディングパネル");
+    auto *autoAction = menu.addAction(QStringLiteral("Auto Color"));
+    auto *dialogAction = menu.addAction("Color Correction Dialog (Classic)...");
+    auto *panelAction  = menu.addAction("Color Grading Panel");
     auto *chosen = menu.exec(QCursor::pos());
     if (!chosen) return;
 
@@ -10899,7 +10899,7 @@ void MainWindow::colorCorrection()
             m_player->setColorCorrection(dialog.result());
             // パネルも同期
             m_colorGradingPanel->setColorCorrection(dialog.result());
-            statusBar()->showMessage("色補正を適用しました");
+            statusBar()->showMessage("Color correction applied");
         } else {
             // Cancel: 元に戻す
             m_player->setColorCorrection(originalCC);
@@ -10914,7 +10914,7 @@ void MainWindow::autoColorSelectedClip()
         return;
     }
     if (m_lastCompositedFrame.isNull()) {
-        statusBar()->showMessage(QStringLiteral("自動カラー: 表示中のフレームがありません"), 3000);
+        statusBar()->showMessage(QStringLiteral("Auto Color: No frame is currently displayed"), 3000);
         return;
     }
 
@@ -10925,7 +10925,7 @@ void MainWindow::autoColorSelectedClip()
         m_player->setColorCorrection(cc);
     if (m_colorGradingPanel)
         m_colorGradingPanel->setColorCorrection(cc);
-    statusBar()->showMessage(QStringLiteral("自動カラーを適用しました"), 3000);
+    statusBar()->showMessage(QStringLiteral("Auto color applied"), 3000);
 }
 
 void MainWindow::videoEffects()
@@ -11638,8 +11638,8 @@ void MainWindow::stabilizeVideo()
     config.smoothing = smoothing;
 
     auto *progress = new QProgressDialog(
-        tr("スタビライズ中..."), tr("キャンセル"), 0, 100, this);
-    progress->setWindowTitle(tr("スタビライズ"));
+        tr("Stabilizing..."), tr("Cancel"), 0, 100, this);
+    progress->setWindowTitle(tr("Stabilize"));
     progress->setWindowModality(Qt::ApplicationModal);
     progress->setMinimumDuration(500);
 
@@ -11667,8 +11667,8 @@ void MainWindow::stabilizeVideo()
 void MainWindow::openDeflicker()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("フリッカー除去"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Deflicker"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
 
@@ -11677,8 +11677,8 @@ void MainWindow::openDeflicker()
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)
         || clip.filePath.isEmpty() || !clip.sequenceRefId.isEmpty()) {
-        QMessageBox::information(this, QStringLiteral("フリッカー除去"),
-                                 QStringLiteral("先に通常のビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Deflicker"),
+                                 QStringLiteral("Please select a regular video clip first."));
         return;
     }
 
@@ -11745,7 +11745,7 @@ void MainWindow::openDeflicker()
         const QStringList &paths, double sequenceFps, QString *error) {
         if (!m_timeline || paths.isEmpty()) {
             if (error)
-                *error = QStringLiteral("取り込み対象のフレームがありません。");
+                *error = QStringLiteral("No frames to import.");
             return false;
         }
 
@@ -11761,7 +11761,7 @@ void MainWindow::openDeflicker()
         const double frameDuration = 1.0 / qMax(1.0, sequenceFps);
         TimelineSequence sequence;
         sequence.id = sequenceId;
-        sequence.name = QStringLiteral("%1（フリッカー除去）")
+        sequence.name = QStringLiteral("%1 (Deflicker)")
             .arg(clipSnapshot.displayName.isEmpty()
                      ? QFileInfo(clipSnapshot.filePath).completeBaseName()
                      : clipSnapshot.displayName);
@@ -11781,12 +11781,12 @@ void MainWindow::openDeflicker()
         }
         if (!m_timeline->addSequence(sequence)) {
             if (error)
-                *error = QStringLiteral("タイムラインシーケンスを作成できません。");
+                *error = QStringLiteral("Could not create a timeline sequence.");
             return false;
         }
         if (!m_timeline->addSequenceClip(sequenceId, qMax(0, trackIdx))) {
             if (error)
-                *error = QStringLiteral("生成したシーケンスをタイムラインへ追加できません。");
+                *error = QStringLiteral("Could not add the generated sequence to the timeline.");
             return false;
         }
 
@@ -11803,14 +11803,14 @@ void MainWindow::openDeflicker()
         m_timeline->refreshPlaybackSequence();
         setWindowModified(true);
         statusBar()->showMessage(QStringLiteral(
-            "フリッカー除去シーケンスを V%1 に追加しました（%2 フレーム）")
+            "Added deflicker sequence to V%1 (%2 frames)")
                                      .arg(qMax(0, trackIdx) + 1)
                                      .arg(paths.size()), 5000);
         return true;
     };
 
     DeflickerDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("フリッカー除去 - %1")
+    dialog.setWindowTitle(QStringLiteral("Deflicker - %1")
                               .arg(context.clipLabel));
     dialog.setContext(context);
     dialog.exec();
@@ -11870,7 +11870,7 @@ void MainWindow::applyLut()
 
 void MainWindow::loadLutCubeFile()
 {
-    QString path = QFileDialog::getOpenFileName(this, "LUT を読み込み",
+    QString path = QFileDialog::getOpenFileName(this, "Load LUT",
         QString(), "Cube LUT (*.cube);;All Files (*)");
     if (path.isEmpty()) return;
 
@@ -11891,7 +11891,7 @@ void MainWindow::loadLutCubeFile()
     if (m_colorGradingPanel)
         m_colorGradingPanel->setLutList(LutLibrary::instance().allLuts());
 
-    statusBar()->showMessage(QString("LUT 読み込み: %1").arg(lut.name));
+    statusBar()->showMessage(QString("LUT loaded: %1").arg(lut.name));
 }
 
 void MainWindow::clearLutIntensity()
@@ -11900,7 +11900,7 @@ void MainWindow::clearLutIntensity()
         m_player->glPreview()->clearLut();
     if (m_lutIntensitySlider)
         m_lutIntensitySlider->setValue(0);
-    statusBar()->showMessage("LUT 解除");
+    statusBar()->showMessage("Clear LUT");
 }
 
 void MainWindow::manageLuts()
@@ -11944,8 +11944,8 @@ void MainWindow::setAutoMultitrackProxy(bool enabled)
     }
 
     statusBar()->showMessage(enabled
-        ? QStringLiteral("マルチトラック自動プロキシ: ON")
-        : QStringLiteral("マルチトラック自動プロキシ: OFF"));
+        ? QStringLiteral("Multi-track auto proxy: ON")
+        : QStringLiteral("Multi-track auto proxy: OFF"));
 
     // 現在の sequence を即再解決して反映する。OFF にしたときは
     // resolvePreviewProxies が自動判定をスキップし、手動 isProxyMode のみの
@@ -12076,15 +12076,15 @@ void MainWindow::openProxySettings()
     auto &pm = ProxyManager::instance();
 
     QDialog dlg(this);
-    dlg.setWindowTitle(QStringLiteral("プロキシ設定"));
+    dlg.setWindowTitle(QStringLiteral("Proxy Settings"));
     auto *layout = new QVBoxLayout(&dlg);
 
     auto *modeCheck = new QCheckBox(
-        QStringLiteral("プロキシ再生 (低解像度ファイルで再生)"), &dlg);
+        QStringLiteral("Proxy playback (play using low-resolution files)"), &dlg);
     modeCheck->setChecked(pm.isProxyMode());
     modeCheck->setToolTip(QStringLiteral(
-        "ON: 生成済みプロキシをタイムラインで使用 (高速再生)\n"
-        "OFF: 元解像度ファイルを使用"));
+        "ON: Use generated proxies on the timeline (fast playback)\n"
+        "OFF: Use original-resolution files"));
     layout->addWidget(modeCheck);
 
     // マルチトラック自動プロキシ (プレビュー専用)。多トラック かつ
@@ -12092,12 +12092,12 @@ void MainWindow::openProxySettings()
     // ここはダイアログ側のミラー。実体は「再生」メニューの同名トグルと
     // m_autoMultitrackProxyAction と同じ QSettings キーで連動する。
     auto *autoProxyCheck = new QCheckBox(
-        QStringLiteral("マルチトラック自動プロキシ (重い素材を自動でプロキシ再生)"), &dlg);
+        QStringLiteral("Multi-track auto proxy (automatically use proxy playback for heavy media)"), &dlg);
     autoProxyCheck->setChecked(m_autoMultitrackProxy);
     autoProxyCheck->setToolTip(QStringLiteral(
-        "ON: トラックが多く、かつ重いコーデック/高解像度の素材があるとき、\n"
-        "    再生プレビューを自動で低解像度プロキシに切り替えます (書き出しは原本)。\n"
-        "OFF: 従来どおり手動プロキシ設定のみで動作します。"));
+        "ON: When there are many tracks and heavy-codec/high-resolution media,\n"
+        "    automatically switch the playback preview to low-resolution proxies (export uses the originals).\n"
+        "OFF: Behaves as before, using only manual proxy settings."));
     layout->addWidget(autoProxyCheck);
     connect(autoProxyCheck, &QCheckBox::toggled, this, [this](bool on) {
         setAutoMultitrackProxy(on);
@@ -12106,11 +12106,11 @@ void MainWindow::openProxySettings()
     // Encoder override (US-1): empty itemData = Auto. Probe each GPU
     // encoder up-front and disable items the runtime ffmpeg can't run so
     // the user can't pin an encoder that will fall through to libx264.
-    layout->addWidget(new QLabel(QStringLiteral("エンコーダー:"), &dlg));
+    layout->addWidget(new QLabel(QStringLiteral("Encoder:"), &dlg));
     auto *encoderCombo = new QComboBox(&dlg);
     struct EncOpt { const char *label; const char *value; };
     const EncOpt encOpts[] = {
-        {"Auto (自動検出)",      ""},
+        {"Auto (auto-detect)",      ""},
         {"NVIDIA NVENC",         "h264_nvenc"},
         {"Intel QSV",            "h264_qsv"},
         {"AMD AMF",              "h264_amf"},
@@ -12138,7 +12138,7 @@ void MainWindow::openProxySettings()
     layout->addWidget(encoderCombo);
 
     // Quality preset (US-2). Index 0..2 maps to QualityPreset enum directly.
-    layout->addWidget(new QLabel(QStringLiteral("品質:"), &dlg));
+    layout->addWidget(new QLabel(QStringLiteral("Quality:"), &dlg));
     auto *qualityCombo = new QComboBox(&dlg);
     qualityCombo->addItem(QStringLiteral("High"),   static_cast<int>(QualityPreset::High));
     qualityCombo->addItem(QStringLiteral("Medium"), static_cast<int>(QualityPreset::Medium));
@@ -12157,31 +12157,31 @@ void MainWindow::openProxySettings()
     // Storage directory (US-3). Read-only QLineEdit shows the resolved path
     // (custom QSettings value or default). 'フォルダ選択...' opens a dir
     // picker; we validate write-ability before persisting.
-    layout->addWidget(new QLabel(QStringLiteral("保存先:"), &dlg));
+    layout->addWidget(new QLabel(QStringLiteral("Save to:"), &dlg));
     auto *storageRow = new QHBoxLayout();
     auto *storageEdit = new QLineEdit(&dlg);
     storageEdit->setReadOnly(true);
     storageEdit->setText(ProxyManager::proxyDir());
-    auto *storageBtn = new QPushButton(QStringLiteral("フォルダ選択..."), &dlg);
+    auto *storageBtn = new QPushButton(QStringLiteral("Choose Folder..."), &dlg);
     storageRow->addWidget(storageEdit);
     storageRow->addWidget(storageBtn);
     layout->addLayout(storageRow);
     auto *storageNote = new QLabel(
-        QStringLiteral("既存 proxy は元の場所に残ります"), &dlg);
+        QStringLiteral("Existing proxies stay in their original location"), &dlg);
     storageNote->setStyleSheet("color:#888; font-size:10px;");
     layout->addWidget(storageNote);
     QString pendingStorage; // empty = no change
     connect(storageBtn, &QPushButton::clicked, &dlg, [&dlg, storageEdit, &pendingStorage]() {
         const QString picked = QFileDialog::getExistingDirectory(
             &dlg,
-            QStringLiteral("プロキシ保存先を選択"),
+            QStringLiteral("Select proxy storage location"),
             storageEdit->text());
         if (picked.isEmpty())
             return;
         QFileInfo info(picked);
         if (!info.isDir() || !info.isWritable()) {
-            QMessageBox::warning(&dlg, QStringLiteral("プロキシ保存先"),
-                QStringLiteral("選択したフォルダに書き込めません。\n別のフォルダを選択してください。"));
+            QMessageBox::warning(&dlg, QStringLiteral("Proxy storage location"),
+                QStringLiteral("Cannot write to the selected folder.\nPlease choose a different folder."));
             return;
         }
         pendingStorage = picked;
@@ -12189,7 +12189,7 @@ void MainWindow::openProxySettings()
     });
 
     auto *divisorLabel = new QLabel(
-        QStringLiteral("プレビュー解像度 (CPU エフェクト適用時に効く):"), &dlg);
+        QStringLiteral("Preview resolution (applies when CPU effects are used):"), &dlg);
     layout->addWidget(divisorLabel);
     auto *divisorCombo = new QComboBox(&dlg);
     divisorCombo->addItem(QStringLiteral("Full (1/1)"), 1);
@@ -12305,8 +12305,8 @@ void MainWindow::generateProxies()
     if (existing > 0) {
         const auto reply = QMessageBox::question(
             this, "Proxies",
-            QString("既存のプロキシ %1 個を削除して再生成しますか?\n\n"
-                    "「いいえ」を選ぶと既存プロキシをそのまま使い、未生成のクリップだけ生成します。")
+            QString("Delete %1 existing proxies and regenerate them?\n\n"
+                    "If you choose \"No\", existing proxies are kept and only ungenerated clips are generated.")
                 .arg(existing),
             QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
             QMessageBox::No);
@@ -12408,21 +12408,21 @@ void MainWindow::openLoudnessSettings()
         prefs.value("audio/normalizerUniformity", 0.5).toDouble();
 
     QDialog dlg(this);
-    dlg.setWindowTitle(QStringLiteral("オーディオ均一化"));
+    dlg.setWindowTitle(QStringLiteral("Audio Normalize"));
     auto *layout = new QVBoxLayout(&dlg);
 
     auto *intro = new QLabel(QStringLiteral(
-        "<b>全トラックの出力レベルを動的に均一化します。</b><br>"
+        "<b>Dynamically normalizes output levels across all tracks.</b><br>"
         "<small>"
-        "適用量 0% で完全 OFF。均一性が高いほど反応が速く出力が平らになり、"
-        "低いほど元の強弱が残ります。"
+        "At 0% amount it is fully OFF. Higher uniformity means faster response and flatter output,"
+        "while lower values preserve the original dynamics."
         "</small>"), &dlg);
     intro->setWordWrap(true);
     layout->addWidget(intro);
 
     // Amount slider 0..100 == 0..1.0
     auto *amountRow = new QHBoxLayout();
-    amountRow->addWidget(new QLabel(QStringLiteral("適用量 (Amount):"), &dlg));
+    amountRow->addWidget(new QLabel(QStringLiteral("Amount:"), &dlg));
     auto *amountValue = new QLabel(&dlg);
     amountValue->setMinimumWidth(48);
     amountValue->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -12435,7 +12435,7 @@ void MainWindow::openLoudnessSettings()
     layout->addWidget(amountSlider);
 
     auto *uniformRow = new QHBoxLayout();
-    uniformRow->addWidget(new QLabel(QStringLiteral("均一性 (Uniformity):"), &dlg));
+    uniformRow->addWidget(new QLabel(QStringLiteral("Uniformity:"), &dlg));
     auto *uniformValue = new QLabel(&dlg);
     uniformValue->setMinimumWidth(48);
     uniformValue->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -12800,18 +12800,18 @@ void MainWindow::analyzeHighlights()
 void MainWindow::addShapeLayer()
 {
     const QStringList shapes = {
-        QStringLiteral("長方形"),
-        QStringLiteral("角丸長方形"),
-        QStringLiteral("楕円"),
-        QStringLiteral("多角形"),
-        QStringLiteral("星形"),
-        QStringLiteral("線"),
-        QStringLiteral("矢印")
+        QStringLiteral("Rectangle"),
+        QStringLiteral("Rounded Rectangle"),
+        QStringLiteral("Ellipse"),
+        QStringLiteral("Polygon"),
+        QStringLiteral("Star"),
+        QStringLiteral("Line"),
+        QStringLiteral("Arrow")
     };
     bool ok;
     const QString selected = QInputDialog::getItem(
-        this, QStringLiteral("シェイプクリップを追加"),
-        QStringLiteral("シェイプの種類:"), shapes, 0, false, &ok);
+        this, QStringLiteral("Add Shape Clip"),
+        QStringLiteral("Shape type:"), shapes, 0, false, &ok);
     if (!ok)
         return;
 
@@ -12824,33 +12824,33 @@ void MainWindow::addShapeLayer()
     stroke.enabled = true;
 
     Shape shape;
-    if (selected == QStringLiteral("星形")) {
+    if (selected == QStringLiteral("Star")) {
         shape = ShapeLayer::createStar(5, 80, 40, fill, stroke);
-    } else if (selected == QStringLiteral("楕円")) {
+    } else if (selected == QStringLiteral("Ellipse")) {
         shape = ShapeLayer::createCircle(60, fill, stroke);
-    } else if (selected == QStringLiteral("角丸長方形")) {
+    } else if (selected == QStringLiteral("Rounded Rectangle")) {
         shape = ShapeLayer::createRectangle(QSizeF(200, 120), fill, stroke);
         shape.type = ShapeType::RoundedRect;
         shape.properties.cornerRadius = 24.0;
-        shape.name = QStringLiteral("角丸長方形");
-    } else if (selected == QStringLiteral("多角形")) {
+        shape.name = QStringLiteral("Rounded Rectangle");
+    } else if (selected == QStringLiteral("Polygon")) {
         shape.type = ShapeType::Polygon;
         shape.properties.radius = 80.0;
         shape.properties.sides = 6;
         shape.fill = fill;
         shape.stroke = stroke;
-        shape.name = QStringLiteral("多角形");
-    } else if (selected == QStringLiteral("線")) {
+        shape.name = QStringLiteral("Polygon");
+    } else if (selected == QStringLiteral("Line")) {
         shape.type = ShapeType::Line;
         shape.properties.startPoint = QPointF(-100.0, 0.0);
         shape.properties.endPoint = QPointF(100.0, 0.0);
         shape.fill.enabled = false;
         shape.stroke = stroke;
-        shape.name = QStringLiteral("線");
-    } else if (selected == QStringLiteral("矢印")) {
+        shape.name = QStringLiteral("Line");
+    } else if (selected == QStringLiteral("Arrow")) {
         shape = ShapeLayer::createArrow(
             QPointF(-100.0, 0.0), QPointF(100.0, 0.0), 20.0, stroke);
-        shape.name = QStringLiteral("矢印");
+        shape.name = QStringLiteral("Arrow");
     } else {
         shape = ShapeLayer::createRectangle(QSizeF(200, 120), fill, stroke);
     }
@@ -12859,20 +12859,20 @@ void MainWindow::addShapeLayer()
                              m_projectConfig.height * 0.5);
 
     ClipInfo clip;
-    clip.displayName = QStringLiteral("シェイプ: %1").arg(selected);
+    clip.displayName = QStringLiteral("Shape: %1").arg(selected);
     clip.duration = 5.0;
     clip.inPoint = 0.0;
     clip.outPoint = 5.0;
     clip.shapes.append(shape);
 
     if (!m_timeline || !m_timeline->insertShapeClipAtPlayhead(clip)) {
-        QMessageBox::warning(this, QStringLiteral("シェイプクリップ"),
-                             QStringLiteral("シェイプクリップを挿入できる動画トラックがありません。"));
+        QMessageBox::warning(this, QStringLiteral("Shape Clip"),
+                             QStringLiteral("There is no video track to insert a shape clip into."));
         return;
     }
 
     statusBar()->showMessage(
-        QStringLiteral("シェイプクリップを追加しました: %1").arg(selected),
+        QStringLiteral("Shape clip added: %1").arg(selected),
         4000);
 }
 
@@ -12902,21 +12902,21 @@ void MainWindow::addParticleEffect()
     const QVector<QImage> frames = system.renderParticleSequence(canvasSize, 0.0, durationSec, fps);
     if (frames.isEmpty()) {
         QMessageBox::warning(this, QStringLiteral("Particle Effect"),
-                             QStringLiteral("パーティクルフレームを生成できませんでした。"));
+                             QStringLiteral("Failed to generate particle frames."));
         return;
     }
 
     const QString ffmpegBin = findFfmpegBinary();
     if (ffmpegBin.isEmpty()) {
         QMessageBox::warning(this, QStringLiteral("Particle Effect"),
-                             QStringLiteral("ffmpeg が見つからないため粒子クリップを作成できません。"));
+                             QStringLiteral("Cannot create a particle clip because ffmpeg was not found."));
         return;
     }
 
     QTemporaryDir tempDir;
     if (!tempDir.isValid()) {
         QMessageBox::warning(this, QStringLiteral("Particle Effect"),
-                             QStringLiteral("一時ディレクトリを作成できませんでした。"));
+                             QStringLiteral("Could not create temporary directory."));
         return;
     }
     tempDir.setAutoRemove(false);
@@ -12926,7 +12926,7 @@ void MainWindow::addParticleEffect()
             + QStringLiteral("/frame_%1.png").arg(i, 6, 10, QChar('0'));
         if (!frames[i].save(framePath)) {
             QMessageBox::warning(this, QStringLiteral("Particle Effect"),
-                                 QStringLiteral("パーティクルフレームを書き出せませんでした。"));
+                                 QStringLiteral("Failed to write particle frames."));
             return;
         }
     }
@@ -12946,13 +12946,13 @@ void MainWindow::addParticleEffect()
     ffmpeg.start(ffmpegBin, args);
     if (!ffmpeg.waitForStarted(5000)) {
         QMessageBox::warning(this, QStringLiteral("Particle Effect"),
-                             QStringLiteral("ffmpeg を起動できませんでした。"));
+                             QStringLiteral("Could not launch ffmpeg."));
         return;
     }
     ffmpeg.waitForFinished(-1);
     if (ffmpeg.exitStatus() != QProcess::NormalExit || ffmpeg.exitCode() != 0 || !QFileInfo::exists(outputPath)) {
         QMessageBox::warning(this, QStringLiteral("Particle Effect"),
-                             QStringLiteral("粒子クリップのエンコードに失敗しました。\n%1")
+                             QStringLiteral("Failed to encode the particle clip.\n%1")
                                  .arg(QString::fromUtf8(ffmpeg.readAllStandardError())));
         return;
     }
@@ -12970,8 +12970,8 @@ void MainWindow::addVfxGenerator()
 void MainWindow::addVfxGeneratorForType(int typeIndex)
 {
     if (!m_timeline) {
-        QMessageBox::warning(this, QStringLiteral("VFX ジェネレータ"),
-                             QStringLiteral("タイムラインが初期化されていません。"));
+        QMessageBox::warning(this, QStringLiteral("VFX Generator"),
+                             QStringLiteral("Timeline is not initialized."));
         return;
     }
 
@@ -12990,15 +12990,15 @@ void MainWindow::addVfxGeneratorForType(int typeIndex)
     const double fps = m_projectConfig.fps > 0.0 ? m_projectConfig.fps : 30.0;
     const double duration = VfxGenerators::durationSeconds(type, parameters);
     if (!std::isfinite(duration) || duration <= 0.0) {
-        QMessageBox::warning(this, QStringLiteral("VFX ジェネレータ"),
-                             QStringLiteral("VFX の継続時間が不正です。"));
+        QMessageBox::warning(this, QStringLiteral("VFX Generator"),
+                             QStringLiteral("Invalid VFX duration."));
         return;
     }
 
     const QString ffmpegBin = findFfmpegBinary();
     if (ffmpegBin.isEmpty()) {
-        QMessageBox::warning(this, QStringLiteral("VFX ジェネレータ"),
-                             QStringLiteral("ffmpeg が見つからないため VFX クリップを作成できません。"));
+        QMessageBox::warning(this, QStringLiteral("VFX Generator"),
+                             QStringLiteral("Cannot create a VFX clip because ffmpeg was not found."));
         return;
     }
 
@@ -13006,8 +13006,8 @@ void MainWindow::addVfxGeneratorForType(int typeIndex)
 
     QTemporaryDir tempDir;
     if (!tempDir.isValid()) {
-        QMessageBox::warning(this, QStringLiteral("VFX ジェネレータ"),
-                             QStringLiteral("一時ディレクトリを作成できませんでした。"));
+        QMessageBox::warning(this, QStringLiteral("VFX Generator"),
+                             QStringLiteral("Could not create temporary directory."));
         return;
     }
     tempDir.setAutoRemove(false);
@@ -13019,8 +13019,8 @@ void MainWindow::addVfxGeneratorForType(int typeIndex)
         const QImage frame = VfxGenerators::render(type, canvasSize, parameters,
                                                     timeSeconds);
         if (frame.isNull() || !frame.save(framePath)) {
-            QMessageBox::warning(this, QStringLiteral("VFX ジェネレータ"),
-                                 QStringLiteral("VFX フレームを書き出せませんでした。"));
+            QMessageBox::warning(this, QStringLiteral("VFX Generator"),
+                                 QStringLiteral("Failed to write VFX frames."));
             return;
         }
     }
@@ -13040,7 +13040,7 @@ void MainWindow::addVfxGeneratorForType(int typeIndex)
         QProcess ffmpeg;
         ffmpeg.start(ffmpegBin, args);
         if (!ffmpeg.waitForStarted(5000))
-            return qMakePair(false, QStringLiteral("ffmpeg を起動できませんでした。"));
+            return qMakePair(false, QStringLiteral("Could not launch ffmpeg."));
         ffmpeg.waitForFinished(-1);
         const bool ok = ffmpeg.exitStatus() == QProcess::NormalExit
             && ffmpeg.exitCode() == 0 && QFileInfo::exists(outputPath);
@@ -13053,8 +13053,8 @@ void MainWindow::addVfxGeneratorForType(int typeIndex)
     if (!encoded.first)
         encoded = encode(QStringLiteral("png"), QStringLiteral("rgba"));
     if (!encoded.first) {
-        QMessageBox::warning(this, QStringLiteral("VFX ジェネレータ"),
-                             QStringLiteral("VFX クリップの RGBA エンコードに失敗しました。\n%1")
+        QMessageBox::warning(this, QStringLiteral("VFX Generator"),
+                             QStringLiteral("Failed to RGBA-encode the VFX clip.\n%1")
                                  .arg(encoded.second));
         return;
     }
@@ -13101,7 +13101,7 @@ void MainWindow::addBrushAnimation()
 
     const auto &clips = m_timeline->videoClips();
     if (clips.isEmpty()) {
-        statusBar()->showMessage("ブラシアニメ追加失敗 — クリップが見つかりません");
+        statusBar()->showMessage("Failed to add brush animation — clip not found");
         brushAnim->deleteLater();
         return;
     }
@@ -13128,7 +13128,7 @@ void MainWindow::addBrushAnimation()
 
     syncBrushAnimationPreviewForClip(trackIdx, clipIdx);
 
-    statusBar()->showMessage(QString("ブラシアニメを追加: 「%1」 (%2)")
+    statusBar()->showMessage(QString("Brush animation added: \"%1\" (%2)")
         .arg(params.text, params.mode == BrushAnimationMode::PerCharacter
             ? QStringLiteral("Per Character") : QStringLiteral("Per Stroke")));
 }
@@ -13136,8 +13136,8 @@ void MainWindow::addBrushAnimation()
 void MainWindow::openRotoToolsDialog()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("ロトツール"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Roto Tool"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
 
@@ -13145,8 +13145,8 @@ void MainWindow::openRotoToolsDialog()
     int clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        QMessageBox::information(this, QStringLiteral("ロトツール"),
-                                 QStringLiteral("先にビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Roto Tool"),
+                                 QStringLiteral("Please select a video clip first."));
         return;
     }
 
@@ -13159,8 +13159,8 @@ void MainWindow::openRotoToolsDialog()
 
     QImage currentFrame = decodeClipFrameAtSourceTime(clip, sourceTime);
     if (currentFrame.isNull()) {
-        QMessageBox::warning(this, QStringLiteral("ロトツール"),
-                             QStringLiteral("現在フレームのデコードに失敗しました。"));
+        QMessageBox::warning(this, QStringLiteral("Roto Tool"),
+                             QStringLiteral("Failed to decode the current frame."));
         return;
     }
 
@@ -13178,7 +13178,7 @@ void MainWindow::openRotoToolsDialog()
         frames.append(currentFrame);
 
     RotoToolsDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("ロトツール - %1").arg(clip.displayName));
+    dialog.setWindowTitle(QStringLiteral("Roto Tool - %1").arg(clip.displayName));
     dialog.setFrame(currentFrame);
     dialog.setFrameSequence(frames, sourceFrameIndex);
 
@@ -13237,14 +13237,14 @@ void MainWindow::openRotoToolsDialog()
     }
 
     refreshSpecialClipPreview();
-    statusBar()->showMessage(QStringLiteral("ロトデータを %1 に保存しました").arg(clip.displayName), 4000);
+    statusBar()->showMessage(QStringLiteral("Roto data saved to %1").arg(clip.displayName), 4000);
 }
 
 void MainWindow::openTimeRemapDialog()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("タイムリマップ"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Time Remap"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
 
@@ -13252,8 +13252,8 @@ void MainWindow::openTimeRemapDialog()
     int clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        QMessageBox::information(this, QStringLiteral("タイムリマップ"),
-                                 QStringLiteral("先にビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Time Remap"),
+                                 QStringLiteral("Please select a video clip first."));
         return;
     }
 
@@ -13274,7 +13274,7 @@ void MainWindow::openTimeRemapDialog()
         entry.curve.sourceFps = fps;
 
     TimeRemapDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("タイムリマップ - %1").arg(clip.displayName));
+    dialog.setWindowTitle(QStringLiteral("Time Remap - %1").arg(clip.displayName));
     dialog.setCurve(entry.curve);
     dialog.setSourceFrameCount(frameCount);
     dialog.setFrameFetcher([this, clip, fps](int sourceFrameIndex) {
@@ -13291,14 +13291,14 @@ void MainWindow::openTimeRemapDialog()
     syncTimeRemapEntriesToTimeline(m_timeline, m_timeRemapClipEntries);
 
     refreshSpecialClipPreview();
-    statusBar()->showMessage(QStringLiteral("タイムリマップを %1 に保存しました").arg(clip.displayName), 4000);
+    statusBar()->showMessage(QStringLiteral("Time remap saved to %1").arg(clip.displayName), 4000);
 }
 
 void MainWindow::configureTrackMatte()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("トラックマット"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Track Matte"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
 
@@ -13306,8 +13306,8 @@ void MainWindow::configureTrackMatte()
     int targetClipIdx = -1;
     ClipInfo targetClip;
     if (!selectedVideoClipRef(targetTrackIdx, targetClipIdx, &targetClip)) {
-        QMessageBox::information(this, QStringLiteral("トラックマット"),
-                                 QStringLiteral("先にビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Track Matte"),
+                                 QStringLiteral("Please select a video clip first."));
         return;
     }
 
@@ -13334,7 +13334,7 @@ void MainWindow::configureTrackMatte()
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("トラックマット設定"));
+    dialog.setWindowTitle(QStringLiteral("Track Matte Settings"));
     auto *layout = new QFormLayout(&dialog);
     auto *typeCombo = new QComboBox(&dialog);
     auto *sourceCombo = new QComboBox(&dialog);
@@ -13348,7 +13348,7 @@ void MainWindow::configureTrackMatte()
     };
     for (TrackMatteType type : matteTypes)
         typeCombo->addItem(trackMatteTypeLabel(type), static_cast<int>(type));
-    sourceCombo->addItem(QStringLiteral("なし"), QString{});
+    sourceCombo->addItem(QStringLiteral("None"), QString{});
     for (const auto &candidate : candidates)
         sourceCombo->addItem(candidate.label, candidate.id);
 
@@ -13361,8 +13361,8 @@ void MainWindow::configureTrackMatte()
     if (existingSourceIndex >= 0)
         sourceCombo->setCurrentIndex(existingSourceIndex);
 
-    layout->addRow(QStringLiteral("タイプ:"), typeCombo);
-    layout->addRow(QStringLiteral("マット元:"), sourceCombo);
+    layout->addRow(QStringLiteral("Type:"), typeCombo);
+    layout->addRow(QStringLiteral("Matte source:"), sourceCombo);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -13382,12 +13382,12 @@ void MainWindow::configureTrackMatte()
         m_trackMatteClipEntries.remove(targetClipId);
         syncTrackMatteEntriesToTimeline(m_timeline, m_trackMatteClipEntries);
         refreshSpecialClipPreview();
-        statusBar()->showMessage(QStringLiteral("トラックマットを解除しました"), 3000);
+        statusBar()->showMessage(QStringLiteral("Track matte cleared"), 3000);
         return;
     }
     if (matteSourceId == targetClipId) {
-        QMessageBox::warning(this, QStringLiteral("トラックマット"),
-                             QStringLiteral("同じクリップはマット元に指定できません。"));
+        QMessageBox::warning(this, QStringLiteral("Track Matte"),
+                             QStringLiteral("The same clip cannot be used as the matte source."));
         return;
     }
 
@@ -13399,7 +13399,7 @@ void MainWindow::configureTrackMatte()
     syncTrackMatteEntriesToTimeline(m_timeline, m_trackMatteClipEntries);
 
     refreshSpecialClipPreview();
-    statusBar()->showMessage(QStringLiteral("%1 に %2 を設定しました")
+    statusBar()->showMessage(QStringLiteral("Set %2 on %1")
                                  .arg(targetClip.displayName, trackMatteTypeLabel(matteType)),
                              4000);
 }
@@ -13407,8 +13407,8 @@ void MainWindow::configureTrackMatte()
 void MainWindow::configureClipParent()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("ペアレント"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Parent"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
 
@@ -13416,8 +13416,8 @@ void MainWindow::configureClipParent()
     int targetClipIdx = -1;
     ClipInfo targetClip;
     if (!selectedVideoClipRef(targetTrackIdx, targetClipIdx, &targetClip)) {
-        QMessageBox::information(this, QStringLiteral("ペアレント"),
-                                 QStringLiteral("先にビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Parent"),
+                                 QStringLiteral("Please select a video clip first."));
         return;
     }
 
@@ -13436,7 +13436,7 @@ void MainWindow::configureClipParent()
                 continue;
             const QString clipId = brushClipId(trackIdx, clipIdx);
             const QString name = clips[clipIdx].displayName.isEmpty()
-                ? QStringLiteral("(無題)")
+                ? QStringLiteral("(Untitled)")
                 : clips[clipIdx].displayName;
             candidates.append({clipId,
                                QStringLiteral("V%1 #%2 - %3")
@@ -13447,10 +13447,10 @@ void MainWindow::configureClipParent()
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("ペアレント設定"));
+    dialog.setWindowTitle(QStringLiteral("Parent Settings"));
     auto *layout = new QFormLayout(&dialog);
     auto *parentCombo = new QComboBox(&dialog);
-    parentCombo->addItem(QStringLiteral("なし"), QString{});
+    parentCombo->addItem(QStringLiteral("None"), QString{});
     for (const auto &candidate : candidates)
         parentCombo->addItem(candidate.label, candidate.id);
 
@@ -13460,7 +13460,7 @@ void MainWindow::configureClipParent()
     if (existingIndex >= 0)
         parentCombo->setCurrentIndex(existingIndex);
 
-    layout->addRow(QStringLiteral("親クリップ:"), parentCombo);
+    layout->addRow(QStringLiteral("Parent clip:"), parentCombo);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -13479,16 +13479,16 @@ void MainWindow::configureClipParent()
     m_timeline->refreshPlaybackSequence();
     refreshSpecialClipPreview();
     statusBar()->showMessage(parentId.isEmpty()
-                                 ? QStringLiteral("ペアレントを解除しました")
-                                 : QStringLiteral("ペアレントを設定しました"),
+                                 ? QStringLiteral("Parenting cleared")
+                                 : QStringLiteral("Parent set"),
                              3000);
 }
 
 void MainWindow::createNullObjectForSelection()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("ヌルオブジェクト"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Null Object"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
 
@@ -13496,8 +13496,8 @@ void MainWindow::createNullObjectForSelection()
     int targetClipIdx = -1;
     ClipInfo targetClip;
     if (!selectedVideoClipRef(targetTrackIdx, targetClipIdx, &targetClip)) {
-        QMessageBox::information(this, QStringLiteral("ヌルオブジェクト"),
-                                 QStringLiteral("先にビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Null Object"),
+                                 QStringLiteral("Please select a video clip first."));
         return;
     }
 
@@ -13534,7 +13534,7 @@ void MainWindow::createNullObjectForSelection()
                                              QStringLiteral("Create null object"));
     m_timeline->refreshPlaybackSequence();
     refreshSpecialClipPreview();
-    statusBar()->showMessage(QStringLiteral("ヌルオブジェクトを作成し、ペアレントに設定しました"), 4000);
+    statusBar()->showMessage(QStringLiteral("Created a null object and set it as the parent"), 4000);
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -13544,22 +13544,22 @@ void MainWindow::createNullObjectForSelection()
 void MainWindow::open3DExtrudedText()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("3D 押し出しテキスト"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("3D Extruded Text"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
     int trackIdx = -1;
     int clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        QMessageBox::information(this, QStringLiteral("3D 押し出しテキスト"),
-                                 QStringLiteral("先にビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("3D Extruded Text"),
+                                 QStringLiteral("Please select a video clip first."));
         return;
     }
     const QString clipId = brushClipId(trackIdx, clipIdx);
 
     Text3DExtrusionDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("3D 押し出しテキスト - %1").arg(clip.displayName));
+    dialog.setWindowTitle(QStringLiteral("3D Extruded Text - %1").arg(clip.displayName));
     if (m_text3DClipConfigs.contains(clipId)) {
         Text3DLayer seed;
         seed.fromJson(m_text3DClipConfigs.value(clipId));
@@ -13570,7 +13570,7 @@ void MainWindow::open3DExtrudedText()
 
     Text3DLayer *cfg = dialog.layer(this);
     if (!cfg) {
-        statusBar()->showMessage(QStringLiteral("3D テキストの設定取得に失敗しました"), 3000);
+        statusBar()->showMessage(QStringLiteral("Failed to get 3D text settings"), 3000);
         return;
     }
     const QJsonObject json = cfg->toJson();
@@ -13581,28 +13581,28 @@ void MainWindow::open3DExtrudedText()
         m_text3DClipConfigs.insert(clipId, json);
 
     refreshSpecialClipPreview();
-    statusBar()->showMessage(QStringLiteral("3D 押し出しテキストを %1 に設定しました").arg(clip.displayName), 4000);
+    statusBar()->showMessage(QStringLiteral("3D extruded text applied to %1").arg(clip.displayName), 4000);
 }
 
 void MainWindow::editClipExpressionBindings()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("エクスプレッション"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Expression"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
     int trackIdx = -1;
     int clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        QMessageBox::information(this, QStringLiteral("エクスプレッション"),
-                                 QStringLiteral("先にビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Expression"),
+                                 QStringLiteral("Please select a video clip first."));
         return;
     }
     const QString clipId = brushClipId(trackIdx, clipIdx);
 
     ExpressionBindingDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("エクスプレッション - %1").arg(clip.displayName));
+    dialog.setWindowTitle(QStringLiteral("Expression - %1").arg(clip.displayName));
     if (m_clipExpressionBindings.contains(clipId))
         dialog.setBindings(m_clipExpressionBindings.value(clipId));
     const double projFps = (m_projectConfig.fps > 0) ? m_projectConfig.fps : 30.0;
@@ -13620,35 +13620,35 @@ void MainWindow::editClipExpressionBindings()
         m_clipExpressionBindings.insert(clipId, bindings);
 
     refreshSpecialClipPreview();
-    statusBar()->showMessage(QStringLiteral("エクスプレッションを %1 に設定しました").arg(clip.displayName), 4000);
+    statusBar()->showMessage(QStringLiteral("Expression applied to %1").arg(clip.displayName), 4000);
 }
 
 void MainWindow::editClipWiggle()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("ウィグル"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Wiggle"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
     int trackIdx = -1;
     int clipIdx = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)) {
-        QMessageBox::information(this, QStringLiteral("ウィグル"),
-                                 QStringLiteral("先にビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Wiggle"),
+                                 QStringLiteral("Please select a video clip first."));
         return;
     }
     const QString clipId = brushClipId(trackIdx, clipIdx);
     wiggle::WiggleParams params = m_clipWiggleParams.value(clipId);
 
     QDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("ウィグル / 手持ちカメラ風 - %1").arg(clip.displayName));
+    dialog.setWindowTitle(QStringLiteral("Wiggle / Handheld Camera - %1").arg(clip.displayName));
     auto *form = new QFormLayout(&dialog);
 
     auto *presetCombo = new QComboBox(&dialog);
-    presetCombo->addItems({QStringLiteral("なし"), QStringLiteral("手持ち"),
-                           QStringLiteral("神経質"), QStringLiteral("ふわふわ")});
-    auto *enabledCheck = new QCheckBox(QStringLiteral("有効"), &dialog);
+    presetCombo->addItems({QStringLiteral("None"), QStringLiteral("Handheld"),
+                           QStringLiteral("Jittery"), QStringLiteral("Floaty")});
+    auto *enabledCheck = new QCheckBox(QStringLiteral("Enabled"), &dialog);
     enabledCheck->setChecked(params.enabled);
     auto *posAmpXSpin = new QDoubleSpinBox(&dialog);
     posAmpXSpin->setRange(-200.0, 200.0);
@@ -13669,14 +13669,14 @@ void MainWindow::editClipWiggle()
     seedSpin->setRange(0, 100000);
     seedSpin->setValue(static_cast<int>(params.seed));
 
-    form->addRow(QStringLiteral("プリセット:"), presetCombo);
+    form->addRow(QStringLiteral("Preset:"), presetCombo);
     form->addRow(enabledCheck);
-    form->addRow(QStringLiteral("位置振幅 X (px):"), posAmpXSpin);
-    form->addRow(QStringLiteral("位置振幅 Y (px):"), posAmpYSpin);
-    form->addRow(QStringLiteral("回転振幅 (°):"), rotAmpSpin);
-    form->addRow(QStringLiteral("周波数 (Hz):"), freqSpin);
-    form->addRow(QStringLiteral("オクターブ:"), octavesSpin);
-    form->addRow(QStringLiteral("シード:"), seedSpin);
+    form->addRow(QStringLiteral("Position amplitude X (px):"), posAmpXSpin);
+    form->addRow(QStringLiteral("Position amplitude Y (px):"), posAmpYSpin);
+    form->addRow(QStringLiteral("Rotation amplitude (°):"), rotAmpSpin);
+    form->addRow(QStringLiteral("Frequency (Hz):"), freqSpin);
+    form->addRow(QStringLiteral("Octaves:"), octavesSpin);
+    form->addRow(QStringLiteral("Seed:"), seedSpin);
 
     connect(presetCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), &dialog,
             [posAmpXSpin, posAmpYSpin, rotAmpSpin, freqSpin, octavesSpin, enabledCheck](int idx) {
@@ -13720,13 +13720,13 @@ void MainWindow::editClipWiggle()
     }
 
     refreshSpecialClipPreview();
-    statusBar()->showMessage(QStringLiteral("ウィグルを %1 に設定しました").arg(clip.displayName), 4000);
+    statusBar()->showMessage(QStringLiteral("Wiggle applied to %1").arg(clip.displayName), 4000);
 }
 
 void MainWindow::openCameraMotionDialog()
 {
     CameraMotionDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("カメラモーション"));
+    dialog.setWindowTitle(QStringLiteral("Camera Motion"));
     dialog.setCamera(m_projectCamera);
     if (dialog.exec() != QDialog::Accepted)
         return;
@@ -13737,7 +13737,7 @@ void MainWindow::openCameraMotionDialog()
     updateEditActions();
     syncProjectLightingToTimeline();
     refreshSpecialClipPreview();
-    statusBar()->showMessage(QStringLiteral("カメラモーションを更新しました"), 4000);
+    statusBar()->showMessage(QStringLiteral("Camera motion updated"), 4000);
 }
 
 void MainWindow::openLight3DDialog()
@@ -13824,8 +13824,8 @@ void MainWindow::onSceneCutDetect()
     int clipIdx  = -1;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &current) || current.filePath.isEmpty()) {
         QMessageBox::information(this,
-            QStringLiteral("シーンカット検出"),
-            QStringLiteral("クリップを選択してください"));
+            QStringLiteral("Scene Cut Detection"),
+            QStringLiteral("Please select a clip"));
         return;
     }
 
@@ -13839,7 +13839,7 @@ void MainWindow::onSceneCutDetect()
 
     const QVector<qint64> cutsMs = dlg.acceptedCutTimestampsMs();
     if (cutsMs.isEmpty()) {
-        statusBar()->showMessage(QStringLiteral("検出されたシーンカットはありません"), 3000);
+        statusBar()->showMessage(QStringLiteral("No scene cuts detected"), 3000);
         return;
     }
 
@@ -13859,7 +13859,7 @@ void MainWindow::onSceneCutDetect()
             ++added;
         }
         statusBar()->showMessage(
-            QStringLiteral("%1 個のシーンカットマーカーを追加しました").arg(added),
+            QStringLiteral("Added %1 scene-cut markers").arg(added),
             4000);
     } else {
         // SplitClip: walk cuts in descending order so each split is at a
@@ -13878,7 +13878,7 @@ void MainWindow::onSceneCutDetect()
             ++splits;
         }
         statusBar()->showMessage(
-            QStringLiteral("%1 箇所でクリップを分割しました").arg(splits),
+            QStringLiteral("Split the clip at %1 positions").arg(splits),
             4000);
         updateEditActions();
     }
@@ -13888,13 +13888,13 @@ void MainWindow::onAudioDuckingSettings()
 {
     if (!m_timeline || m_timeline->audioTrackCount() < 2) {
         QMessageBox::information(this,
-                                 QStringLiteral("自動ダッキング"),
-                                 QStringLiteral("voice と BGM 用にオーディオトラックを 2 本以上用意してください。"));
+                                 QStringLiteral("Auto Ducking"),
+                                 QStringLiteral("Please prepare at least 2 audio tracks for voice and BGM."));
         return;
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("自動ダッキングを適用"));
+    dialog.setWindowTitle(QStringLiteral("Apply Auto Ducking"));
     auto *layout = new QVBoxLayout(&dialog);
     auto *form = new QFormLayout();
     layout->addLayout(form);
@@ -13903,7 +13903,7 @@ void MainWindow::onAudioDuckingSettings()
     const int audioTrackCount = m_timeline->audioTrackCount();
     for (int i = 0; i < audioTrackCount; ++i)
         voiceCombo->addItem(QStringLiteral("A%1").arg(i + 1), i);
-    form->addRow(QStringLiteral("voice トラック:"), voiceCombo);
+    form->addRow(QStringLiteral("Voice track:"), voiceCombo);
 
     auto *targetWidget = new QWidget(&dialog);
     auto *targetLayout = new QVBoxLayout(targetWidget);
@@ -13916,7 +13916,7 @@ void MainWindow::onAudioDuckingSettings()
         targetLayout->addWidget(check);
         targetChecks.append(check);
     }
-    form->addRow(QStringLiteral("BGM 対象:"), targetWidget);
+    form->addRow(QStringLiteral("BGM target:"), targetWidget);
 
     auto makeSpin = [&dialog](double min, double max, double value,
                               int decimals, const QString &suffix) {
@@ -13937,10 +13937,10 @@ void MainWindow::onAudioDuckingSettings()
                                  0, QStringLiteral(" ms"));
     auto *duckSpin = makeSpin(-40.0, 0.0, m_duckingParams.targetReductionDb,
                               1, QStringLiteral(" dB"));
-    form->addRow(QStringLiteral("閾値:"), thresholdSpin);
+    form->addRow(QStringLiteral("Threshold:"), thresholdSpin);
     form->addRow(QStringLiteral("Attack:"), attackSpin);
     form->addRow(QStringLiteral("Release:"), releaseSpin);
-    form->addRow(QStringLiteral("Duck 量:"), duckSpin);
+    form->addRow(QStringLiteral("Duck amount:"), duckSpin);
 
     auto *preview = new QLabel(&dialog);
     preview->setWordWrap(true);
@@ -13950,7 +13950,7 @@ void MainWindow::onAudioDuckingSettings()
 
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                          &dialog);
-    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("適用"));
+    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("Apply"));
     layout->addWidget(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
@@ -13969,10 +13969,10 @@ void MainWindow::onAudioDuckingSettings()
 
         buttons->button(QDialogButtonBox::Ok)->setEnabled(!targets.isEmpty());
         preview->setText(QStringLiteral(
-            "Preview: A%1 を voice として検出し、%2 に %3 dB のゲインエンベロープを "
-            "%4 ms attack / %5 ms release で書き込みます。export は同じエンベロープを含む audio mix を使用します。")
+            "Preview: Detected A%1 as voice, will write a %3 dB gain envelope to %2 "
+            "with %4 ms attack / %5 ms release. Export uses the audio mix containing the same envelope.")
             .arg(voiceTrack + 1)
-            .arg(targets.isEmpty() ? QStringLiteral("(対象なし)") : targets.join(QStringLiteral(", ")))
+            .arg(targets.isEmpty() ? QStringLiteral("(None)") : targets.join(QStringLiteral(", ")))
             .arg(duckSpin->value(), 0, 'f', 1)
             .arg(attackSpin->value(), 0, 'f', 1)
             .arg(releaseSpin->value(), 0, 'f', 0));
@@ -14019,9 +14019,9 @@ void MainWindow::onAudioDuckingSettings()
         statusBar()->showMessage(message, 5000);
     } else {
         QMessageBox::information(this,
-                                 QStringLiteral("自動ダッキング"),
+                                 QStringLiteral("Auto Ducking"),
                                  message.isEmpty()
-                                     ? QStringLiteral("ダッキングを適用できませんでした。")
+                                     ? QStringLiteral("Could not apply ducking.")
                                      : message);
     }
 }
@@ -14039,7 +14039,7 @@ void MainWindow::onCollectProject()
     dlg.exec();
     if (dlg.didCollect()) {
         statusBar()->showMessage(
-            QStringLiteral("プロジェクトを収集しました: %1").arg(dlg.outputProjectPath()),
+            QStringLiteral("Project collected: %1").arg(dlg.outputProjectPath()),
             6000);
     }
 }
@@ -14056,7 +14056,7 @@ void MainWindow::onHDRSettings()
         return;
     m_hdrSettings = dlg.settings();
     statusBar()->showMessage(
-        QStringLiteral("HDR 出力設定を更新しました (%1)").arg(m_hdrSettings.mode),
+        QStringLiteral("HDR output settings updated (%1)").arg(m_hdrSettings.mode),
         4000);
 }
 
@@ -14070,8 +14070,8 @@ void MainWindow::onTimecodeBurnInSettings()
     setWindowModified(true);
     statusBar()->showMessage(
         m_tcBurnIn.enabled
-            ? QStringLiteral("タイムコード焼き込みを有効にしました。")
-            : QStringLiteral("タイムコード焼き込みを無効にしました。"),
+            ? QStringLiteral("Timecode burn-in enabled.")
+            : QStringLiteral("Timecode burn-in disabled."),
         4000);
 }
 
@@ -14101,7 +14101,7 @@ void MainWindow::onAIProcessing()
         return;
     m_aiSettings = dlg.settings();
     statusBar()->showMessage(
-        QStringLiteral("AI 処理設定を更新しました (upscale=%1, interp=%2)")
+        QStringLiteral("AI processing settings updated (upscale=%1, interp=%2)")
             .arg(m_aiSettings.upscaleEnabled ? QStringLiteral("ON") : QStringLiteral("OFF"))
             .arg(m_aiSettings.frameInterpEnabled ? QStringLiteral("ON") : QStringLiteral("OFF")),
         4000);
@@ -14138,8 +14138,8 @@ void MainWindow::openPlanarTrackerDialog()
     int clipIndex = -1;
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIndex, clipIndex, &clip)) {
-        QMessageBox::information(this, QStringLiteral("プラナートラッカー"),
-                                 QStringLiteral("解析する動画クリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Planar Tracker"),
+                                 QStringLiteral("Please select a video clip to analyze."));
         return;
     }
     const double fps = m_projectConfig.fps;
@@ -14150,8 +14150,8 @@ void MainWindow::openPlanarTrackerDialog()
         || frameCount < 1 || frameCount > std::numeric_limits<int>::max())
         return;
     QList<QImage> frames;
-    QProgressDialog progress(QStringLiteral("解析用フレームを読み込み中…"),
-                             QStringLiteral("キャンセル"), 0, int(frameCount), this);
+    QProgressDialog progress(QStringLiteral("Loading analysis frames…"),
+                             QStringLiteral("Cancel"), 0, int(frameCount), this);
     progress.setWindowModality(Qt::ApplicationModal);
     for (int i = 0; i < int(frameCount); ++i) {
         progress.setValue(i);
@@ -14162,8 +14162,8 @@ void MainWindow::openPlanarTrackerDialog()
         QImage frame = tlrender::renderFrameAt(m_timeline,
             qRound64((startSec + double(i) / fps) * 1000000.0), canvas);
         if (frame.isNull()) {
-            QMessageBox::warning(this, QStringLiteral("プラナートラッカー"),
-                                 QStringLiteral("解析用フレームを読み込めませんでした。"));
+            QMessageBox::warning(this, QStringLiteral("Planar Tracker"),
+                                 QStringLiteral("Failed to load analysis frames."));
             return;
         }
         frames.append(frame);
@@ -14211,7 +14211,7 @@ void MainWindow::applyCameraSolve(const QVector<camsolve::Pose>& poses,
     syncProjectLightingToTimeline();
     refreshSpecialClipPreview();
     updateEditActions();
-    statusBar()->showMessage(QStringLiteral("3D カメラ解析を適用しました"), 4000);
+    statusBar()->showMessage(QStringLiteral("Applied 3D camera analysis"), 4000);
 }
 
 // US-TP-6: PRD-TP — open the motion-tracker preset dialog modally and, on
@@ -14232,7 +14232,7 @@ void MainWindow::showMotionTrackerDialog()
         const auto preset = dlg.selectedPreset();
         tracker_preset::applyToMotionTracker(m_motionTracker, preset);
         statusBar()->showMessage(
-            tr("Tracker preset 適用: %1").arg(preset.displayName), 3000);
+            tr("Tracker preset applied: %1").arg(preset.displayName), 3000);
     }
 }
 
@@ -14265,7 +14265,7 @@ void MainWindow::openAudioClipEditorDialog()
 
     if (!m_audioClipEditorDialog) {
         m_audioClipEditorDialog = new QDialog(this);
-        m_audioClipEditorDialog->setWindowTitle(QStringLiteral("クリップボリュームエンベロープ"));
+        m_audioClipEditorDialog->setWindowTitle(QStringLiteral("Clip Volume Envelope"));
         m_audioClipEditorDialog->setObjectName(QStringLiteral("audioClipEditorWrapper"));
         auto *layout = new QVBoxLayout(m_audioClipEditorDialog);
         auto *editor = new AudioClipEditor(m_audioClipEditorDialog);
@@ -14347,8 +14347,8 @@ void MainWindow::openDynamicZoom()
     int trackIndex = -1;
     int clipIndex = -1;
     if (!selectedVideoClipRef(trackIndex, clipIndex)) {
-        QMessageBox::information(this, QStringLiteral("ダイナミックズーム"),
-                                 QStringLiteral("動画クリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Dynamic Zoom"),
+                                 QStringLiteral("Please select a video clip."));
         return;
     }
 
@@ -14358,14 +14358,14 @@ void MainWindow::openDynamicZoom()
     if (!m_timeline->applyDynamicZoom(
             TrackKind::Video, trackIndex, clipIndex,
             dialog.startRect(), dialog.endRect(), dialog.easing())) {
-        QMessageBox::warning(this, QStringLiteral("ダイナミックズーム"),
-                             QStringLiteral("ダイナミックズームを適用できませんでした。クリップまたはトラックの状態を確認してください。"));
+        QMessageBox::warning(this, QStringLiteral("Dynamic Zoom"),
+                             QStringLiteral("Could not apply dynamic zoom. Check the clip or track state."));
         return;
     }
 
     setWindowModified(true);
     statusBar()->showMessage(
-        QStringLiteral("ダイナミックズームを適用しました（8 キーフレーム）"),
+        QStringLiteral("Applied dynamic zoom (8 keyframes)"),
         3000);
 }
 
@@ -14927,8 +14927,8 @@ void MainWindow::openSocialExportDialog()
                     if (targetSize.width() <= 0 || targetSize.height() <= 0) {
                         QMessageBox::warning(
                             this,
-                            QStringLiteral("SNS プリセット"),
-                            QStringLiteral("選択されたプリセットの解像度が不正です。"));
+                            QStringLiteral("Social Presets"),
+                            QStringLiteral("The selected preset has an invalid resolution."));
                         return;
                     }
 
@@ -14988,12 +14988,12 @@ void MainWindow::openSocialExportDialog()
                         .arg(addedV2);
 
                     const QString guidance = QStringLiteral(
-                        "プロジェクトを %1x%2 に設定しました。書き出しは通常の書き出しでOKです。V2トラックに背景素材をドロップしてください。")
+                        "Project set to %1x%2. A normal export will work. Drop background footage onto the V2 track.")
                         .arg(targetSize.width())
                         .arg(targetSize.height());
                     QMessageBox::information(
                         this,
-                        QStringLiteral("SNS プリセット"),
+                        QStringLiteral("Social Presets"),
                         guidance);
                     if (statusBar()) {
                         statusBar()->showMessage(guidance, 7000);
@@ -15029,7 +15029,7 @@ CaptionEditorDialog *MainWindow::ensureCaptionEditorDialog()
 
             m_captionEditorDialog->setApplyError(QString());
             statusBar()->showMessage(
-                QStringLiteral("%1 件の1語字幕をタイムラインに適用しました。")
+                QStringLiteral("Applied %1 word-by-word subtitles to the timeline.")
                     .arg(appliedCount),
                 4000);
         });
@@ -15047,7 +15047,7 @@ bool MainWindow::applyCaptionEditorTrackToTimeline(QString *err, int *appliedCou
         ensureCaptionEditorDialog();
     if (!m_captionEditorDialog) {
         if (err)
-            *err = QStringLiteral("字幕エディタを利用できません。");
+            *err = QStringLiteral("The subtitle editor is unavailable.");
         return false;
     }
 
@@ -15060,7 +15060,7 @@ bool MainWindow::applyCaptionEditorTrackToTimeline(QString *err, int *appliedCou
             || !m_timeline->mapSourceCaptionTrackToTimeline(
                 timelineTrack, recognizedSourcePath, &mappedTrack, &error)) {
             if (error.isEmpty())
-                error = QStringLiteral("認識元の動画を V1 上で特定できません。");
+                error = QStringLiteral("Could not identify the source video on V1.");
             if (err)
                 *err = error;
             return false;
@@ -15073,7 +15073,7 @@ bool MainWindow::applyCaptionEditorTrackToTimeline(QString *err, int *appliedCou
     if (!m_timeline
         || !m_timeline->applySingleWordCaptionOverlays(overlays, &error)) {
         if (error.isEmpty())
-            error = QStringLiteral("字幕を適用するタイムラインがありません。");
+            error = QStringLiteral("No timeline to apply subtitles to.");
         if (err)
             *err = error;
         return false;
@@ -15117,10 +15117,10 @@ void MainWindow::openWhisperTranscribeDialog()
     const whisper::TranscribeOutcome outcome = transcriber.transcribe(req);
 
     if (!outcome.success) {
-        QMessageBox::warning(this, QStringLiteral("動画を文字起こし"),
-            QStringLiteral("文字起こしに失敗しました:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Transcribe Video"),
+            QStringLiteral("Transcription failed:\n%1")
                 .arg(outcome.error.isEmpty()
-                         ? QStringLiteral("不明なエラー")
+                         ? QStringLiteral("Unknown error")
                          : outcome.error));
         return;
     }
@@ -15133,9 +15133,9 @@ void MainWindow::openWhisperTranscribeDialog()
         if (m_timeline->mapSourceCaptionTrackToTimeline(
                 outcome.track, req.mediaPath, &mappedTrack, &mappingError)) {
             editorTrack = mappedTrack;
-            timelineMappingMessage = QStringLiteral(" V1上のトリム・速度・タイムリマップへ時刻を変換しました。");
+            timelineMappingMessage = QStringLiteral(" Timestamps converted for trim, speed, and time remap on V1.");
         } else if (!mappingError.isEmpty()) {
-            timelineMappingMessage = QStringLiteral(" 元動画時刻のまま読み込みました（%1）").arg(mappingError);
+            timelineMappingMessage = QStringLiteral(" Loaded using the source video's original timestamps (%1)").arg(mappingError);
         }
     }
     const int segmentCount = editorTrack.clipCount();
@@ -15146,11 +15146,11 @@ void MainWindow::openWhisperTranscribeDialog()
         m_captionEditorDialog->setTrack(editorTrack);
 
     const QString summary =
-        QStringLiteral("%1 件のセグメントを生成し、字幕エディタに読み込みました。%2")
+        QStringLiteral("Generated %1 segments and loaded them into the subtitle editor.%2")
             .arg(segmentCount)
             .arg(timelineMappingMessage);
     statusBar()->showMessage(summary);
-    QMessageBox::information(this, QStringLiteral("動画を文字起こし"), summary);
+    QMessageBox::information(this, QStringLiteral("Transcribe Video"), summary);
 }
 
 // Phase 6 Wave 3 (US-6C-4): 文字起こしからハイライト検出配線。
@@ -15171,9 +15171,9 @@ void MainWindow::openTranscriptHighlightDialog()
     const transcripthl::HighlightRequest req = dialog.request();
     QString err;
     transcripthl::TranscriptHighlighter highlighter;
-    QProgressDialog progress(QStringLiteral("ハイライトを検出中..."),
-                             QStringLiteral("キャンセル"), 0, 0, this);
-    progress.setWindowTitle(QStringLiteral("文字起こしからハイライト検出"));
+    QProgressDialog progress(QStringLiteral("Detecting highlights..."),
+                             QStringLiteral("Cancel"), 0, 0, this);
+    progress.setWindowTitle(QStringLiteral("Detect Highlights from Transcription"));
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(0);
     progress.setAutoClose(false);
@@ -15188,17 +15188,17 @@ void MainWindow::openTranscriptHighlightDialog()
     // dialog.exec() は既に閉じているため、結果は QMessageBox で可視化する
     // (6B-4 whisper と同じパターン)。
     if (err == QStringLiteral("canceled")) {
-        statusBar()->showMessage(QStringLiteral("ハイライト検出をキャンセルしました。"));
+        statusBar()->showMessage(QStringLiteral("Highlight detection canceled."));
         return;
     }
 
     if (highlights.isEmpty()) {
         const QString message = err.isEmpty()
-            ? QStringLiteral("ハイライトを検出できませんでした。")
-            : QStringLiteral("ハイライト検出に失敗しました: %1\n"
-                             "(API キーは設定から登録してください)").arg(err);
+            ? QStringLiteral("No highlights detected.")
+            : QStringLiteral("Highlight detection failed: %1\n"
+                             "(Register your API key in Settings)").arg(err);
         statusBar()->showMessage(message);
-        QMessageBox::warning(this, QStringLiteral("文字起こしからハイライト検出"), message);
+        QMessageBox::warning(this, QStringLiteral("Detect Highlights from Transcription"), message);
         return;
     }
 
@@ -15223,9 +15223,9 @@ void MainWindow::openTranscriptHighlightDialog()
     m_lastHighlights = highlights;
 
     const QString summary =
-        QStringLiteral("%1 件のハイライトを検出しました。").arg(highlights.size());
+        QStringLiteral("Detected %1 highlight(s).").arg(highlights.size());
     statusBar()->showMessage(summary);
-    QMessageBox::information(this, QStringLiteral("文字起こしからハイライト検出"),
+    QMessageBox::information(this, QStringLiteral("Detect Highlights from Transcription"),
                             summary + QStringLiteral("\n\n") + lines.join(QLatin1Char('\n')));
 }
 
@@ -15243,9 +15243,9 @@ void MainWindow::openTextBasedEdit()
         clips = m_captionEditorDialog->track().clips();
 
     if (clips.isEmpty()) {
-        QMessageBox::information(this, QStringLiteral("テキストベース編集"),
-            QStringLiteral("文字起こし結果がありません。\n"
-                           "先に「ツール → 動画を文字起こし...」を実行してください。"));
+        QMessageBox::information(this, QStringLiteral("Text-Based Editing"),
+            QStringLiteral("No transcription results.\n"
+                           "First run \"Tools → Transcribe Video...\"."));
         return;
     }
 
@@ -15268,7 +15268,7 @@ void MainWindow::openTextBasedEdit()
                 }
                 const double deletedSec = totalDeletedMs / 1000.0;
                 statusBar()->showMessage(
-                    QStringLiteral("テキストベース編集: %1 区間 (合計 %2 秒) をリップル削除しました。")
+                    QStringLiteral("Text-based editing: ripple-deleted %1 section(s) (%2 s total).")
                         .arg(ranges.size())
                         .arg(deletedSec, 0, 'f', 2));
             });
@@ -15296,10 +15296,10 @@ void MainWindow::openPptxExport()
 
     if (clips.isEmpty()) {
         // 空でもタイトル / マーカーで書き出せるので、案内のみ出して続行する。
-        QMessageBox::information(this, QStringLiteral("PowerPoint 資料を書き出し"),
-            QStringLiteral("文字起こし結果がありません。\n"
-                           "「タイトルのみ」または「マーカー / 章一覧」での書き出しは可能です。\n"
-                           "文字起こしスライドが必要なら、先に「ツール → 動画を文字起こし...」を実行してください。"));
+        QMessageBox::information(this, QStringLiteral("Export PowerPoint Deck"),
+            QStringLiteral("No transcription results.\n"
+                           "Export is available with \"Titles Only\" or \"Marker / Chapter List\".\n"
+                           "To include transcription slides, first run \"Tools → Transcribe Video...\"."));
     }
 
     dialog.exec();
@@ -15374,9 +15374,9 @@ void MainWindow::openAutoClipDialog()
 
     if (plans.isEmpty()) {
         QMessageBox::information(
-            this, QStringLiteral("ハイライトから自動カット"),
-            QStringLiteral("カット範囲を計算できませんでした "
-                           "(ハイライト未検出かもしれません)"));
+            this, QStringLiteral("Auto-Cut from Highlights"),
+            QStringLiteral("Could not calculate the cut ranges "
+                           "(no highlights may have been detected)"));
         return;
     }
 
@@ -15397,10 +15397,10 @@ void MainWindow::openAutoClipDialog()
     }
 
     const QString question =
-        QStringLiteral("%1 個のカット範囲を検出しました。"
-                       "タイムラインに追加しますか?").arg(plans.size());
+        QStringLiteral("Detected %1 cut range(s)."
+                       "Add to timeline?").arg(plans.size());
     const auto answer = QMessageBox::question(
-        this, QStringLiteral("ハイライトから自動カット"),
+        this, QStringLiteral("Auto-Cut from Highlights"),
         question + QStringLiteral("\n\n") + lines.join(QLatin1Char('\n')),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 
@@ -15428,13 +15428,13 @@ void MainWindow::openAutoClipDialog()
             }
         }
     }
-    statusBar()->showMessage(QStringLiteral("%1 個追加").arg(added));
+    statusBar()->showMessage(QStringLiteral("%1 added").arg(added));
 }
 
 // US-CP-4: コマンドパレット用の index を menuBar() から構築する。
 // 各トップメニューを再帰的に辿り、separator でもサブメニュー親 (menu() を
 // 持つ項目) でもなく text() が非空の QAction を CommandEntry に変換する。
-// id は objectName() が非空ならそれ、空なら "cmd_<連番>" を生成する。
+// id は objectName() が非空ならそれ、空なら "cmd_<serial number>" を生成する。
 // keywords には m_menuHelpEntries 由来の説明文 + 所属トップメニュー名 を足す。
 // 副作用として m_commandActions を id→QAction で再構築する。
 QVector<cmdsearch::CommandEntry> MainWindow::buildCommandEntries()
@@ -15564,8 +15564,8 @@ void MainWindow::onMobileExport()
                     if (!m_timeline) return;
                     const auto &clips = m_timeline->videoClips();
                     if (clips.isEmpty()) {
-                        QMessageBox::warning(this, QStringLiteral("モバイル書き出し"),
-                            QStringLiteral("タイムラインにクリップがありません。"));
+                        QMessageBox::warning(this, QStringLiteral("Mobile Export"),
+                            QStringLiteral("No clips on the timeline."));
                         return;
                     }
                     // S12 single-path: mobile export also routes through
@@ -15607,8 +15607,8 @@ void MainWindow::onMobileExport()
                     job.exportConfig = jcfg;
 
                     auto *progress = new QProgressDialog(
-                        QStringLiteral("モバイル向けエクスポート中..."),
-                        QStringLiteral("キャンセル"), 0, 100, this);
+                        QStringLiteral("Exporting for mobile..."),
+                        QStringLiteral("Cancel"), 0, 100, this);
                     progress->setWindowModality(Qt::WindowModal);
                     progress->setMinimumDuration(0);
                     connect(m_renderQueue, &RenderQueue::jobProgressUuid,
@@ -15624,10 +15624,10 @@ void MainWindow::onMobileExport()
                                 progress->deleteLater();
                                 if (ok)
                                     statusBar()->showMessage(QStringLiteral(
-                                        "モバイル書き出し完了 (timeline SSOT)"));
+                                        "Mobile export complete (timeline SSOT)"));
                                 else
                                     QMessageBox::critical(this,
-                                        QStringLiteral("モバイル書き出し失敗"),
+                                        QStringLiteral("Mobile export failed"),
                                         err.isEmpty()
                                             ? QStringLiteral("Export failed")
                                             : err);
@@ -15644,7 +15644,7 @@ void MainWindow::onMobileExport()
                     m_renderQueue->setAcesPipeline(m_acesPipeline);
                     m_renderQueue->setLoudnessGainDb(loudnessGainDb);
                     statusBar()->showMessage(
-                        QStringLiteral("モバイル書き出し: ") + cfg.outputPath);
+                        QStringLiteral("Mobile export: ") + cfg.outputPath);
                     m_renderQueue->addJob(job);
                     m_renderQueue->start();
                 });
@@ -15653,8 +15653,8 @@ void MainWindow::onMobileExport()
     m_mobileExportDialog->raise();
     m_mobileExportDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("モバイルエクスポート"),
-        QStringLiteral("MobileExportDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Mobile Export"),
+        QStringLiteral("MobileExportDialog is not included in this build."));
 #endif
 }
 
@@ -15679,7 +15679,7 @@ void MainWindow::onImportHub()
                     }
                     if (statusBar()) {
                         statusBar()->showMessage(
-                            QStringLiteral("取り込みハブ: %1 件のクリップをタイムラインに追加")
+                            QStringLiteral("Import Hub: added %1 clip(s) to the timeline")
                                 .arg(added),
                             5000);
                     }
@@ -15690,7 +15690,7 @@ void MainWindow::onImportHub()
                     if (!m_timeline) {
                         if (statusBar()) {
                             statusBar()->showMessage(
-                                QStringLiteral("画像取り込み失敗: タイムラインがありません"),
+                                QStringLiteral("Image import failed: no timeline"),
                                 5000);
                         }
                         return;
@@ -15699,7 +15699,7 @@ void MainWindow::onImportHub()
                     if (!importingest::savePreviewPng(image, tempPng)) {
                         if (statusBar()) {
                             statusBar()->showMessage(
-                                QStringLiteral("画像取り込み失敗: 一時PNGを保存できません"),
+                                QStringLiteral("Image import failed: could not save the temporary PNG"),
                                 5000);
                         }
                         return;
@@ -15707,7 +15707,7 @@ void MainWindow::onImportHub()
                     m_timeline->addClip(tempPng);
                     if (statusBar()) {
                         statusBar()->showMessage(
-                            QStringLiteral("画像をタイムラインに追加"),
+                            QStringLiteral("Image added to the timeline"),
                             5000);
                     }
                 });
@@ -15717,7 +15717,7 @@ void MainWindow::onImportHub()
                     if (!m_timeline) {
                         if (statusBar()) {
                             statusBar()->showMessage(
-                                QStringLiteral("メッシュ取り込み失敗: タイムラインがありません"),
+                                QStringLiteral("Mesh import failed: no timeline"),
                                 5000);
                         }
                         return;
@@ -15729,7 +15729,7 @@ void MainWindow::onImportHub()
                     if (!importingest::savePreviewPng(preview, tempPng)) {
                         if (statusBar()) {
                             statusBar()->showMessage(
-                                QStringLiteral("メッシュ取り込み失敗: プレビューPNGを保存できません"),
+                                QStringLiteral("Mesh import failed: could not save the preview PNG"),
                                 5000);
                         }
                         return;
@@ -15737,7 +15737,7 @@ void MainWindow::onImportHub()
                     m_timeline->addClip(tempPng);
                     if (statusBar()) {
                         statusBar()->showMessage(
-                            QStringLiteral("メッシュをタイムラインに追加 (頂点 %1 / 三角形 %2)")
+                            QStringLiteral("Mesh added to the timeline (%1 vertices / %2 triangles)")
                                 .arg(vertexCount)
                                 .arg(triangleCount),
                             5000);
@@ -15749,7 +15749,7 @@ void MainWindow::onImportHub()
                     if (!m_timeline) {
                         if (statusBar()) {
                             statusBar()->showMessage(
-                                QStringLiteral("EXR取り込み失敗: タイムラインがありません"),
+                                QStringLiteral("EXR import failed: no timeline"),
                                 5000);
                         }
                         return;
@@ -15759,7 +15759,7 @@ void MainWindow::onImportHub()
                     if (frames.isEmpty()) {
                         if (statusBar()) {
                             statusBar()->showMessage(
-                                QStringLiteral("EXRシーケンスにフレームがありません (%1)")
+                                QStringLiteral("EXR sequence has no frames (%1)")
                                     .arg(pattern),
                                 5000);
                         }
@@ -15770,7 +15770,7 @@ void MainWindow::onImportHub()
                     if (!importingest::savePreviewPng(firstFrame, tempPng)) {
                         if (statusBar()) {
                             statusBar()->showMessage(
-                                QStringLiteral("EXR取り込み失敗: 先頭フレームをPNG保存できません"),
+                                QStringLiteral("EXR import failed: could not save the first frame as PNG"),
                                 5000);
                         }
                         return;
@@ -15778,7 +15778,7 @@ void MainWindow::onImportHub()
                     m_timeline->addClip(tempPng);
                     if (statusBar()) {
                         statusBar()->showMessage(
-                            QStringLiteral("EXR先頭フレームをタイムラインに追加 (%1)")
+                            QStringLiteral("EXR first frame added to the timeline (%1)")
                                 .arg(pattern),
                             5000);
                     }
@@ -15788,8 +15788,8 @@ void MainWindow::onImportHub()
     m_importHubDialog->raise();
     m_importHubDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("取り込みハブ"),
-        QStringLiteral("ImportHubDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Import Hub"),
+        QStringLiteral("ImportHubDialog is not included in this build."));
 #endif
 }
 
@@ -15814,8 +15814,8 @@ void MainWindow::onYoutubeUpload()
     m_youtubeUploadDialog->raise();
     m_youtubeUploadDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("YouTube アップロード"),
-        QStringLiteral("YoutubeUploadDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("YouTube Upload"),
+        QStringLiteral("YoutubeUploadDialog is not included in this build."));
 #endif
 }
 
@@ -15836,8 +15836,8 @@ void MainWindow::onCommentsPanel()
     m_commentsDock->show();
     m_commentsDock->raise();
 #else
-    QMessageBox::information(this, QStringLiteral("コラボレーションパネル"),
-        QStringLiteral("CommentsDockWidget がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Collaboration Panel"),
+        QStringLiteral("CommentsDockWidget is not included in this build."));
 #endif
 }
 
@@ -15857,8 +15857,8 @@ void MainWindow::onCollabHistory()
     m_collabHistoryDialog->raise();
     m_collabHistoryDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("変更履歴"),
-        QStringLiteral("CollabHistoryDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Change History"),
+        QStringLiteral("CollabHistoryDialog is not included in this build."));
 #endif
 }
 
@@ -15876,8 +15876,8 @@ void MainWindow::onColorMatch()
     m_colorMatchDialog->raise();
     m_colorMatchDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("自動カラーマッチ"),
-        QStringLiteral("ColorMatchDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Auto Color Match"),
+        QStringLiteral("ColorMatchDialog is not included in this build."));
 #endif
 }
 
@@ -15899,8 +15899,8 @@ void MainWindow::openVimeoUploadDialog()
     m_vimeoUploadDialog->raise();
     m_vimeoUploadDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("Vimeo アップロード"),
-        QStringLiteral("VimeoUploadDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Vimeo Upload"),
+        QStringLiteral("VimeoUploadDialog is not included in this build."));
 #endif
 }
 
@@ -15915,8 +15915,8 @@ void MainWindow::openTwitchStreamDialog()
     m_twitchStreamDialog->raise();
     m_twitchStreamDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("Twitch 配信設定"),
-        QStringLiteral("TwitchStreamDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Twitch Streaming Settings"),
+        QStringLiteral("TwitchStreamDialog is not included in this build."));
 #endif
 }
 
@@ -15926,7 +15926,7 @@ void MainWindow::openFrameIoImportDialog()
     bool ok = false;
     const QString apiToken = QInputDialog::getText(
         this,
-        QStringLiteral("Frame.io コメント取り込み"),
+        QStringLiteral("Import Frame.io Comments"),
         QStringLiteral("API token:"),
         QLineEdit::Password,
         QString(),
@@ -15936,7 +15936,7 @@ void MainWindow::openFrameIoImportDialog()
 
     const QString assetId = QInputDialog::getText(
         this,
-        QStringLiteral("Frame.io コメント取り込み"),
+        QStringLiteral("Import Frame.io Comments"),
         QStringLiteral("Asset ID:"),
         QLineEdit::Normal,
         QString(),
@@ -15951,7 +15951,7 @@ void MainWindow::openFrameIoImportDialog()
                 this, [this](int percent) {
                     if (statusBar()) {
                         statusBar()->showMessage(
-                            QStringLiteral("Frame.io コメントを取得中... %1%")
+                            QStringLiteral("Fetching Frame.io comments... %1%")
                                 .arg(percent));
                     }
                 });
@@ -16008,7 +16008,7 @@ void MainWindow::openFrameIoImportDialog()
 
                     if (statusBar()) {
                         statusBar()->showMessage(
-                            QStringLiteral("Frame.io コメントを %1 件取り込みました")
+                            QStringLiteral("Imported %1 Frame.io comment(s)")
                                 .arg(addedCount),
                             5000);
                     }
@@ -16018,8 +16018,8 @@ void MainWindow::openFrameIoImportDialog()
                 this, [this](const QString &error) {
                     QMessageBox::warning(
                         this,
-                        QStringLiteral("Frame.io コメント取り込み"),
-                        QStringLiteral("コメント取り込みに失敗しました:\n%1")
+                        QStringLiteral("Import Frame.io Comments"),
+                        QStringLiteral("Failed to import comments:\n%1")
                             .arg(error));
                 });
     }
@@ -16029,12 +16029,12 @@ void MainWindow::openFrameIoImportDialog()
 
     if (statusBar()) {
         statusBar()->showMessage(
-            QStringLiteral("Frame.io コメントを取得しています..."));
+            QStringLiteral("Fetching Frame.io comments..."));
     }
     m_frameIoImporter->fetchComments(assetId, config);
 #else
-    QMessageBox::information(this, QStringLiteral("Frame.io コメント取り込み"),
-        QStringLiteral("FrameIoImporter がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Import Frame.io Comments"),
+        QStringLiteral("FrameIoImporter is not included in this build."));
 #endif
 }
 
@@ -16047,7 +16047,7 @@ void MainWindow::openDavinciExportDialog()
         + QStringLiteral(".xml");
     const QString outPath = QFileDialog::getSaveFileName(
         this,
-        QStringLiteral("DaVinci Resolve XML を書き出し"),
+        QStringLiteral("Export DaVinci Resolve XML"),
         suggestedPath,
         QStringLiteral("XML Files (*.xml);;All Files (*)"));
     if (outPath.isEmpty())
@@ -16067,27 +16067,27 @@ void MainWindow::openDavinciExportDialog()
 
     QFile file(outPath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, QStringLiteral("DaVinci Resolve XML 書き出し"),
-            QStringLiteral("ファイルを書き込めませんでした:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Export DaVinci Resolve XML"),
+            QStringLiteral("Could not write file:\n%1")
                 .arg(file.errorString()));
         return;
     }
     if (file.write(xml.toUtf8()) < 0) {
-        QMessageBox::warning(this, QStringLiteral("DaVinci Resolve XML 書き出し"),
-            QStringLiteral("XML の書き込みに失敗しました:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Export DaVinci Resolve XML"),
+            QStringLiteral("Failed to write XML:\n%1")
                 .arg(file.errorString()));
         return;
     }
 
     if (statusBar()) {
         statusBar()->showMessage(
-            QStringLiteral("DaVinci Resolve XML を書き出しました (%1 クリップ)")
+            QStringLiteral("Exported DaVinci Resolve XML (%1 clip(s))")
                 .arg(clips.size()),
             5000);
     }
 #else
-    QMessageBox::information(this, QStringLiteral("DaVinci Resolve XML 書き出し"),
-        QStringLiteral("DavinciResolveXmlExporter がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Export DaVinci Resolve XML"),
+        QStringLiteral("DavinciResolveXmlExporter is not included in this build."));
 #endif
 }
 
@@ -16100,7 +16100,7 @@ void MainWindow::openFcpxmlExportDialog()
         + QStringLiteral(".fcpxml");
     const QString outPath = QFileDialog::getSaveFileName(
         this,
-        QStringLiteral("FCPXML を書き出し"),
+        QStringLiteral("Export FCPXML"),
         suggestedPath,
         QStringLiteral("FCPXML Files (*.fcpxml *.xml);;All Files (*)"));
     if (outPath.isEmpty())
@@ -16121,27 +16121,27 @@ void MainWindow::openFcpxmlExportDialog()
 
     QFile file(outPath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, QStringLiteral("FCPXML 書き出し"),
-            QStringLiteral("ファイルを書き込めませんでした:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Export FCPXML"),
+            QStringLiteral("Could not write file:\n%1")
                 .arg(file.errorString()));
         return;
     }
     if (file.write(xml.toUtf8()) < 0) {
-        QMessageBox::warning(this, QStringLiteral("FCPXML 書き出し"),
-            QStringLiteral("XML の書き込みに失敗しました:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Export FCPXML"),
+            QStringLiteral("Failed to write XML:\n%1")
                 .arg(file.errorString()));
         return;
     }
 
     if (statusBar()) {
         statusBar()->showMessage(
-            QStringLiteral("FCPXML を書き出しました (%1 クリップ)")
+            QStringLiteral("Exported FCPXML (%1 clip(s))")
                 .arg(clips.size()),
             5000);
     }
 #else
-    QMessageBox::information(this, QStringLiteral("FCPXML 書き出し"),
-        QStringLiteral("FcpxmlExporter がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Export FCPXML"),
+        QStringLiteral("FcpxmlExporter is not included in this build."));
 #endif
 }
 
@@ -16151,16 +16151,16 @@ void MainWindow::openFcpxmlExportDialog()
 void MainWindow::exportEdl()
 {
     if (!m_timeline) {
-        QMessageBox::warning(this, QStringLiteral("EDL 書き出し"),
-            QStringLiteral("タイムラインが初期化されていません。"));
+        QMessageBox::warning(this, QStringLiteral("Export EDL"),
+            QStringLiteral("Timeline is not initialized."));
         return;
     }
 
     const QVector<ClipInfo> clips = m_timeline->videoClips();
     if (clips.isEmpty()) {
-        QMessageBox::warning(this, QStringLiteral("EDL 書き出し"),
-            QStringLiteral("V1 トラックにクリップがありません。\n"
-                           "EDL を書き出すにはクリップを配置してください。"));
+        QMessageBox::warning(this, QStringLiteral("Export EDL"),
+            QStringLiteral("No clips on the V1 track.\n"
+                           "Place clips on the timeline to export an EDL."));
         return;
     }
 
@@ -16184,7 +16184,7 @@ void MainWindow::exportEdl()
         + QStringLiteral(".edl");
     const QString outPath = QFileDialog::getSaveFileName(
         this,
-        QStringLiteral("EDL (CMX3600) を書き出し"),
+        QStringLiteral("Export EDL (CMX3600)"),
         suggestedPath,
         QStringLiteral("EDL Files (*.edl);;All Files (*)"));
     if (outPath.isEmpty())
@@ -16196,23 +16196,23 @@ void MainWindow::exportEdl()
 
     QFile file(outPath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, QStringLiteral("EDL 書き出し"),
-            QStringLiteral("ファイルを書き込めませんでした:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Export EDL"),
+            QStringLiteral("Could not write file:\n%1")
                 .arg(file.errorString()));
         return;
     }
     const QByteArray bytes = text.toUtf8();
     const qint64 written = file.write(bytes);
     if (written != bytes.size()) {
-        QMessageBox::warning(this, QStringLiteral("EDL 書き出し"),
-            QStringLiteral("EDL の書き込みに失敗しました:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Export EDL"),
+            QStringLiteral("Failed to write the EDL:\n%1")
                 .arg(file.errorString()));
         return;
     }
 
     if (statusBar()) {
         statusBar()->showMessage(
-            QStringLiteral("EDL (CMX3600) を書き出しました (%1 イベント)")
+            QStringLiteral("Exported EDL (CMX3600) (%1 event(s))")
                 .arg(doc.events.size()),
             5000);
     }
@@ -16229,8 +16229,8 @@ void MainWindow::openSmartEditDialog()
     m_smartEditDialog->raise();
     m_smartEditDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("Smart Edit アシスタント"),
-        QStringLiteral("SmartEditDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Smart Edit Assistant"),
+        QStringLiteral("SmartEditDialog is not included in this build."));
 #endif
 }
 
@@ -16247,8 +16247,8 @@ void MainWindow::openCloudRenderDialog()
     m_cloudRenderDialog->raise();
     m_cloudRenderDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("クラウドレンダリング"),
-        QStringLiteral("CloudRenderDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Cloud Rendering"),
+        QStringLiteral("CloudRenderDialog is not included in this build."));
 #endif
 }
 
@@ -16265,8 +16265,8 @@ void MainWindow::openXVideoDialog()
     m_xVideoDialog->raise();
     m_xVideoDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("X(Twitter) に動画投稿"),
-        QStringLiteral("XVideoDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Post Video to X (Twitter)"),
+        QStringLiteral("XVideoDialog is not included in this build."));
 #endif
 }
 
@@ -16281,8 +16281,8 @@ void MainWindow::openInstagramDialog()
     m_instagramDialog->raise();
     m_instagramDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("Instagram Reels に投稿"),
-        QStringLiteral("InstagramPublishDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Post to Instagram Reels"),
+        QStringLiteral("InstagramPublishDialog is not included in this build."));
 #endif
 }
 
@@ -16297,8 +16297,8 @@ void MainWindow::openProjectTemplateDialog()
     m_projectTemplateDialog->raise();
     m_projectTemplateDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("プロジェクトテンプレート"),
-        QStringLiteral("ProjectTemplateDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Project Templates"),
+        QStringLiteral("ProjectTemplateDialog is not included in this build."));
 #endif
 }
 
@@ -16313,8 +16313,8 @@ void MainWindow::openLoudnessDialog()
     m_loudnessDialog->raise();
     m_loudnessDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("ラウドネスマスタリング"),
-        QStringLiteral("LoudnessMasterDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Loudness Mastering"),
+        QStringLiteral("LoudnessMasterDialog is not included in this build."));
 #endif
 }
 
@@ -16329,8 +16329,8 @@ void MainWindow::openHdrDialog()
     m_hdrDialog->raise();
     m_hdrDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("HDR カラーグレーディング"),
-        QStringLiteral("HdrGradingDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("HDR Color Grading"),
+        QStringLiteral("HdrGradingDialog is not included in this build."));
 #endif
 }
 
@@ -16358,8 +16358,8 @@ void MainWindow::openBatchExportDialog()
     m_batchExportDialog->raise();
     m_batchExportDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("バッチエクスポート"),
-        QStringLiteral("BatchExportDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Batch Export"),
+        QStringLiteral("BatchExportDialog is not included in the build."));
 #endif
 }
 
@@ -16377,8 +16377,8 @@ void MainWindow::openChromaKeyDialog()
     m_chromaKeyDialog->raise();
     m_chromaKeyDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("クロマキー精緻化"),
-        QStringLiteral("ChromaKeyRefineDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Chroma Key Refinement"),
+        QStringLiteral("ChromaKeyRefineDialog is not included in the build."));
 #endif
 }
 
@@ -16409,21 +16409,21 @@ void MainWindow::openAutoMatte()
     // クリップから取れなければ画像ファイルを開かせるフォールバック。
     if (frame.isNull()) {
         const QString openPath = QFileDialog::getOpenFileName(this,
-            QStringLiteral("マッティング元画像を開く"), QString(),
-            QStringLiteral("画像ファイル (*.png *.jpg *.jpeg *.bmp *.gif *.tiff *.tif *.webp);;すべてのファイル (*)"));
+            QStringLiteral("Open Source Image for Matting"), QString(),
+            QStringLiteral("Image files (*.png *.jpg *.jpeg *.bmp *.gif *.tiff *.tif *.webp);;All files (*)"));
         if (openPath.isEmpty())
             return;
         frame.load(openPath);
         if (frame.isNull()) {
-            QMessageBox::warning(this, QStringLiteral("自動背景除去 / マッティング"),
-                QStringLiteral("画像の読み込みに失敗しました。"));
+            QMessageBox::warning(this, QStringLiteral("Auto Background Removal / Matting"),
+                QStringLiteral("Failed to load the image."));
             return;
         }
         sourceLabel = QFileInfo(openPath).completeBaseName();
     }
 
     AutoMatteDialog dlg(this);
-    dlg.setWindowTitle(QStringLiteral("自動背景除去 / マッティング - %1").arg(sourceLabel));
+    dlg.setWindowTitle(QStringLiteral("Auto Background Removal / Matting - %1").arg(sourceLabel));
     dlg.setSourceImage(frame);
 
     // 「適用」されたかどうかを captures。applied() は OK 押下時に emit される。
@@ -16437,17 +16437,17 @@ void MainWindow::openAutoMatte()
     const QImage matte  = dlg.matteImage();
     const QImage result = dlg.resultImage();
     if (matte.isNull() && result.isNull()) {
-        QMessageBox::warning(this, QStringLiteral("自動背景除去 / マッティング"),
-            QStringLiteral("マットの生成に失敗しました。"));
+        QMessageBox::warning(this, QStringLiteral("Auto Background Removal / Matting"),
+            QStringLiteral("Failed to generate the matte."));
         return;
     }
 
     const QString defaultName = sourceLabel.isEmpty()
         ? QStringLiteral("matte") : sourceLabel;
     const QString outPath = QFileDialog::getSaveFileName(this,
-        QStringLiteral("マッティング結果を保存"),
+        QStringLiteral("Save Matting Result"),
         defaultName + QStringLiteral("_matte.png"),
-        QStringLiteral("PNG 画像 (*.png);;すべてのファイル (*)"));
+        QStringLiteral("PNG images (*.png);;All files (*)"));
     if (outPath.isEmpty())
         return;
 
@@ -16471,23 +16471,23 @@ void MainWindow::openAutoMatte()
     }
 
     if (saved.isEmpty()) {
-        QMessageBox::warning(this, QStringLiteral("自動背景除去 / マッティング"),
-            QStringLiteral("ファイルの書き出しに失敗しました。"));
+        QMessageBox::warning(this, QStringLiteral("Auto Background Removal / Matting"),
+            QStringLiteral("Failed to write the file."));
         return;
     }
     statusBar()->showMessage(
-        QStringLiteral("マッティング結果を保存しました: %1").arg(saved.join(QStringLiteral(", "))));
+        QStringLiteral("Matting result saved: %1").arg(saved.join(QStringLiteral(", "))));
 #else
-    QMessageBox::information(this, QStringLiteral("自動背景除去 / マッティング"),
-        QStringLiteral("AutoMatteDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Auto Background Removal / Matting"),
+        QStringLiteral("AutoMatteDialog is not included in the build."));
 #endif
 }
 
 void MainWindow::openObjectRemoval()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("オブジェクト除去"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Object Removal"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
 
@@ -16496,8 +16496,8 @@ void MainWindow::openObjectRemoval()
     ClipInfo clip;
     if (!selectedVideoClipRef(trackIdx, clipIdx, &clip)
         || clip.filePath.isEmpty() || !clip.sequenceRefId.isEmpty()) {
-        QMessageBox::information(this, QStringLiteral("オブジェクト除去"),
-                                 QStringLiteral("先に通常のビデオクリップを選択してください。"));
+        QMessageBox::information(this, QStringLiteral("Object Removal"),
+                                 QStringLiteral("Please select a regular video clip first."));
         return;
     }
 
@@ -16525,8 +16525,8 @@ void MainWindow::openObjectRemoval()
             || !rotoIt.value().keyframes.isEmpty()
             || !rotoIt.value().brushMask.isNull());
     if (!clip.hasMask() && !hasRotoMask) {
-        QMessageBox::information(this, QStringLiteral("オブジェクト除去"),
-                                 QStringLiteral("選択クリップにクリップマスクまたはロトブラシマスクがありません。"));
+        QMessageBox::information(this, QStringLiteral("Object Removal"),
+                                 QStringLiteral("The selected clip has no clip mask or rotobrush mask."));
         return;
     }
 
@@ -16641,7 +16641,7 @@ void MainWindow::openObjectRemoval()
         const QStringList &paths, double sequenceFps, QString *error) {
         if (!m_timeline || paths.isEmpty()) {
             if (error)
-                *error = QStringLiteral("取り込み対象のフレームがありません。");
+                *error = QStringLiteral("No frames to import.");
             return false;
         }
 
@@ -16657,7 +16657,7 @@ void MainWindow::openObjectRemoval()
         const double frameDuration = 1.0 / qMax(1.0, sequenceFps);
         TimelineSequence sequence;
         sequence.id = sequenceId;
-        sequence.name = QStringLiteral("%1（オブジェクト除去）")
+        sequence.name = QStringLiteral("%1 (Object Removal)")
             .arg(clipSnapshot.displayName.isEmpty()
                      ? QFileInfo(clipSnapshot.filePath).completeBaseName()
                      : clipSnapshot.displayName);
@@ -16677,12 +16677,12 @@ void MainWindow::openObjectRemoval()
         }
         if (!m_timeline->addSequence(sequence)) {
             if (error)
-                *error = QStringLiteral("タイムラインシーケンスを作成できません。");
+                *error = QStringLiteral("Could not create a timeline sequence.");
             return false;
         }
         if (!m_timeline->addSequenceClip(sequenceId, qMax(0, trackIdx))) {
             if (error)
-                *error = QStringLiteral("生成したシーケンスをタイムラインへ追加できません。");
+                *error = QStringLiteral("Could not add the generated sequence to the timeline.");
             return false;
         }
 
@@ -16699,14 +16699,14 @@ void MainWindow::openObjectRemoval()
         m_timeline->refreshPlaybackSequence();
         setWindowModified(true);
         statusBar()->showMessage(QStringLiteral(
-            "オブジェクト除去シーケンスを V%1 に追加しました（%2 フレーム）")
+            "Object removal sequence added to V%1 (%2 frames)")
                                      .arg(qMax(0, trackIdx) + 1)
                                      .arg(paths.size()), 5000);
         return true;
     };
 
     ObjectRemovalDialog dialog(this);
-    dialog.setWindowTitle(QStringLiteral("オブジェクト除去 - %1")
+    dialog.setWindowTitle(QStringLiteral("Object Removal - %1")
                               .arg(context.clipLabel));
     dialog.setContext(context);
     dialog.exec();
@@ -16723,8 +16723,8 @@ void MainWindow::openAudioRestoreDialog()
     m_audioRestoreDialog->raise();
     m_audioRestoreDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("音声リストア"),
-        QStringLiteral("AudioRestorationDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Audio Restoration"),
+        QStringLiteral("AudioRestorationDialog is not included in the build."));
 #endif
 }
 
@@ -16744,16 +16744,16 @@ bool readPcm16WavToMono(const QString &wavPath,
     constexpr qint64 kMaxWavBytes = 512LL * 1024LL * 1024LL;
     const QFileInfo info(wavPath);
     if (!info.exists()) {
-        if (error) *error = QStringLiteral("WAV が存在しません: %1").arg(wavPath);
+        if (error) *error = QStringLiteral("WAV file not found: %1").arg(wavPath);
         return false;
     }
     if (info.size() <= 0) {
-        if (error) *error = QStringLiteral("WAV が空です: %1").arg(wavPath);
+        if (error) *error = QStringLiteral("WAV file is empty: %1").arg(wavPath);
         return false;
     }
     if (info.size() > kMaxWavBytes) {
         if (error) *error =
-            QStringLiteral("WAV が大きすぎます (%1 MB、上限 %2 MB)。")
+            QStringLiteral("WAV is too large (%1 MB; limit is %2 MB).")
                 .arg(info.size() / (1024.0 * 1024.0), 0, 'f', 1)
                 .arg(kMaxWavBytes / (1024 * 1024));
         return false;
@@ -16761,7 +16761,7 @@ bool readPcm16WavToMono(const QString &wavPath,
 
     QFile f(wavPath);
     if (!f.open(QIODevice::ReadOnly)) {
-        if (error) *error = QStringLiteral("WAV を開けません: %1").arg(wavPath);
+        if (error) *error = QStringLiteral("Cannot open WAV: %1").arg(wavPath);
         return false;
     }
     const QByteArray data = f.readAll();
@@ -16769,13 +16769,13 @@ bool readPcm16WavToMono(const QString &wavPath,
 
     if (data.size() != info.size()) {
         if (error) *error =
-            QStringLiteral("WAV の読み込みが途中で終了しました (%1/%2 bytes)。")
+            QStringLiteral("WAV read ended prematurely (%1/%2 bytes).")
                 .arg(data.size()).arg(info.size());
         return false;
     }
     if (data.size() < 44 || !data.startsWith("RIFF") ||
         data.mid(8, 4) != QByteArray("WAVE")) {
-        if (error) *error = QStringLiteral("RIFF/WAVE ヘッダが不正です。");
+        if (error) *error = QStringLiteral("Invalid RIFF/WAVE header.");
         return false;
     }
 
@@ -16809,21 +16809,21 @@ bool readPcm16WavToMono(const QString &wavPath,
         const qint64 nextChunk = chunkEnd + ((sz & 1u) ? 1 : 0);
         if (chunkEnd > data.size()) {
             if (error) *error =
-                QStringLiteral("WAV チャンク '%1' がファイル終端を越えています。")
+                QStringLiteral("WAV chunk '%1' extends past the end of the file.")
                     .arg(QString::fromLatin1(id.constData(), id.size()));
             return false;
         }
 
         if (id == QByteArray("fmt ")) {
             if (sz < 16) {
-                if (error) *error = QStringLiteral("WAV fmt チャンクが短すぎます。");
+                if (error) *error = QStringLiteral("WAV fmt chunk is too short.");
                 return false;
             }
             audioFormat   = rdU16(body);
             channels      = rdU16(body + 2);
             const quint32 parsedSr = rdU32(body + 4);
             if (parsedSr > static_cast<quint32>(std::numeric_limits<int>::max())) {
-                if (error) *error = QStringLiteral("WAV の sample rate が大きすぎます。");
+                if (error) *error = QStringLiteral("WAV sample rate is too high.");
                 return false;
             }
             sr            = static_cast<int>(parsedSr);
@@ -16841,31 +16841,31 @@ bool readPcm16WavToMono(const QString &wavPath,
 
     if (audioFormat != 1 || bitsPerSample != 16) {
         if (error) *error =
-            QStringLiteral("対応するのは 16bit PCM WAV のみです (format=%1, bits=%2)。")
+            QStringLiteral("Only 16-bit PCM WAV is supported (format=%1, bits=%2).")
                 .arg(audioFormat).arg(bitsPerSample);
         return false;
     }
     if (!haveFmt || dataOff < 0 || dataLen <= 0 || sr <= 0 || channels <= 0) {
-        if (error) *error = QStringLiteral("WAV の data/fmt チャンクが見つかりません。");
+        if (error) *error = QStringLiteral("WAV data/fmt chunk not found.");
         return false;
     }
 
     if (channels > 64) {
-        if (error) *error = QStringLiteral("WAV の channel 数が大きすぎます (%1)。").arg(channels);
+        if (error) *error = QStringLiteral("WAV has too many channels (%1).").arg(channels);
         return false;
     }
 
     const int frameBytes = 2 * channels;
     if (blockAlign != frameBytes) {
         if (error) *error =
-            QStringLiteral("WAV の block align が不正です (blockAlign=%1, expected=%2)。")
+            QStringLiteral("Invalid WAV block align (blockAlign=%1, expected=%2).")
                 .arg(blockAlign).arg(frameBytes);
         return false;
     }
 
     const int frameCount = dataLen / frameBytes;
     if (frameCount <= 0) {
-        if (error) *error = QStringLiteral("WAV の data チャンクにサンプルがありません。");
+        if (error) *error = QStringLiteral("WAV data chunk contains no samples.");
         return false;
     }
 
@@ -16893,8 +16893,8 @@ void MainWindow::openVoiceIsolationDialog()
 {
 #ifdef HAVE_SPECTRAL_EDIT_DIALOG
     if (!m_timeline) {
-        QMessageBox::information(this, QStringLiteral("音声分離"),
-                                 QStringLiteral("タイムラインの初期化が完了していません。"));
+        QMessageBox::information(this, QStringLiteral("Audio Separation"),
+                                 QStringLiteral("Timeline initialization is not complete."));
         return;
     }
 
@@ -16939,19 +16939,19 @@ void MainWindow::openVoiceIsolationDialog()
 
     if (sourcePath.isEmpty()) {
         sourcePath = QFileDialog::getOpenFileName(
-            this, QStringLiteral("音声分離: 対象メディアを選択"), QString(),
-            QStringLiteral("メディアファイル (*.mp4 *.mov *.mkv *.wav *.mp3 *.aac *.m4a *.flac);;"
-                           "すべてのファイル (*)"));
+            this, QStringLiteral("Audio Separation: Select Target Media"), QString(),
+            QStringLiteral("Media files (*.mp4 *.mov *.mkv *.wav *.mp3 *.aac *.m4a *.flac);;"
+                           "All files (*)"));
         if (!sourcePath.isEmpty())
             sourceLabel = QFileInfo(sourcePath).fileName();
     }
     if (sourcePath.isEmpty()) {
-        statusBar()->showMessage(QStringLiteral("音声分離: 対象が選択されていません。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Audio Separation: No target selected."), 3000);
         return;
     }
     if (!QFileInfo::exists(sourcePath)) {
-        QMessageBox::warning(this, QStringLiteral("音声分離"),
-                             QStringLiteral("ファイルが存在しません:\n%1").arg(sourcePath));
+        QMessageBox::warning(this, QStringLiteral("Audio Separation"),
+                             QStringLiteral("File does not exist:\n%1").arg(sourcePath));
         return;
     }
 
@@ -16980,19 +16980,19 @@ void MainWindow::openVoiceIsolationDialog()
     constexpr int kSampleRate = 48000;
     QTemporaryDir tempDir;
     if (!tempDir.isValid()) {
-        QMessageBox::warning(this, QStringLiteral("音声分離"),
-                             QStringLiteral("音声抽出用の一時ディレクトリを作成できません。"));
+        QMessageBox::warning(this, QStringLiteral("Audio Separation"),
+                             QStringLiteral("Could not create a temporary directory for audio extraction."));
         return;
     }
     const QString sourceWav = tempDir.filePath(QStringLiteral("voice-isolation-source.wav"));
     QString extractError;
-    statusBar()->showMessage(QStringLiteral("音声を抽出しています..."));
+    statusBar()->showMessage(QStringLiteral("Extracting audio..."));
     if (!libavcore::extractAudioToWav(sourcePath, sourceWav, kSampleRate,
                                       &extractError)) {
-        QMessageBox::warning(this, QStringLiteral("音声分離"),
-                             QStringLiteral("音声の抽出に失敗しました:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Audio Separation"),
+                             QStringLiteral("Failed to extract audio:\n%1")
                                  .arg(extractError.isEmpty() ? sourcePath : extractError));
-        statusBar()->showMessage(QStringLiteral("音声分離: 抽出失敗。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Audio Separation: Extraction failed."), 3000);
         return;
     }
 
@@ -17001,11 +17001,11 @@ void MainWindow::openVoiceIsolationDialog()
     QString readError;
     if (!readPcm16WavToMono(sourceWav, decoded, sampleRate, &readError)
         || decoded.empty()) {
-        QMessageBox::warning(this, QStringLiteral("音声分離"),
-                             QStringLiteral("抽出した音声を読み込めませんでした:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Audio Separation"),
+                             QStringLiteral("Could not load extracted audio:\n%1")
                                  .arg(readError.isEmpty()
-                                          ? QStringLiteral("サンプルがありません") : readError));
-        statusBar()->showMessage(QStringLiteral("音声分離: 読み込み失敗。"), 3000);
+                                          ? QStringLiteral("No samples") : readError));
+        statusBar()->showMessage(QStringLiteral("Audio Separation: Load failed."), 3000);
         return;
     }
 
@@ -17013,12 +17013,12 @@ void MainWindow::openVoiceIsolationDialog()
     constexpr double kMaxDurationSeconds = 10.0 * 60.0;
     if (duration > kMaxDurationSeconds) {
         const auto choice = QMessageBox::question(
-            this, QStringLiteral("音声分離"),
-            QStringLiteral("音声が長すぎます（%1 秒）。先頭 10 分だけ処理しますか?")
+            this, QStringLiteral("Audio Separation"),
+            QStringLiteral("The audio is too long (%1 seconds). Process only the first 10 minutes?")
                 .arg(duration, 0, 'f', 1),
             QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
         if (choice != QMessageBox::Ok) {
-            statusBar()->showMessage(QStringLiteral("音声分離: キャンセルしました。"), 3000);
+            statusBar()->showMessage(QStringLiteral("Audio Separation: Canceled."), 3000);
             return;
         }
         decoded.resize(static_cast<size_t>(kMaxDurationSeconds * sampleRate));
@@ -17038,15 +17038,15 @@ void MainWindow::openVoiceIsolationDialog()
     if (selectedClip.outPoint > selectedClip.inPoint) {
         dialog.setInitialRange(selectedClip.inPoint, selectedClip.outPoint);
     }
-    statusBar()->showMessage(QStringLiteral("音声分離ダイアログを開いています..."), 2000);
+    statusBar()->showMessage(QStringLiteral("Opening Audio Separation dialog..."), 2000);
     if (dialog.exec() != QDialog::Accepted) {
-        statusBar()->showMessage(QStringLiteral("音声分離: 適用されませんでした。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Audio Separation: Not applied."), 3000);
         return;
     }
 
     const QVector<float> processed = dialog.processedSamples();
     if (processed.isEmpty()) {
-        statusBar()->showMessage(QStringLiteral("音声分離: 処理結果が空です。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Audio Separation: Result is empty."), 3000);
         return;
     }
 
@@ -17054,17 +17054,17 @@ void MainWindow::openVoiceIsolationDialog()
     const QString defaultOutput = sourceInfo.absolutePath() + QLatin1Char('/')
         + sourceInfo.completeBaseName() + QStringLiteral("_voiceisolated.wav");
     const QString outputPath = QFileDialog::getSaveFileName(
-        this, QStringLiteral("分離済み音声を保存"), defaultOutput,
-        QStringLiteral("WAV ファイル (*.wav);;すべてのファイル (*)"));
+        this, QStringLiteral("Save Separated Audio"), defaultOutput,
+        QStringLiteral("WAV files (*.wav);;All files (*)"));
     if (outputPath.isEmpty()) {
-        statusBar()->showMessage(QStringLiteral("音声分離: 保存をキャンセルしました。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Audio Separation: Save canceled."), 3000);
         return;
     }
     if (QFileInfo(outputPath).exists()
         && QFileInfo(outputPath).canonicalFilePath() == sourceInfo.canonicalFilePath()) {
         const auto choice = QMessageBox::warning(
-            this, QStringLiteral("音声分離"),
-            QStringLiteral("元のファイルを上書きします。続行しますか?"),
+            this, QStringLiteral("Audio Separation"),
+            QStringLiteral("This will overwrite the original file. Continue?"),
             QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Cancel);
         if (choice != QMessageBox::Save)
             return;
@@ -17072,8 +17072,8 @@ void MainWindow::openVoiceIsolationDialog()
 
     QByteArray pcm;
     if (processed.size() > std::numeric_limits<int>::max() / 2) {
-        QMessageBox::warning(this, QStringLiteral("音声分離"),
-                             QStringLiteral("処理結果が大きすぎます。"));
+        QMessageBox::warning(this, QStringLiteral("Audio Separation"),
+                             QStringLiteral("Result is too large."));
         return;
     }
     pcm.resize(processed.size() * 2);
@@ -17089,8 +17089,8 @@ void MainWindow::openVoiceIsolationDialog()
     QString writeError;
     if (!libavcore::writePcm16AsWav(outputPath, pcm, dialog.sampleRate(), 1,
                                     &writeError)) {
-        QMessageBox::warning(this, QStringLiteral("音声分離"),
-                             QStringLiteral("分離済み音声の書き出しに失敗しました:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Audio Separation"),
+                             QStringLiteral("Failed to export the separated audio:\n%1")
                                  .arg(writeError.isEmpty() ? outputPath : writeError));
         return;
     }
@@ -17105,16 +17105,16 @@ void MainWindow::openVoiceIsolationDialog()
 
     setWindowModified(true);
     statusBar()->showMessage(
-        replaced ? QStringLiteral("音声分離をクリップへ適用しました: %1").arg(outputPath)
-                 : QStringLiteral("分離済み音声をタイムラインへ追加しました: %1").arg(outputPath),
+        replaced ? QStringLiteral("Audio separation applied to clip: %1").arg(outputPath)
+                 : QStringLiteral("Separated audio added to timeline: %1").arg(outputPath),
         6000);
     QMessageBox::information(
-        this, QStringLiteral("音声分離"),
-        replaced ? QStringLiteral("分離済み音声を選択クリップへ適用しました:\n%1").arg(outputPath)
-                 : QStringLiteral("分離済み音声をタイムラインへ追加しました:\n%1").arg(outputPath));
+        this, QStringLiteral("Audio Separation"),
+        replaced ? QStringLiteral("Separated audio applied to selected clip:\n%1").arg(outputPath)
+                 : QStringLiteral("Separated audio added to timeline:\n%1").arg(outputPath));
 #else
-    QMessageBox::information(this, QStringLiteral("音声分離"),
-                             QStringLiteral("音声抽出機能がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Audio Separation"),
+                             QStringLiteral("The audio extraction feature is not included in the build."));
 #endif
 }
 
@@ -17131,18 +17131,18 @@ void MainWindow::openSpectralRepair()
     }
     if (sourcePath.isEmpty()) {
         sourcePath = QFileDialog::getOpenFileName(
-            this, QStringLiteral("スペクトル音声修復 — 対象メディアを選択"),
+            this, QStringLiteral("Spectral Audio Repair — Select Target Media"),
             QString(),
-            QStringLiteral("メディアファイル (*.mp4 *.mov *.mkv *.wav *.mp3 *.aac *.m4a);;"
-                           "すべてのファイル (*)"));
+            QStringLiteral("Media files (*.mp4 *.mov *.mkv *.wav *.mp3 *.aac *.m4a);;"
+                           "All files (*)"));
     }
     if (sourcePath.isEmpty()) {
-        statusBar()->showMessage(QStringLiteral("スペクトル音声修復: 対象が選択されていません。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Spectral Audio Repair: No target selected."), 3000);
         return;
     }
     if (!QFileInfo::exists(sourcePath)) {
-        QMessageBox::warning(this, QStringLiteral("スペクトル音声修復"),
-            QStringLiteral("ファイルが存在しません:\n%1").arg(sourcePath));
+        QMessageBox::warning(this, QStringLiteral("Spectral Audio Repair"),
+            QStringLiteral("File does not exist:\n%1").arg(sourcePath));
         return;
     }
 
@@ -17150,20 +17150,20 @@ void MainWindow::openSpectralRepair()
     const int kSampleRate = 48000;
     QTemporaryDir tmpDir;
     if (!tmpDir.isValid()) {
-        QMessageBox::warning(this, QStringLiteral("スペクトル音声修復"),
-            QStringLiteral("一時ディレクトリを作成できませんでした。"));
+        QMessageBox::warning(this, QStringLiteral("Spectral Audio Repair"),
+            QStringLiteral("Could not create temporary directory."));
         return;
     }
     tmpDir.setAutoRemove(true);
     const QString tmpWav = tmpDir.filePath(QStringLiteral("spectral_src.wav"));
 
-    statusBar()->showMessage(QStringLiteral("音声を抽出しています..."));
+    statusBar()->showMessage(QStringLiteral("Extracting audio..."));
     QString extractErr;
     if (!libavcore::extractAudioToWav(sourcePath, tmpWav, kSampleRate, &extractErr)) {
-        QMessageBox::warning(this, QStringLiteral("スペクトル音声修復"),
-            QStringLiteral("音声の抽出に失敗しました:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Spectral Audio Repair"),
+            QStringLiteral("Failed to extract audio:\n%1")
                 .arg(extractErr.isEmpty() ? sourcePath : extractErr));
-        statusBar()->showMessage(QStringLiteral("スペクトル音声修復: 抽出失敗。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Spectral Audio Repair: Extraction failed."), 3000);
         return;
     }
 
@@ -17172,10 +17172,10 @@ void MainWindow::openSpectralRepair()
     int sr = kSampleRate;
     QString readErr;
     if (!readPcm16WavToMono(tmpWav, samples, sr, &readErr) || samples.empty()) {
-        QMessageBox::warning(this, QStringLiteral("スペクトル音声修復"),
-            QStringLiteral("抽出した音声を読み込めませんでした:\n%1")
-                .arg(readErr.isEmpty() ? QStringLiteral("(空のサンプル列)") : readErr));
-        statusBar()->showMessage(QStringLiteral("スペクトル音声修復: 読み込み失敗。"), 3000);
+        QMessageBox::warning(this, QStringLiteral("Spectral Audio Repair"),
+            QStringLiteral("Could not load extracted audio:\n%1")
+                .arg(readErr.isEmpty() ? QStringLiteral("(empty sample array)") : readErr));
+        statusBar()->showMessage(QStringLiteral("Spectral Audio Repair: Load failed."), 3000);
         return;
     }
 
@@ -17183,12 +17183,12 @@ void MainWindow::openSpectralRepair()
     const double durationSec = static_cast<double>(samples.size()) / (sr > 0 ? sr : kSampleRate);
     const double kMaxSec = 10.0 * 60.0;
     if (durationSec > kMaxSec) {
-        const auto ret = QMessageBox::question(this, QStringLiteral("スペクトル音声修復"),
-            QStringLiteral("音声が長すぎます (%1 秒)。先頭 %2 分のみを処理します。続行しますか?")
+        const auto ret = QMessageBox::question(this, QStringLiteral("Spectral Audio Repair"),
+            QStringLiteral("The audio is too long (%1 seconds). Only the first %2 minutes will be processed. Continue?")
                 .arg(durationSec, 0, 'f', 1).arg(static_cast<int>(kMaxSec / 60.0)),
             QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
         if (ret != QMessageBox::Ok) {
-            statusBar()->showMessage(QStringLiteral("スペクトル音声修復: キャンセルしました。"), 3000);
+            statusBar()->showMessage(QStringLiteral("Spectral Audio Repair: Canceled."), 3000);
             return;
         }
         samples.resize(static_cast<size_t>(kMaxSec * sr));
@@ -17206,22 +17206,22 @@ void MainWindow::openSpectralRepair()
     bool didApply = false;
     connect(&dlg, &SpectralEditDialog::applied, &dlg,
             [&didApply]() { didApply = true; });
-    statusBar()->showMessage(QStringLiteral("スペクトル音声修復ダイアログを開いています..."), 2000);
+    statusBar()->showMessage(QStringLiteral("Opening Spectral Audio Repair dialog..."), 2000);
     dlg.exec();
     if (!didApply) {
-        statusBar()->showMessage(QStringLiteral("スペクトル音声修復: 適用されませんでした。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Spectral Audio Repair: Not applied."), 3000);
         return;
     }
 
     const std::vector<double> processed = dlg.processedSamples();
     const int outSr = dlg.sampleRate() > 0 ? dlg.sampleRate() : sr;
     if (processed.empty()) {
-        statusBar()->showMessage(QStringLiteral("スペクトル音声修復: 修復結果が空のため書き出しをスキップしました。"), 4000);
+        statusBar()->showMessage(QStringLiteral("Spectral Audio Repair: Skipped export because the repair result is empty."), 4000);
         return;
     }
     if (processed.size() > static_cast<size_t>(std::numeric_limits<int>::max() / 2)) {
-        QMessageBox::warning(this, QStringLiteral("スペクトル音声修復"),
-            QStringLiteral("修復結果が大きすぎるため WAV として書き出せません。"));
+        QMessageBox::warning(this, QStringLiteral("Spectral Audio Repair"),
+            QStringLiteral("The repair result is too large to export as WAV."));
         return;
     }
 
@@ -17230,10 +17230,10 @@ void MainWindow::openSpectralRepair()
     const QString defaultOut = srcInfo.absolutePath() + QLatin1Char('/') +
                                srcInfo.completeBaseName() + QStringLiteral("_repaired.wav");
     QString outPath = QFileDialog::getSaveFileName(
-        this, QStringLiteral("修復済み音声を保存"), defaultOut,
-        QStringLiteral("WAV ファイル (*.wav);;すべてのファイル (*)"));
+        this, QStringLiteral("Save Repaired Audio"), defaultOut,
+        QStringLiteral("WAV files (*.wav);;All files (*)"));
     if (outPath.isEmpty()) {
-        statusBar()->showMessage(QStringLiteral("スペクトル音声修復: 保存をキャンセルしました。"), 3000);
+        statusBar()->showMessage(QStringLiteral("Spectral Audio Repair: Save canceled."), 3000);
         return;
     }
 
@@ -17252,21 +17252,21 @@ void MainWindow::openSpectralRepair()
 
     QString writeErr;
     if (!libavcore::writePcm16AsWav(outPath, pcm, outSr, /*channels=*/1, &writeErr)) {
-        QMessageBox::warning(this, QStringLiteral("スペクトル音声修復"),
-            QStringLiteral("修復済み音声の書き出しに失敗しました:\n%1")
+        QMessageBox::warning(this, QStringLiteral("Spectral Audio Repair"),
+            QStringLiteral("Failed to export the repaired audio:\n%1")
                 .arg(writeErr.isEmpty() ? outPath : writeErr));
         return;
     }
 
     statusBar()->showMessage(
-        QStringLiteral("スペクトル音声修復: 保存しました — %1").arg(outPath), 6000);
-    QMessageBox::information(this, QStringLiteral("スペクトル音声修復"),
-        QStringLiteral("修復済み音声を書き出しました:\n%1\n\n"
-                       "(クリップの差し替えは行いません。生成したファイルを手動で取り込んでください。)")
+        QStringLiteral("Spectral Audio Repair: Saved — %1").arg(outPath), 6000);
+    QMessageBox::information(this, QStringLiteral("Spectral Audio Repair"),
+        QStringLiteral("Repaired audio exported:\n%1\n\n"
+                       "(The clip will not be replaced. Please import the generated file manually.)")
             .arg(outPath));
 #else
-    QMessageBox::information(this, QStringLiteral("スペクトル音声修復"),
-        QStringLiteral("SpectralEditDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Spectral Audio Repair"),
+        QStringLiteral("SpectralEditDialog is not included in the build."));
 #endif
 }
 
@@ -17289,13 +17289,13 @@ void MainWindow::openColorManagement()
             m_player->setAcesPipeline(m_acesPipeline);
         exporter_setAcesPipeline(m_acesPipeline);
         const QString state = m_acesPipeline.enabled
-            ? QStringLiteral("有効 (入力 %1 → 作業 %2 → 出力 %3)")
+            ? QStringLiteral("Enabled (Input %1 → Working %2 → Output %3)")
                   .arg(aces::colorSpaceName(m_acesPipeline.input),
                        aces::colorSpaceName(m_acesPipeline.working),
                        aces::colorSpaceName(m_acesPipeline.output))
-            : QStringLiteral("無効");
+            : QStringLiteral("Disabled");
         statusBar()->showMessage(
-            QStringLiteral("カラーマネジメント (ACES): %1").arg(state), 4000);
+            QStringLiteral("Color Management (ACES): %1").arg(state), 4000);
     }
     updateAcesUiState();
 }
@@ -17314,7 +17314,7 @@ void MainWindow::openDolbyVision()
     // signal は exec() のイベントループ内で配送されるため this で受けられる。
     connect(&dlg, &DolbyVisionDialog::exportXmlRequested, this, [this, &dlg]() {
         const QString filePath = QFileDialog::getSaveFileName(
-            &dlg, QStringLiteral("Dolby Vision XML をエクスポート"),
+            &dlg, QStringLiteral("Export Dolby Vision XML"),
             QString(), QStringLiteral("Dolby Vision XML (*.xml)"));
         if (filePath.isEmpty())
             return;
@@ -17325,7 +17325,7 @@ void MainWindow::openDolbyVision()
         QString validationError;
         if (!dolbyvision::validate(meta, &validationError)) {
             statusBar()->showMessage(
-                QStringLiteral("Dolby Vision XML エクスポート失敗: %1")
+                QStringLiteral("Dolby Vision XML export failed: %1")
                     .arg(validationError), 6000);
             return;
         }
@@ -17335,7 +17335,7 @@ void MainWindow::openDolbyVision()
         QFile file(filePath);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             statusBar()->showMessage(
-                QStringLiteral("Dolby Vision XML を書き込めませんでした: %1")
+                QStringLiteral("Could not write Dolby Vision XML: %1")
                     .arg(filePath), 6000);
             return;
         }
@@ -17344,14 +17344,14 @@ void MainWindow::openDolbyVision()
         file.close();
 
         statusBar()->showMessage(
-            QStringLiteral("Dolby Vision XML をエクスポートしました: %1")
+            QStringLiteral("Dolby Vision XML exported: %1")
                 .arg(filePath), 4000);
     });
 
     if (dlg.exec() == QDialog::Accepted) {
         m_dolbyVision = dlg.metadata();
         statusBar()->showMessage(
-            QStringLiteral("Dolby Vision メタデータ: プロファイル %1 / %2 ショット")
+            QStringLiteral("Dolby Vision metadata: Profile %1 / %2 shots")
                 .arg(m_dolbyVision.profile)
                 .arg(m_dolbyVision.shots.size()), 4000);
     }
@@ -17389,7 +17389,7 @@ void MainWindow::openBroadcastCaption()
     // signal は exec() のイベントループ内で配送されるため this で受けられる。
     connect(&dlg, &BroadcastCaptionDialog::exportSccRequested, this, [this, &dlg]() {
         const QString filePath = QFileDialog::getSaveFileName(
-            &dlg, QStringLiteral("SCC (Scenarist Closed Caption) をエクスポート"),
+            &dlg, QStringLiteral("Export SCC (Scenarist Closed Caption)"),
             QString(), QStringLiteral("Scenarist SCC (*.scc)"));
         if (filePath.isEmpty())
             return;
@@ -17397,7 +17397,7 @@ void MainWindow::openBroadcastCaption()
         const broadcastcc::BroadcastCaptionDoc doc = dlg.document();
         if (doc.cues.isEmpty()) {
             statusBar()->showMessage(
-                QStringLiteral("SCC エクスポート: 字幕 cue がありません"), 6000);
+                QStringLiteral("SCC export: No subtitle cues"), 6000);
             return;
         }
 
@@ -17406,7 +17406,7 @@ void MainWindow::openBroadcastCaption()
         QFile file(filePath);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             statusBar()->showMessage(
-                QStringLiteral("SCC を書き込めませんでした: %1").arg(filePath), 6000);
+                QStringLiteral("Could not write SCC: %1").arg(filePath), 6000);
             return;
         }
         QTextStream out(&file);
@@ -17414,13 +17414,13 @@ void MainWindow::openBroadcastCaption()
         file.close();
 
         statusBar()->showMessage(
-            QStringLiteral("SCC をエクスポートしました: %1").arg(filePath), 4000);
+            QStringLiteral("SCC exported: %1").arg(filePath), 4000);
     });
 
     if (dlg.exec() == QDialog::Accepted) {
         m_broadcastCaption = dlg.document();
         statusBar()->showMessage(
-            QStringLiteral("放送CC: %1 / CC%2 / %3 cue")
+            QStringLiteral("Broadcast CC: %1 / CC%2 / %3 cues")
                 .arg(m_broadcastCaption.standard)
                 .arg(m_broadcastCaption.channel)
                 .arg(m_broadcastCaption.cues.size()), 4000);
@@ -17438,8 +17438,8 @@ void MainWindow::openAnimExportDialog()
     m_animExportDialog->raise();
     m_animExportDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("アニメGIF・WebP書き出し"),
-        QStringLiteral("AnimatedExportDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Animated GIF / WebP Export"),
+        QStringLiteral("AnimatedExportDialog is not included in the build."));
 #endif
 }
 
@@ -17454,8 +17454,8 @@ void MainWindow::openEasingEditorDialog()
     m_easingEditorDialog->raise();
     m_easingEditorDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("イージングカーブエディタ"),
-        QStringLiteral("EasingCurveEditorDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Easing Curve Editor"),
+        QStringLiteral("EasingCurveEditorDialog is not included in the build."));
 #endif
 }
 
@@ -17470,8 +17470,8 @@ void MainWindow::openSubtitleTranslatorDialog()
     m_subtitleTranslatorDialog->raise();
     m_subtitleTranslatorDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("字幕翻訳"),
-        QStringLiteral("SubtitleTranslatorDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Subtitle Translation"),
+        QStringLiteral("SubtitleTranslatorDialog is not included in the build."));
 #endif
 }
 
@@ -17486,8 +17486,8 @@ void MainWindow::openLowerThirdDialog()
     m_lowerThirdDialog->raise();
     m_lowerThirdDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("ローワーサード"),
-        QStringLiteral("LowerThirdDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Lower Third"),
+        QStringLiteral("LowerThirdDialog is not included in the build."));
 #endif
 }
 
@@ -17502,8 +17502,8 @@ void MainWindow::openWatermarkDialog()
     m_watermarkDialog->raise();
     m_watermarkDialog->activateWindow();
 #else
-    QMessageBox::information(this, QStringLiteral("ウォーターマーク"),
-        QStringLiteral("WatermarkDialog がビルドに含まれていません。"));
+    QMessageBox::information(this, QStringLiteral("Watermark"),
+        QStringLiteral("WatermarkDialog is not included in the build."));
 #endif
 }
 
@@ -17615,16 +17615,16 @@ void MainWindow::setupStatusBarWidgets()
     m_statusResolution = makeLabel("1920x1080");
     m_statusFps = makeLabel("30 fps");
     m_statusDuration = makeLabel("00:00:00");
-    m_statusAces = makeLabel(QStringLiteral("ACES: 無効"));
+    m_statusAces = makeLabel(QStringLiteral("ACES: Disabled"));
     m_statusTheme = makeLabel("Dark");
 
     // 画面右下の常設入口。「表示 > 『LLM に指示を出す』ボタンを表示」で隠せる。
     m_llmAssistantButton = new QToolButton(this);
     m_llmAssistantButton->setObjectName(QStringLiteral("LlmAssistantButton"));
-    m_llmAssistantButton->setText(QStringLiteral("LLM に指示を出す"));
+    m_llmAssistantButton->setText(QStringLiteral("Instruct LLM"));
     m_llmAssistantButton->setToolTip(QStringLiteral(
-        "AI チャットを開き、Claude Code に日本語で編集を依頼します (MCP サーバも自動で起動)。\n"
-        "例: 「この動画を取り込んで 2.5 秒で分割し、字幕を付けて mp4 に書き出して」"));
+        "Open the AI chat and ask Claude Code to edit in Japanese (the MCP server will also start automatically).\n"
+        "Example: 「Import this video, split it at 2.5 seconds, add subtitles, and export as mp4」"));
     m_llmAssistantButton->setCursor(Qt::PointingHandCursor);
     m_llmAssistantButton->setStyleSheet(
         "QToolButton { background: #2f6feb; color: white; border: none; border-radius: 4px;"
@@ -17657,7 +17657,7 @@ void MainWindow::openLlmAssistant()
         m_aiChatDock->focusPrompt();
     }
     statusBar()->showMessage(
-        QStringLiteral("AI チャットに日本語で依頼してください (例: この動画を取り込んで 2.5 秒で分割して)"),
+        QStringLiteral("Please request in Japanese in the AI chat (e.g., import this video and split it at 2.5 seconds)"),
         8000);
 }
 
@@ -17692,13 +17692,13 @@ void MainWindow::updateAcesUiState()
 
     if (m_statusAces) {
         const QString text = m_acesPipeline.enabled
-            ? QStringLiteral("ACES: 有効 (%1→%2→%3)")
+            ? QStringLiteral("ACES: Enabled (%1→%2→%3)")
                   .arg(aces::colorSpaceName(m_acesPipeline.input),
                        aces::colorSpaceName(m_acesPipeline.working),
                        aces::colorSpaceName(m_acesPipeline.output))
-            : QStringLiteral("ACES: 無効");
+            : QStringLiteral("ACES: Disabled");
         m_statusAces->setText(text);
-        m_statusAces->setToolTip(QStringLiteral("カラーマネジメント (ACES)"));
+        m_statusAces->setToolTip(QStringLiteral("Color Management (ACES)"));
     }
 }
 
@@ -17845,20 +17845,20 @@ void MainWindow::rebuildWorkspaceMenu()
 
     m_workspaceMenu->addSeparator();
 
-    QAction *saveAct = m_workspaceMenu->addAction(QStringLiteral("現在のレイアウトを保存..."));
+    QAction *saveAct = m_workspaceMenu->addAction(QStringLiteral("Save Current Layout..."));
     connect(saveAct, &QAction::triggered, this, &MainWindow::saveCurrentWorkspace);
 
-    QAction *deleteAct = m_workspaceMenu->addAction(QStringLiteral("ワークスペースを削除..."));
+    QAction *deleteAct = m_workspaceMenu->addAction(QStringLiteral("Delete Workspace..."));
     deleteAct->setEnabled(m_workspaces.count() > 0);
     connect(deleteAct, &QAction::triggered, this, &MainWindow::deleteWorkspace);
 
-    QAction *resetAct = m_workspaceMenu->addAction(QStringLiteral("既定にリセット"));
+    QAction *resetAct = m_workspaceMenu->addAction(QStringLiteral("Reset to Default"));
     connect(resetAct, &QAction::triggered, this, [this]() {
         m_workspaces.clear();
         m_workspaces.ensureDefaults();
         saveWorkspacesToSettings();
         rebuildWorkspaceMenu();
-        statusBar()->showMessage(QStringLiteral("ワークスペースを既定にリセットしました"), 3000);
+        statusBar()->showMessage(QStringLiteral("Workspace reset to default"), 3000);
     });
 }
 
@@ -17867,8 +17867,8 @@ void MainWindow::saveCurrentWorkspace()
     bool ok = false;
     const QString suggested = m_workspaces.currentName();
     QString name = QInputDialog::getText(this,
-        QStringLiteral("ワークスペースを保存"),
-        QStringLiteral("ワークスペース名:"),
+        QStringLiteral("Save Workspace"),
+        QStringLiteral("Workspace Name:"),
         QLineEdit::Normal, suggested, &ok).trimmed();
     if (!ok || name.isEmpty())
         return;
@@ -17878,7 +17878,7 @@ void MainWindow::saveCurrentWorkspace()
     saveWorkspacesToSettings();
     rebuildWorkspaceMenu();
     statusBar()->showMessage(
-        QStringLiteral("ワークスペース「%1」を保存しました").arg(name), 3000);
+        QStringLiteral("Workspace \"%1\" saved").arg(name), 3000);
 }
 
 void MainWindow::switchWorkspace(const QString &name)
@@ -17894,14 +17894,14 @@ void MainWindow::switchWorkspace(const QString &name)
     m_workspaces.setCurrent(name);
     rebuildWorkspaceMenu();
     statusBar()->showMessage(
-        QStringLiteral("ワークスペース「%1」に切り替えました").arg(name), 3000);
+        QStringLiteral("Switched to workspace \"%1\"").arg(name), 3000);
 }
 
 void MainWindow::deleteWorkspace()
 {
     const QStringList names = m_workspaces.names();
     if (names.isEmpty()) {
-        statusBar()->showMessage(QStringLiteral("削除できるワークスペースがありません"), 3000);
+        statusBar()->showMessage(QStringLiteral("No workspaces available to delete"), 3000);
         return;
     }
     bool ok = false;
@@ -17909,8 +17909,8 @@ void MainWindow::deleteWorkspace()
     int idx = names.indexOf(current);
     if (idx < 0) idx = 0;
     QString name = QInputDialog::getItem(this,
-        QStringLiteral("ワークスペースを削除"),
-        QStringLiteral("削除するワークスペース:"),
+        QStringLiteral("Delete Workspace"),
+        QStringLiteral("Workspace to delete:"),
         names, idx, false, &ok);
     if (!ok || name.isEmpty())
         return;
@@ -17919,7 +17919,7 @@ void MainWindow::deleteWorkspace()
         saveWorkspacesToSettings();
         rebuildWorkspaceMenu();
         statusBar()->showMessage(
-            QStringLiteral("ワークスペース「%1」を削除しました").arg(name), 3000);
+            QStringLiteral("Workspace \"%1\" deleted").arg(name), 3000);
     }
 }
 
@@ -18136,7 +18136,7 @@ void MainWindow::applySharpenEffect()
     m_timeline->setClipEffects(effects);
     if (m_player)
         m_player->setPreviewEffects(effects, true);
-    statusBar()->showMessage("シャープンを適用しました", 3000);
+    statusBar()->showMessage("Sharpen applied", 3000);
 }
 
 void MainWindow::applyMosaicEffect()
@@ -18150,7 +18150,7 @@ void MainWindow::applyMosaicEffect()
     m_timeline->setClipEffects(effects);
     if (m_player)
         m_player->setPreviewEffects(effects, true);
-    statusBar()->showMessage("モザイクを適用しました", 3000);
+    statusBar()->showMessage("Mosaic applied", 3000);
 }
 
 void MainWindow::applyChromaKeyEffect()
@@ -18164,7 +18164,7 @@ void MainWindow::applyChromaKeyEffect()
     m_timeline->setClipEffects(effects);
     if (m_player)
         m_player->setPreviewEffects(effects, true);
-    statusBar()->showMessage("クロマキーを適用しました", 3000);
+    statusBar()->showMessage("Chroma key applied", 3000);
 }
 
 // --- Master Compressor inline dialog ---
@@ -18435,7 +18435,7 @@ void MainWindow::onMeterRequestNormalize(int trackIdx, double gainDb)
 
     if (std::abs(gainDb) < 0.001) {
         statusBar()->showMessage(
-            QStringLiteral("メーターに信号がありません. 一度再生してから実行してください."), 3000);
+            QStringLiteral("No signal on the meter. Play once before running."), 3000);
         return;
     }
 
@@ -18447,7 +18447,7 @@ void MainWindow::onMeterRequestNormalize(int trackIdx, double gainDb)
     mixer->setTrackGain(trackIdx, newGain);
 
     statusBar()->showMessage(
-        QString("T%1 ノーマライズ: +%2dB (gain %3→%4)")
+        QString("T%1 normalize: +%2dB (gain %3→%4)")
             .arg(trackIdx + 1)
             .arg(gainDb, 0, 'f', 1)
             .arg(oldGain, 0, 'f', 2)
@@ -18480,10 +18480,10 @@ void MainWindow::onMeterRequestNormalizeAll()
 
     if (anyApplied) {
         statusBar()->showMessage(
-            QStringLiteral("全トラックをノーマライズしました"), 4000);
+            QStringLiteral("All tracks normalized"), 4000);
     } else {
         statusBar()->showMessage(
-            QStringLiteral("メーターに信号がありません. 一度再生してから実行してください."), 3000);
+            QStringLiteral("No signal on the meter. Play once before running."), 3000);
     }
 }
 
@@ -18525,8 +18525,8 @@ void MainWindow::openEqualizerPanel()
 {
     auto *mixer = m_player ? m_player->audioMixer() : nullptr;
     if (!mixer) {
-        QMessageBox::information(this, tr("EQ パネル"),
-            tr("オーディオミキサーが利用できません。"));
+        QMessageBox::information(this, tr("EQ Panel"),
+            tr("Audio mixer is not available."));
         return;
     }
 
@@ -18563,8 +18563,8 @@ void MainWindow::openCompressorPanel()
 {
     auto *mixer = m_player ? m_player->audioMixer() : nullptr;
     if (!mixer) {
-        QMessageBox::information(this, tr("コンプレッサー"),
-            tr("オーディオミキサーが利用できません。"));
+        QMessageBox::information(this, tr("Compressor"),
+            tr("Audio mixer is not available."));
         return;
     }
 
@@ -18603,8 +18603,8 @@ void MainWindow::openReverbPanel()
 {
     auto *mixer = m_player ? m_player->audioMixer() : nullptr;
     if (!mixer) {
-        QMessageBox::information(this, tr("リバーブ"),
-            tr("オーディオミキサーが利用できません。"));
+        QMessageBox::information(this, tr("Reverb"),
+            tr("Audio mixer is not available."));
         return;
     }
 
@@ -18641,8 +18641,8 @@ void MainWindow::openNoiseReductionPanel()
 {
     auto *mixer = m_player ? m_player->audioMixer() : nullptr;
     if (!mixer) {
-        QMessageBox::information(this, tr("ノイズリダクション"),
-            tr("オーディオミキサーが利用できません。"));
+        QMessageBox::information(this, tr("Noise Reduction"),
+            tr("Audio mixer is not available."));
         return;
     }
 
@@ -18678,8 +18678,8 @@ void MainWindow::openNoiseReductionPanel()
 void MainWindow::openTitlePresetDialog()
 {
     if (!m_timeline || m_timeline->videoClips().isEmpty()) {
-        QMessageBox::information(this, tr("タイトルプリセット"),
-            tr("先にクリップを追加してください。"));
+        QMessageBox::information(this, tr("Title Preset"),
+            tr("Please add a clip first."));
         return;
     }
 
@@ -18696,11 +18696,11 @@ void MainWindow::openTitlePresetDialog()
     // mutation actually sticks).
     if (!m_timeline->addTextOverlayToFirstVideoClip(resolved)) {
         statusBar()->showMessage(
-            tr("タイトルプリセットの適用に失敗しました"), 3000);
+            tr("Failed to apply title preset"), 3000);
         return;
     }
     statusBar()->showMessage(
-        tr("タイトルプリセットを適用しました: %1").arg(resolved.text), 4000);
+        tr("Title preset applied: %1").arg(resolved.text), 4000);
 }
 
 void MainWindow::openMultiCamDialog()
@@ -18719,7 +18719,7 @@ void MainWindow::openMultiCamDialog()
 
     const MultiCamProject project = dlg.result();
     statusBar()->showMessage(
-        tr("マルチカメラ EDL を作成しました (角度: %1, 切替: %2)")
+        tr("Multicam EDL created (angles: %1, cuts: %2)")
             .arg(project.angles.size())
             .arg(project.switches.size()), 4000);
 }
@@ -18729,15 +18729,15 @@ void MainWindow::onMultiCamApplyToTimeline(const MultiCamProject &project)
     if (!m_timeline) return;
     if (project.switches.isEmpty() || project.angles.isEmpty()) {
         statusBar()->showMessage(
-            tr("マルチカメラ: 切替マーカーが無いため適用をスキップしました"), 4000);
+            tr("Multicam: skipped, no switch markers found"), 4000);
         return;
     }
 
     if (!m_timeline->videoClips().isEmpty()) {
         const auto reply = QMessageBox::question(
-            this, tr("マルチカメラ"),
-            tr("V1 トラックを multi-cam EDL で置き換えますか？\n"
-               "(現在 %1 個のクリップが消去されます)")
+            this, tr("Multicam"),
+            tr("Replace the V1 track with the multicam EDL?\n"
+               "(%1 clips will be removed)")
                 .arg(m_timeline->videoClips().size()),
             QMessageBox::Yes | QMessageBox::No,
             QMessageBox::No);
@@ -18819,7 +18819,7 @@ void MainWindow::onMultiCamApplyToTimeline(const MultiCamProject &project)
 
     if (v1Clips.isEmpty()) {
         statusBar()->showMessage(
-            tr("マルチカメラ: 有効なセグメントが無く適用を中止しました"), 4000);
+            tr("Multicam: aborted, no valid segments"), 4000);
         return;
     }
 
@@ -18834,11 +18834,11 @@ void MainWindow::onMultiCamApplyToTimeline(const MultiCamProject &project)
 
     if (skipped > 0) {
         statusBar()->showMessage(
-            tr("マルチカメラ EDL 適用 (V1/A1=%1 セグメント, %2 件スキップ)")
+            tr("Multicam EDL applied (V1/A1: %1 segments, %2 skipped)")
                 .arg(v1Clips.size()).arg(skipped), 6000);
     } else {
         statusBar()->showMessage(
-            tr("マルチカメラ EDL を V1/A1 に適用 (%1 セグメント)")
+            tr("Multicam EDL applied to V1/A1 (%1 segments)")
                 .arg(v1Clips.size()), 4000);
     }
 }
@@ -18871,8 +18871,8 @@ void MainWindow::openRenderQueueDialog()
 void MainWindow::openSceneDetector()
 {
     if (!m_timeline || m_timeline->videoClips().isEmpty()) {
-        QMessageBox::information(this, tr("シーン検出"),
-            tr("先にクリップを追加してください。"));
+        QMessageBox::information(this, tr("Scene Detection"),
+            tr("Please add a clip first."));
         return;
     }
 
@@ -18886,12 +18886,12 @@ void MainWindow::openSceneDetector()
         targetIdx = 0;
     const ClipInfo &clip = clips[targetIdx];
 
-    statusBar()->showMessage(tr("シーン変化を解析しています..."));
+    statusBar()->showMessage(tr("Analyzing scene changes..."));
     QApplication::processEvents();
 
     auto scenes = AutoEdit::detectSceneChanges(clip.filePath);
     if (scenes.isEmpty()) {
-        statusBar()->showMessage(tr("シーン変化が検出されませんでした"), 4000);
+        statusBar()->showMessage(tr("No scene changes detected"), 4000);
         return;
     }
 
@@ -18905,19 +18905,19 @@ void MainWindow::openSceneDetector()
         ++added;
     }
     statusBar()->showMessage(
-        tr("シーン検出: %1 個のカットにマーカーを追加しました").arg(added), 5000);
+        tr("Scene detection: added markers to %1 cuts").arg(added), 5000);
 }
 
 void MainWindow::runMotionStabilizer()
 {
     if (!m_timeline || m_timeline->videoClips().isEmpty()) {
-        QMessageBox::information(this, tr("スタビライズ"),
-            tr("先にクリップを追加してください。"));
+        QMessageBox::information(this, tr("Stabilize"),
+            tr("Please add a clip first."));
         return;
     }
 
     bool ok = false;
-    int smoothPct = QInputDialog::getInt(this, tr("スタビライズ"),
+    int smoothPct = QInputDialog::getInt(this, tr("Stabilize"),
         tr("Smoothness (1-100, higher=smoother):"),
         50, 1, 100, 1, &ok);
     if (!ok)
@@ -18926,7 +18926,7 @@ void MainWindow::runMotionStabilizer()
     // US-INT-4: synchronous analyse + bake. V1 clip 0 only for v1.
     const auto &clips = m_timeline->videoClips();
     const ClipInfo &target = clips.first();
-    statusBar()->showMessage(tr("スタビライズ解析中..."), 0);
+    statusBar()->showMessage(tr("Analyzing for stabilization..."), 0);
     QApplication::processEvents();
 
     MotionStabilizer stab;
@@ -18934,19 +18934,19 @@ void MainWindow::runMotionStabilizer()
     QVector<StabilizerKeyframe> kfs = stab.analyzeFile(target.filePath);
     if (kfs.isEmpty()) {
         statusBar()->showMessage(
-            tr("スタビライズ失敗: フレームを解析できませんでした"), 6000);
+            tr("Stabilization failed: could not analyze frames"), 6000);
         return;
     }
     m_timeline->setClipStabilizerKeyframes(0, kfs);
     statusBar()->showMessage(
-        tr("スタビライズ完了: %1 フレーム").arg(kfs.size()), 6000);
+        tr("Stabilization complete: %1 frames").arg(kfs.size()), 6000);
 }
 
 void MainWindow::addAdjustmentLayerCmd()
 {
     if (!m_timeline) {
-        QMessageBox::information(this, tr("調整レイヤー"),
-            tr("タイムラインが利用できません。"));
+        QMessageBox::information(this, tr("Adjustment Layer"),
+            tr("Timeline is not available."));
         return;
     }
 
@@ -18975,7 +18975,7 @@ void MainWindow::addAdjustmentLayerCmd()
 
     const int newId = m_timeline->addAdjustmentLayer(layer);
     statusBar()->showMessage(
-        tr("調整レイヤーを追加しました (id=%1, %2s..%3s)")
+        tr("Adjustment layer added (id=%1, %2s..%3s)")
             .arg(newId)
             .arg(layer.timelineStartUs / 1.0e6, 0, 'f', 2)
             .arg(layer.timelineEndUs / 1.0e6, 0, 'f', 2),
@@ -18985,26 +18985,26 @@ void MainWindow::addAdjustmentLayerCmd()
 void MainWindow::openSpeedRampDialog()
 {
     if (!m_timeline || m_timeline->videoClips().isEmpty()) {
-        QMessageBox::information(this, tr("速度 / 持続時間"),
-            tr("先にクリップを追加してください。"));
+        QMessageBox::information(this, tr("Speed / Duration"),
+            tr("Please add a clip first."));
         return;
     }
     if (!m_timeline->hasSelection()) {
-        QMessageBox::information(this, tr("速度 / 持続時間"),
-            tr("クリップを選択してください。"));
+        QMessageBox::information(this, tr("Speed / Duration"),
+            tr("Please select a clip."));
         return;
     }
 
     const int clipIdx = m_timeline->selectedVideoClipIndex();
     if (clipIdx < 0) {
-        QMessageBox::information(this, tr("速度 / 持続時間"),
-            tr("V1 にクリップを選択してください。"));
+        QMessageBox::information(this, tr("Speed / Duration"),
+            tr("Please select a clip on V1."));
         return;
     }
     const auto &selectedClips = m_timeline->videoClips();
     if (clipIdx >= selectedClips.size()) {
-        QMessageBox::information(this, tr("速度 / 持続時間"),
-            tr("V1 にクリップを選択してください。"));
+        QMessageBox::information(this, tr("Speed / Duration"),
+            tr("Please select a clip on V1."));
         return;
     }
     const ClipInfo &selectedClip = selectedClips[clipIdx];
@@ -19013,7 +19013,7 @@ void MainWindow::openSpeedRampDialog()
         : selectedClip.speedRamp.keyframes.first().speed;
 
     QDialog dialog(this);
-    dialog.setWindowTitle(tr("速度 / 持続時間"));
+    dialog.setWindowTitle(tr("Speed / Duration"));
     auto *layout = new QFormLayout(&dialog);
 
     auto *speedSpin = new QDoubleSpinBox(&dialog);
@@ -19022,11 +19022,11 @@ void MainWindow::openSpeedRampDialog()
     speedSpin->setSingleStep(0.05);
     speedSpin->setValue(qBound(0.1, initialSpeed, 5.0));
     speedSpin->setSuffix(QStringLiteral("x"));
-    layout->addRow(tr("速度倍率"), speedSpin);
+    layout->addRow(tr("Speed Multiplier"), speedSpin);
 
-    auto *atempoCheck = new QCheckBox(tr("音声を速度に追従 (atempo・ピッチ未補正)"), &dialog);
-    atempoCheck->setToolTip(tr("有効にすると音声が速度ランプに追従して伸縮します"
-                               " (現状はリサンプルのみでピッチは速度に応じて変化します)。"));
+    auto *atempoCheck = new QCheckBox(tr("Follow audio with speed (atempo, no pitch correction)"), &dialog);
+    atempoCheck->setToolTip(tr("When enabled, audio stretches to follow the speed ramp"
+                               "(Currently resampling only; pitch changes with speed)."));
     atempoCheck->setChecked(selectedClip.atempoEnabled);
     layout->addRow(QString(), atempoCheck);
 
@@ -19067,7 +19067,7 @@ void MainWindow::openSpeedRampDialog()
     }
     m_timeline->refreshPlaybackSequence();
     statusBar()->showMessage(
-        tr("速度ランプを %1x に設定しました (clip #%2, atempo=%3)")
+        tr("Speed ramp set to %1x (clip #%2, atempo=%3)")
             .arg(speedMul, 0, 'f', 2)
             .arg(clipIdx)
             .arg(atempoEnabled ? tr("on") : tr("off")), 5000);
@@ -19081,7 +19081,7 @@ void MainWindow::addQuickMarker()
     const int id = m_timeline->addMarker(timeUs, QStringLiteral("Marker"),
                                           QColor(QStringLiteral("#ff5050")));
     statusBar()->showMessage(
-        tr("マーカー追加 (id=%1, %2s)")
+        tr("Marker added (id=%1, %2s)")
             .arg(id)
             .arg(timeUs / 1.0e6, 0, 'f', 2), 3000);
 }
@@ -19090,13 +19090,13 @@ void MainWindow::addColoredMarker()
 {
     if (!m_timeline) return;
     QColor c = QColorDialog::getColor(QColor(QStringLiteral("#ff5050")),
-                                      this, tr("マーカーの色を選択"));
+                                      this, tr("Choose Marker Color"));
     if (!c.isValid())
         return;
 
     bool ok = false;
-    QString label = QInputDialog::getText(this, tr("色付きマーカー"),
-        tr("ラベル (空でも可):"), QLineEdit::Normal, QString(), &ok);
+    QString label = QInputDialog::getText(this, tr("Colored Marker"),
+        tr("Label (optional):"), QLineEdit::Normal, QString(), &ok);
     if (!ok)
         return;
 
@@ -19106,7 +19106,7 @@ void MainWindow::addColoredMarker()
         label = QStringLiteral("Marker");
     const int id = m_timeline->addMarker(timeUs, label, c);
     statusBar()->showMessage(
-        tr("色付きマーカー追加 (id=%1, %2s, %3)")
+        tr("Colored marker added (id=%1, %2s, %3)")
             .arg(id)
             .arg(timeUs / 1.0e6, 0, 'f', 2)
             .arg(c.name()), 3000);
@@ -19119,13 +19119,13 @@ void MainWindow::jumpToNextMarker()
         static_cast<qint64>(m_timeline->playheadPosition() * 1000000.0);
     const int id = m_timeline->nextMarkerAfter(nowUs);
     if (id < 0) {
-        statusBar()->showMessage(tr("これより後にマーカーがありません"), 2500);
+        statusBar()->showMessage(tr("No markers after this point"), 2500);
         return;
     }
     const auto m = m_timeline->markerById(id);
     m_timeline->setPlayheadPosition(m.timelineUs / 1.0e6);
     statusBar()->showMessage(
-        tr("マーカーへジャンプ: %1 (%2s)")
+        tr("Jump to marker: %1 (%2s)")
             .arg(m.label)
             .arg(m.timelineUs / 1.0e6, 0, 'f', 2), 2500);
 }
@@ -19137,13 +19137,13 @@ void MainWindow::jumpToPrevMarker()
         static_cast<qint64>(m_timeline->playheadPosition() * 1000000.0);
     const int id = m_timeline->prevMarkerBefore(nowUs);
     if (id < 0) {
-        statusBar()->showMessage(tr("これより前にマーカーがありません"), 2500);
+        statusBar()->showMessage(tr("No markers before this point"), 2500);
         return;
     }
     const auto m = m_timeline->markerById(id);
     m_timeline->setPlayheadPosition(m.timelineUs / 1.0e6);
     statusBar()->showMessage(
-        tr("マーカーへジャンプ: %1 (%2s)")
+        tr("Jump to marker: %1 (%2s)")
             .arg(m.label)
             .arg(m.timelineUs / 1.0e6, 0, 'f', 2), 2500);
 }
@@ -19165,7 +19165,7 @@ void MainWindow::onMarkerPanelJump(qint64 timelineUs)
         return;
     m_timeline->setPlayheadPosition(timelineUs / 1.0e6);
     statusBar()->showMessage(
-        tr("マーカーへジャンプ (%1s)")
+        tr("Jump to marker (%1s)")
             .arg(timelineUs / 1.0e6, 0, 'f', 2), 2500);
 }
 
@@ -19191,7 +19191,7 @@ void MainWindow::onMarkerPanelDeleteRequested(int markerId)
         return;
     if (m_timeline->removeMarker(markerId)) {
         statusBar()->showMessage(
-            tr("マーカーを削除しました (id=%1)").arg(markerId), 2500);
+            tr("Marker deleted (id=%1)").arg(markerId), 2500);
         // removeMarker → markersChanged → refreshMarkerPanel で自動再描画。
     }
 }
@@ -19251,16 +19251,16 @@ void MainWindow::openVoiceOverDialog()
 void MainWindow::addPathText()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle("パステキスト追加");
+    dialog.setWindowTitle("Add Paste Text");
     auto *layout = new QFormLayout(&dialog);
     QLineEdit *textEdit = new QLineEdit("Sample Text", &dialog);
     QLineEdit *fontEdit = new QLineEdit("Arial", &dialog);
     QSpinBox *sizeSpin = new QSpinBox(&dialog);
     sizeSpin->setRange(8, 200);
     sizeSpin->setValue(32);
-    layout->addRow("テキスト:", textEdit);
-    layout->addRow("フォント:", fontEdit);
-    layout->addRow("サイズ:", sizeSpin);
+    layout->addRow("Text:", textEdit);
+    layout->addRow("Font:", fontEdit);
+    layout->addRow("Size:", sizeSpin);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -19278,13 +19278,13 @@ void MainWindow::addPathText()
     pathText->setPath(path);
     m_pathTexts.append(pathText);
 
-    statusBar()->showMessage(QString("パステキスト追加: 「%1」").arg(textEdit->text()));
+    statusBar()->showMessage(QString("Paste text added: \"%1\"").arg(textEdit->text()));
 }
 
 void MainWindow::addRangeSelector()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle("レンジセレクター");
+    dialog.setWindowTitle("Range Selector");
     auto *layout = new QFormLayout(&dialog);
     QSpinBox *startSpin = new QSpinBox(&dialog);
     startSpin->setRange(0, 100);
@@ -19295,9 +19295,9 @@ void MainWindow::addRangeSelector()
     QDoubleSpinBox *amountSpin = new QDoubleSpinBox(&dialog);
     amountSpin->setRange(-100, 100);
     amountSpin->setValue(0);
-    layout->addRow("開始 (%):", startSpin);
-    layout->addRow("終了 (%):", endSpin);
-    layout->addRow("適用量:", amountSpin);
+    layout->addRow("Start (%):", startSpin);
+    layout->addRow("End (%):", endSpin);
+    layout->addRow("Amount:", amountSpin);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -19305,14 +19305,14 @@ void MainWindow::addRangeSelector()
     if (dialog.exec() == QDialog::Rejected)
         return;
 
-    statusBar()->showMessage(QString("レンジセレクター: %1–%2%%, 量=%3")
+    statusBar()->showMessage(QString("Range selector: %1–%2%%, amount=%3")
         .arg(startSpin->value()).arg(endSpin->value()).arg(amountSpin->value()));
 }
 
 void MainWindow::addWigglySelector()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle("ウィグリーセレクター");
+    dialog.setWindowTitle("Wiggly Selector");
     auto *layout = new QFormLayout(&dialog);
     QDoubleSpinBox *freqSpin = new QDoubleSpinBox(&dialog);
     freqSpin->setRange(0.1, 20.0);
@@ -19322,8 +19322,8 @@ void MainWindow::addWigglySelector()
     magSpin->setRange(0, 100);
     magSpin->setValue(25);
     magSpin->setSingleStep(5);
-    layout->addRow("周波数 (Hz):", freqSpin);
-    layout->addRow("振幅 (px):", magSpin);
+    layout->addRow("Frequency (Hz):", freqSpin);
+    layout->addRow("Amplitude (px):", magSpin);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -19331,19 +19331,19 @@ void MainWindow::addWigglySelector()
     if (dialog.exec() == QDialog::Rejected)
         return;
 
-    statusBar()->showMessage(QString("ウィグリーセレクター: 周波数=%1Hz, 振幅=%2px")
+    statusBar()->showMessage(QString("Wiggly selector: frequency=%1Hz, amplitude=%2px")
         .arg(freqSpin->value()).arg(magSpin->value()));
 }
 
 void MainWindow::addSourceTextKeyframe()
 {
     if (!m_timeline->hasSelection()) {
-        QMessageBox::information(this, "ソーステキスト keyframe", "クリップを先に選択してください。");
+        QMessageBox::information(this, "Source Text keyframe", "Please select a clip first.");
         return;
     }
     bool ok;
-    QString newText = QInputDialog::getText(this, "ソーステキスト keyframe",
-        "新しいテキスト:", QLineEdit::Normal, "Keyframed Text", &ok);
+    QString newText = QInputDialog::getText(this, "Source Text keyframe",
+        "New text:", QLineEdit::Normal, "Keyframed Text", &ok);
     if (!ok || newText.isEmpty())
         return;
 
@@ -19356,22 +19356,22 @@ void MainWindow::addSourceTextKeyframe()
     }
     m_timeline->setClipKeyframes(km);
 
-    statusBar()->showMessage(QString("ソーステキスト keyframe: 「%1」 @ %2s").arg(newText).arg(time, 0, 'f', 2));
+    statusBar()->showMessage(QString("Source text keyframe: \"%1\" @ %2s").arg(newText).arg(time, 0, 'f', 2));
 }
 
 void MainWindow::addAnimationPreset()
 {
     if (!m_timeline || !m_timeline->hasSelection()) {
-        QMessageBox::information(this, "アニメーションプリセット",
-            "クリップを先に選択してください。");
+        QMessageBox::information(this, "Animation Presets",
+            "Please select a clip first.");
         return;
     }
 
     const int clipIdx = m_timeline->selectedVideoClipIndex();
     const auto &clips = m_timeline->videoClips();
     if (clipIdx < 0 || clipIdx >= clips.size()) {
-        QMessageBox::information(this, "アニメーションプリセット",
-            "V1 のクリップを選択してください。");
+        QMessageBox::information(this, "Animation Presets",
+            "Please select a clip on V1.");
         return;
     }
 
@@ -19380,21 +19380,21 @@ void MainWindow::addAnimationPreset()
     for (const QString &id : ids)
         presets.append(motionpreset::displayName(id));
     if (presets.isEmpty()) {
-        QMessageBox::information(this, "アニメーションプリセット",
-            "利用できるプリセットがありません。");
+        QMessageBox::information(this, "Animation Presets",
+            "No presets available.");
         return;
     }
 
     bool ok;
-    QString preset = QInputDialog::getItem(this, "アニメーションプリセット",
-        "プリセットを選択:", presets, 0, false, &ok);
+    QString preset = QInputDialog::getItem(this, "Animation Presets",
+        "Select preset:", presets, 0, false, &ok);
     if (!ok)
         return;
 
     const QString presetId = motionpreset::presetIdForDisplayName(preset);
     if (presetId.isEmpty()) {
-        QMessageBox::warning(this, "アニメーションプリセット",
-            QString("未対応のプリセットです: %1").arg(preset));
+        QMessageBox::warning(this, "Animation Presets",
+            QString("Unsupported preset: %1").arg(preset));
         return;
     }
 
@@ -19405,14 +19405,14 @@ void MainWindow::addAnimationPreset()
     m_timeline->refreshPlaybackSequence();
     updateEditActions();
 
-    statusBar()->showMessage(QString("アニメーションプリセット適用: %1")
+    statusBar()->showMessage(QString("Animation preset applied: %1")
         .arg(motionpreset::displayName(presetId)), 4000);
 }
 
 void MainWindow::add3DText()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle("3Dテキストレイヤー追加");
+    dialog.setWindowTitle("Add 3D Text Layer");
     auto *layout = new QFormLayout(&dialog);
     QLineEdit *textEdit = new QLineEdit("3D Text", &dialog);
     QLineEdit *fontEdit = new QLineEdit("Arial", &dialog);
@@ -19422,10 +19422,10 @@ void MainWindow::add3DText()
     QDoubleSpinBox *distSpin = new QDoubleSpinBox(&dialog);
     distSpin->setRange(100, 2000);
     distSpin->setValue(400);
-    layout->addRow("テキスト:", textEdit);
-    layout->addRow("フォント:", fontEdit);
-    layout->addRow("サイズ:", sizeSpin);
-    layout->addRow("カメラ距離:", distSpin);
+    layout->addRow("Text:", textEdit);
+    layout->addRow("Font:", fontEdit);
+    layout->addRow("Size:", sizeSpin);
+    layout->addRow("Camera Distance:", distSpin);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -19440,15 +19440,15 @@ void MainWindow::add3DText()
     text3D->setPerCharRotation(QVector3D(0, 0, 0));
     m_text3DLayers.append(text3D);
 
-    statusBar()->showMessage(QString("3Dテキストレイヤー追加: 「%1」").arg(textEdit->text()));
+    statusBar()->showMessage(QString("3D text layer added: \"%1\"").arg(textEdit->text()));
 }
 
 void MainWindow::addMaskTextReveal()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle("マスクテキストreveal追加");
+    dialog.setWindowTitle("Add Mask Text Reveal");
     auto *layout = new QFormLayout(&dialog);
-    QCheckBox *invertCheck = new QCheckBox("反転", &dialog);
+    QCheckBox *invertCheck = new QCheckBox("Invert", &dialog);
     QDoubleSpinBox *featherSpin = new QDoubleSpinBox(&dialog);
     featherSpin->setRange(0, 50);
     featherSpin->setValue(5);
@@ -19456,8 +19456,8 @@ void MainWindow::addMaskTextReveal()
     expansionSpin->setRange(-50, 50);
     expansionSpin->setValue(0);
     layout->addRow(invertCheck);
-    layout->addRow("フェザー (px):", featherSpin);
-    layout->addRow("拡張 (px):", expansionSpin);
+    layout->addRow("Feather (px):", featherSpin);
+    layout->addRow("Expand (px):", expansionSpin);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -19471,13 +19471,13 @@ void MainWindow::addMaskTextReveal()
     maskReveal->setMaskExpansionPx(expansionSpin->value());
     m_textMaskReveals.append(maskReveal);
 
-    statusBar()->showMessage("マスクテキストreveal追加");
+    statusBar()->showMessage("Add Mask Text Reveal");
 }
 
 void MainWindow::addBendTextWarp()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle("ベンド/インフレートtext追加");
+    dialog.setWindowTitle("Add Bend/Inflate Text");
     auto *layout = new QFormLayout(&dialog);
     QLineEdit *textEdit = new QLineEdit("Warped Text", &dialog);
     QDoubleSpinBox *bendSpin = new QDoubleSpinBox(&dialog);
@@ -19488,9 +19488,9 @@ void MainWindow::addBendTextWarp()
     inflateSpin->setRange(-1.0, 1.0);
     inflateSpin->setValue(0);
     inflateSpin->setSingleStep(0.1);
-    layout->addRow("テキスト:", textEdit);
-    layout->addRow("ベンド (°):", bendSpin);
-    layout->addRow("インフレート:", inflateSpin);
+    layout->addRow("Text:", textEdit);
+    layout->addRow("Bend (°):", bendSpin);
+    layout->addRow("Inflate:", inflateSpin);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -19505,43 +19505,43 @@ void MainWindow::addBendTextWarp()
     pathWarp->setInflateAmount(inflateSpin->value());
     m_textPathWarps.append(pathWarp);
 
-    statusBar()->showMessage(QString("ベンド/インフレートtext追加: 「%1」").arg(textEdit->text()));
+    statusBar()->showMessage(QString("Bend/Inflate text added: \"%1\"").arg(textEdit->text()));
 }
 
 void MainWindow::changeTextScope()
 {
     QStringList scopes = {"Position", "Scale", "Rotation", "Opacity", "Anchor Point"};
     bool ok;
-    QString scope = QInputDialog::getItem(this, "スコープ切替",
-        "アニメーションスコープ:", scopes, 0, false, &ok);
+    QString scope = QInputDialog::getItem(this, "Switch Scope",
+        "Animation scope:", scopes, 0, false, &ok);
     if (!ok)
         return;
 
-    statusBar()->showMessage(QString("スコープ切替: %1").arg(scope));
+    statusBar()->showMessage(QString("Scope switched: %1").arg(scope));
 }
 
 void MainWindow::addVariableFontAxis()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle("可変フォントaxisアニメ");
+    dialog.setWindowTitle("Variable Font Axis Animation");
     auto *layout = new QFormLayout(&dialog);
     QLineEdit *fontEdit = new QLineEdit("Arial", &dialog);
     QSpinBox *sizeSpin = new QSpinBox(&dialog);
     sizeSpin->setRange(8, 200);
     sizeSpin->setValue(32);
     QLineEdit *axisTagEdit = new QLineEdit("wght", &dialog);
-    axisTagEdit->setToolTip("例: wght, wdth, opsz");
+    axisTagEdit->setToolTip("e.g., wght, wdth, opsz");
     QDoubleSpinBox *startValSpin = new QDoubleSpinBox(&dialog);
     startValSpin->setRange(1, 1000);
     startValSpin->setValue(400);
     QDoubleSpinBox *endValSpin = new QDoubleSpinBox(&dialog);
     endValSpin->setRange(1, 1000);
     endValSpin->setValue(700);
-    layout->addRow("フォント:", fontEdit);
-    layout->addRow("サイズ:", sizeSpin);
-    layout->addRow("Axis タグ:", axisTagEdit);
-    layout->addRow("開始値:", startValSpin);
-    layout->addRow("終了値:", endValSpin);
+    layout->addRow("Font:", fontEdit);
+    layout->addRow("Size:", sizeSpin);
+    layout->addRow("Axis tag:", axisTagEdit);
+    layout->addRow("Start value:", startValSpin);
+    layout->addRow("End value:", endValSpin);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addRow(buttons);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
@@ -19555,7 +19555,7 @@ void MainWindow::addVariableFontAxis()
     varFont->setAxisProperty(axisTagEdit->text(), QStringLiteral("font_%1").arg(axisTagEdit->text()));
     m_variableFontAxes.append(varFont);
 
-    statusBar()->showMessage(QString("可変フォントaxisアニメ: %1 %2→%3")
+    statusBar()->showMessage(QString("Variable font axis animation: %1 %2→%3")
         .arg(axisTagEdit->text()).arg(startValSpin->value()).arg(endValSpin->value()));
 }
 
@@ -19563,19 +19563,19 @@ void MainWindow::addMographTemplate()
 {
     QStringList templates = MographText::templateNames();
     bool ok;
-    QString tmplate = QInputDialog::getItem(this, "Mographテンプレート",
-        "テンプレートを選択:", templates, 0, false, &ok);
+    QString tmplate = QInputDialog::getItem(this, "Mograph Template",
+        "Select template:", templates, 0, false, &ok);
     if (!ok)
         return;
 
     QStringList args;
     if (tmplate == "lower_third") {
         bool ok1, ok2;
-        args << QInputDialog::getText(this, "Mograph", "上部テキスト:", QLineEdit::Normal, "Title", &ok1)
-             << QInputDialog::getText(this, "Mograph", "下部テキスト:", QLineEdit::Normal, "Subtitle", &ok2);
+        args << QInputDialog::getText(this, "Mograph", "Top text:", QLineEdit::Normal, "Title", &ok1)
+             << QInputDialog::getText(this, "Mograph", "Bottom text:", QLineEdit::Normal, "Subtitle", &ok2);
     } else {
         bool ok1;
-        args << QInputDialog::getText(this, "Mograph", "テキスト:", QLineEdit::Normal, "Mograph Text", &ok1);
+        args << QInputDialog::getText(this, "Mograph", "Text:", QLineEdit::Normal, "Mograph Text", &ok1);
     }
 
     auto *mograph = new MographText();
@@ -19583,7 +19583,7 @@ void MainWindow::addMographTemplate()
     mograph->setArgs(args);
     m_mographTexts.append(mograph);
 
-    statusBar()->showMessage(QString("Mographテンプレート適用: %1").arg(tmplate));
+    statusBar()->showMessage(QString("Mograph template applied: %1").arg(tmplate));
 }
 
 // US-SNS-7: Smart Reframe dialog + analysis
@@ -19602,7 +19602,7 @@ void MainWindow::openSmartReframe()
     // Sample frames from the active clip(s) on the timeline.
     const auto &clips = m_timeline->videoClips();
     if (clips.isEmpty()) {
-        statusBar()->showMessage("スマートリフレーム: タイムラインにクリップがありません", 4000);
+        statusBar()->showMessage("Smart reframe: no clips on the timeline", 4000);
         return;
     }
 
@@ -19629,7 +19629,7 @@ void MainWindow::openSmartReframe()
 
     const QRectF crop0 = m_smartReframe.cropRectAt(clips[0].inPoint);
     statusBar()->showMessage(
-        QString("スマートリフレーム: %1 フレーム解析完了 (crop@0s: %2,%3 %4x%5)")
+        QString("Smart reframe: %1 frames analyzed (crop@0s: %2,%3 %4x%5)")
             .arg(sampleCount)
             .arg(qRound(crop0.x())).arg(qRound(crop0.y()))
             .arg(qRound(crop0.width())).arg(qRound(crop0.height())),
@@ -19643,7 +19643,7 @@ void MainWindow::renderSubtitleTrack()
         // Chain generateSubtitles first if no segments exist yet.
         generateSubtitles();
         if (m_subtitleSegments.isEmpty()) {
-            statusBar()->showMessage("字幕トラック: 字幕セグメントがありません", 4000);
+            statusBar()->showMessage("Subtitle track: no subtitle segments", 4000);
             return;
         }
     }
@@ -19662,7 +19662,7 @@ void MainWindow::renderSubtitleTrack()
     m_exporter->setSubtitleRenderer(renderer);
 
     statusBar()->showMessage(
-        QString("字幕トラック: %1 セグメントをレンダリング").arg(m_subtitleSegments.size()),
+        QString("Subtitle track: rendering %1 segments").arg(m_subtitleSegments.size()),
         4000);
 }
 
@@ -19672,7 +19672,7 @@ void MainWindow::measureLoudness()
         return;
 
     if (!m_timeline || !m_loudnessPanel) {
-        statusBar()->showMessage(QStringLiteral("ラウドネス測定: タイムラインを準備できません。"), 4000);
+        statusBar()->showMessage(QStringLiteral("Loudness measurement: could not prepare the timeline."), 4000);
         return;
     }
 
@@ -19690,13 +19690,13 @@ void MainWindow::measureLoudness()
         }), entries.end());
 
     if (entries.isEmpty()) {
-        statusBar()->showMessage(QStringLiteral("ラウドネス測定: 測定できる音声がありません。"), 4000);
+        statusBar()->showMessage(QStringLiteral("Loudness measurement: no measurable audio."), 4000);
         return;
     }
 
     m_loudnessMeasureRunning = true;
     m_loudnessPanel->setMeasuring(true);
-    statusBar()->showMessage(QStringLiteral("ラウドネスを測定中..."));
+    statusBar()->showMessage(QStringLiteral("Measuring loudness..."));
 
     QPointer<MainWindow> self(this);
     QThread *worker = QThread::create([self, entries]() {
@@ -19713,7 +19713,7 @@ void MainWindow::measureLoudness()
             if (!result.ok) {
                 self->m_loudnessPanel->setMeasuring(false);
                 self->statusBar()->showMessage(
-                    QStringLiteral("ラウドネス測定: %1").arg(result.error), 5000);
+                    QStringLiteral("Loudness measurement: %1").arg(result.error), 5000);
                 return;
             }
 
@@ -19722,7 +19722,7 @@ void MainWindow::measureLoudness()
                                                   result.shortTerm,
                                                   result.truePeak);
             self->statusBar()->showMessage(
-                QStringLiteral("ラウドネス測定完了: %1 LUFS")
+                QStringLiteral("Loudness measurement complete: %1 LUFS")
                     .arg(result.integrated, 0, 'f', 1),
                 4000);
         }, Qt::QueuedConnection);
@@ -19750,7 +19750,7 @@ void MainWindow::applyLoudnessNormalize(double targetLUFS, double gainDb)
         m_renderQueueDialog->queue()->setLoudnessGainDb(gainDb);
 
     statusBar()->showMessage(
-        QString("ラウドネス正規化: target=%1 LUFS, gain=%2 dB")
+        QString("Loudness normalized: target=%1 LUFS, gain=%2 dB")
             .arg(targetLUFS, 0, 'f', 1)
             .arg(gainDb, 0, 'f', 1),
         4000);
@@ -19766,14 +19766,14 @@ void MainWindow::setupNodeCompositingDocks()
         return; // already created
 
     m_nodeCanvas = new NodeCanvasWidget(this);
-    m_nodeCanvasDock = new QDockWidget("ノードキャンバス", this);
+    m_nodeCanvasDock = new QDockWidget("Node Canvas", this);
     m_nodeCanvasDock->setObjectName("NodeCanvasDock");
     m_nodeCanvasDock->setWidget(m_nodeCanvas);
     addDockWidget(Qt::RightDockWidgetArea, m_nodeCanvasDock);
     m_nodeCanvasDock->setVisible(false);
 
     m_nodePropsPanel = new NodePropertiesPanel(this);
-    m_nodePropsDock = new QDockWidget("ノードプロパティ", this);
+    m_nodePropsDock = new QDockWidget("Node Properties", this);
     m_nodePropsDock->setObjectName("NodePropsDock");
     m_nodePropsDock->setWidget(m_nodePropsPanel);
     addDockWidget(Qt::RightDockWidgetArea, m_nodePropsDock);
@@ -19799,7 +19799,7 @@ void MainWindow::toggleNodeCompositingMode(bool on)
     if (on) {
         const int clipIdx = m_timeline->selectedVideoClipIndex();
         if (clipIdx < 0) {
-            statusBar()->showMessage("ノードモード: クリップを選択してください", 3000);
+            statusBar()->showMessage("Node mode: please select a clip", 3000);
             QTimer::singleShot(0, this, [this]() {
                 if (m_nodeModeAction) m_nodeModeAction->setChecked(false);
             });
@@ -19808,7 +19808,7 @@ void MainWindow::toggleNodeCompositingMode(bool on)
 
         const auto &clips = m_timeline->videoClips();
         if (clips.isEmpty() || clipIdx >= clips.size()) {
-            statusBar()->showMessage("ノードモード: 有効なクリップがありません", 3000);
+            statusBar()->showMessage("Node mode: no valid clip", 3000);
             QTimer::singleShot(0, this, [this]() {
                 if (m_nodeModeAction) m_nodeModeAction->setChecked(false);
             });
@@ -19827,7 +19827,7 @@ void MainWindow::toggleNodeCompositingMode(bool on)
         m_nodeCanvasDock->setVisible(true);
         m_nodePropsDock->setVisible(true);
 
-        statusBar()->showMessage("ノードコンポジットモード ON", 2000);
+        statusBar()->showMessage("Node composite mode ON", 2000);
     } else {
         // Turning off: if the graph is a linear chain, write it back to the effect stack
         if (m_activeNodeGraph && layerbridge::isLinearChain(*m_activeNodeGraph)) {
@@ -19843,7 +19843,7 @@ void MainWindow::toggleNodeCompositingMode(bool on)
         if (m_nodeCanvasDock) m_nodeCanvasDock->setVisible(false);
         if (m_nodePropsDock) m_nodePropsDock->setVisible(false);
 
-        statusBar()->showMessage("ノードコンポジットモード OFF — レイヤーモードに戻りました", 2000);
+        statusBar()->showMessage("Node composite mode OFF — back to layer mode", 2000);
     }
 }
 
@@ -19947,13 +19947,13 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             double start = 0, end = 0;
             const bool range = usable && noisePrintRange(track, index, &start, &end);
             menu->addSeparator();
-            auto *captureAction = menu->addAction(QStringLiteral("ノイズプリントを取得 (イン点〜アウト点)"));
+            auto *captureAction = menu->addAction(QStringLiteral("Capture Noise Print (In Point to Out Point)"));
             captureAction->setEnabled(range);
             if (!range) {
-                auto *hint = menu->addAction(QStringLiteral("イン点とアウト点をクリップ内に設定してください"));
+                auto *hint = menu->addAction(QStringLiteral("Set in/out points within the clip"));
                 hint->setEnabled(false);
             }
-            auto *subtractAction = menu->addAction(QStringLiteral("ノイズプリントで除去…"));
+            auto *subtractAction = menu->addAction(QStringLiteral("Remove with Noise Print..."));
             subtractAction->setEnabled(usable && m_noisePrint.isValid());
             auto schedule = [this, track, index](bool captureOnly) {
                 QTimer::singleShot(0, this, [this, track, index, captureOnly]() {
@@ -19983,11 +19983,11 @@ void MainWindow::processNoisePrint(TimelineTrack *track, int clipIndex, bool cap
     };
     if (clip.filePath.isEmpty() || !clip.sequenceRefId.isEmpty()) return;
     auto report = [this](const QString &message) {
-        QMessageBox::warning(this, QStringLiteral("ノイズプリント"), message);
+        QMessageBox::warning(this, QStringLiteral("Noise Print"), message);
     };
     double start = 0, end = 0;
     if (captureOnly && !noisePrintRange(track, clipIndex, &start, &end)) {
-        report(QStringLiteral("イン点とアウト点をクリップ内に設定してください"));
+        report(QStringLiteral("Set in/out points within the clip"));
         return;
     }
     double amount = 12, floor = -20;
@@ -20003,32 +20003,32 @@ void MainWindow::processNoisePrint(TimelineTrack *track, int clipIndex, bool cap
     // Use the same in-process mono extraction as voice isolation.
     QTemporaryDir temp;
     if (!temp.isValid()) {
-        report(QStringLiteral("音声抽出用の一時ディレクトリを作成できません。"));
+        report(QStringLiteral("Could not create a temporary directory for audio extraction."));
         return;
     }
     constexpr int kSampleRate = 48000;
     const QString sourceWav = temp.filePath(QStringLiteral("noiseprint-source.wav"));
     QString error;
     if (!libavcore::extractAudioToWav(clip.filePath, sourceWav, kSampleRate, &error)) {
-        report(QStringLiteral("音声の抽出に失敗しました:\n%1")
+        report(QStringLiteral("Failed to extract audio:\n%1")
                    .arg(error.isEmpty() ? clip.filePath : error));
         return;
     }
     std::vector<double> input;
     int sampleRate = kSampleRate;
     if (!readPcm16WavToMono(sourceWav, input, sampleRate, &error) || input.empty()) {
-        report(QStringLiteral("抽出した音声を読み込めませんでした:\n%1")
-                   .arg(error.isEmpty() ? QStringLiteral("サンプルがありません") : error));
+        report(QStringLiteral("Could not load extracted audio:\n%1")
+                   .arg(error.isEmpty() ? QStringLiteral("No samples") : error));
         return;
     }
     if (captureOnly) {
         auto captured = noiseprint::capture(input, sampleRate, start, end);
         if (!captured.isValid()) {
-            report(QStringLiteral("取得範囲には少なくとも 2048 サンプルの音声が必要です。"));
+            report(QStringLiteral("The capture range must contain at least 2048 audio samples."));
             return;
         }
         m_noisePrint = std::move(captured);
-        statusBar()->showMessage(QStringLiteral("ノイズプリントを取得しました。"), 5000);
+        statusBar()->showMessage(QStringLiteral("Noise print captured."), 5000);
         return;
     }
     std::vector<double> output;
@@ -20036,7 +20036,7 @@ void MainWindow::processNoisePrint(TimelineTrack *track, int clipIndex, bool cap
         report(error); return;
     }
     if (output.size() > static_cast<size_t>(std::numeric_limits<int>::max() / 2)) {
-        report(QStringLiteral("処理結果が大きすぎます。"));
+        report(QStringLiteral("Result is too large."));
         return;
     }
     QByteArray pcm;
@@ -20049,9 +20049,9 @@ void MainWindow::processNoisePrint(TimelineTrack *track, int clipIndex, bool cap
         pcm[offset + 1] = static_cast<char>((value >> 8) & 0xff);
     }
     const QFileInfo source(clip.filePath);
-    const QString outputPath = QFileDialog::getSaveFileName(this, QStringLiteral("除去済み音声を保存"),
+    const QString outputPath = QFileDialog::getSaveFileName(this, QStringLiteral("Save Denoised Audio"),
         source.absolutePath() + QLatin1Char('/') + source.completeBaseName() + QStringLiteral("_noiseprint.wav"),
-        QStringLiteral("WAV ファイル (*.wav)"));
+        QStringLiteral("WAV Files (*.wav)"));
     if (outputPath.isEmpty()) return;
     // Existing media must remain intact for undo, including earlier processed WAVs.
     const QFileInfo destination(outputPath);
@@ -20059,19 +20059,19 @@ void MainWindow::processNoisePrint(TimelineTrack *track, int clipIndex, bool cap
         if (!existingTrack) continue;
         for (const auto &existingClip : existingTrack->clips()) {
             if (destination.exists() && destination.canonicalFilePath() == QFileInfo(existingClip.filePath).canonicalFilePath()) {
-                report(QStringLiteral("元に戻せるよう、使用中の音源とは別のファイル名を指定してください。"));
+                report(QStringLiteral("Specify a different file name from the audio in use, so you can revert."));
                 return;
             }
         }
     }
     if (!targetUnchanged()) {
-        report(QStringLiteral("処理中に対象クリップが変更されました。もう一度実行してください。")); return;
+        report(QStringLiteral("The target clip changed during processing. Please run it again.")); return;
     }
     if (!libavcore::writePcm16AsWav(outputPath, pcm, sampleRate, /*channels=*/1, &error)) { report(error); return; }
     if (!m_timeline->replaceAudioClipMedia(m_timeline->audioTracks().indexOf(track), clipIndex, outputPath)) {
-        report(QStringLiteral("クリップの音源を差し替えられませんでした。")); return;
+        report(QStringLiteral("Could not replace the clip's audio.")); return;
     }
     // replaceAudioClipMedia owns the single undo entry.
     setWindowModified(true);
-    statusBar()->showMessage(QStringLiteral("ノイズプリントで除去した音声を適用しました。"), 5000);
+    statusBar()->showMessage(QStringLiteral("Applied the noise-print-reduced audio."), 5000);
 }

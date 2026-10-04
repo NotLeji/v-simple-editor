@@ -14,13 +14,13 @@
 TranscriptHighlightDialog::TranscriptHighlightDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("文字起こしからハイライト検出"));
+    setWindowTitle(tr("Detect Highlights from Transcription"));
     setMinimumWidth(520);
 
     // --- プロバイダ ---
     m_providerCombo = new QComboBox(this);
     m_providerCombo->addItem(tr("Anthropic Claude (anthropic)"), QStringLiteral("anthropic"));
-    m_providerCombo->addItem(tr("オフライン (ヒューリスティック)"), QStringLiteral("offline"));
+    m_providerCombo->addItem(tr("Offline (Heuristic)"), QStringLiteral("offline"));
     m_providerCombo->addItem(tr("OpenAI (openai)"), QStringLiteral("openai"));
     m_providerCombo->addItem(tr("Google Gemini (gemini)"), QStringLiteral("gemini"));
 
@@ -31,21 +31,21 @@ TranscriptHighlightDialog::TranscriptHighlightDialog(QWidget* parent)
 
     // --- 説明 ---
     m_descLabel = new QLabel(
-        tr("現在の字幕トラックから AI が見どころを検出します。"
-           "API キーは設定から登録してください。"),
+        tr("AI detects highlights from the current subtitle track."
+           "Please register your API key in the settings."),
         this);
     m_descLabel->setWordWrap(true);
 
     m_apiKeyWarningLabel = new QLabel(
-        tr("ANTHROPIC_API_KEY が未設定です。オフライン検出(ヒューリスティック)に切り替えてください。"),
+        tr("ANTHROPIC_API_KEY is not set. Please switch to offline detection (heuristic)."),
         this);
     m_apiKeyWarningLabel->setWordWrap(true);
     m_apiKeyWarningLabel->setVisible(false);
 
     // --- フォーム ---
     auto* formLayout = new QFormLayout;
-    formLayout->addRow(tr("プロバイダ:"), m_providerCombo);
-    formLayout->addRow(tr("抽出数:"), m_countSpin);
+    formLayout->addRow(tr("Provider:"), m_providerCombo);
+    formLayout->addRow(tr("Count:"), m_countSpin);
 
     // --- 結果表示 ---
     m_resultEdit = new QPlainTextEdit(this);
@@ -53,8 +53,8 @@ TranscriptHighlightDialog::TranscriptHighlightDialog(QWidget* parent)
 
     // --- ボタン ---
     m_buttonBox = new QDialogButtonBox(this);
-    m_buttonBox->addButton(tr("検出"), QDialogButtonBox::AcceptRole);
-    m_buttonBox->addButton(tr("閉じる"), QDialogButtonBox::RejectRole);
+    m_buttonBox->addButton(tr("Detect"), QDialogButtonBox::AcceptRole);
+    m_buttonBox->addButton(tr("Close"), QDialogButtonBox::RejectRole);
 
     // --- レイアウト ---
     auto* mainLayout = new QVBoxLayout(this);
@@ -113,7 +113,7 @@ void TranscriptHighlightDialog::updateDetectState()
     if (needsApiKey) {
         const QString apiKey = creds::CredentialStore::get(envName, settingsKey);
         m_apiKeyWarningLabel->setText(
-            tr("%1 が未設定です。オフライン検出(ヒューリスティック)にフォールバックします。")
+            tr("%1 is not set. Falling back to offline detection (heuristic).")
                 .arg(QString::fromLatin1(envName)));
         m_apiKeyWarningLabel->setVisible(apiKey.trimmed().isEmpty());
     } else {

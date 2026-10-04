@@ -46,7 +46,7 @@ int runDynzoomSelftest()
 
     const dynzoom::Result identity = dynzoom::build(
         full, full, 0.0, 2.0, dynzoom::Easing::Linear);
-    gate(1, QStringLiteral("Full→Full は scale=1、position=0 の 2 KF"),
+    gate(1, QStringLiteral("Full→Full is 2 KFs with scale=1, position=0"),
          twoValues(identity.positionX, 0.0, 0.0)
              && twoValues(identity.positionY, 0.0, 0.0)
              && twoValues(identity.scaleX, 1.0, 1.0)
@@ -59,7 +59,7 @@ int runDynzoomSelftest()
     const dynzoom::Result zoomIn = dynzoom::build(
         full, dynzoom::presetRect(dynzoom::Preset::ZoomIn),
         0.0, 2.0, dynzoom::Easing::EaseInOut);
-    gate(2, QStringLiteral("ズームインは終端 scale が始端より大きい"),
+    gate(2, QStringLiteral("Zoom-in end scale is greater than start scale"),
          zoomIn.scaleX.count() == 2
              && zoomIn.scaleX.keyframes().last().value
                     > zoomIn.scaleX.keyframes().first().value);
@@ -75,12 +75,12 @@ int runDynzoomSelftest()
         positionXMonotonic = positionXMonotonic && value >= previous - kEpsilon;
         previous = value;
     }
-    gate(3, QStringLiteral("左パンは positionX が単調"), positionXMonotonic);
+    gate(3, QStringLiteral("Left pan has monotonic positionX"), positionXMonotonic);
 
     const dynzoom::Result clamped = dynzoom::build(
         dynzoom::Rect{0.5, 0.5, 2.0}, full,
         0.0, 1.0, dynzoom::Easing::Linear);
-    gate(4, QStringLiteral("w > 1 は 1 にクランプ"),
+    gate(4, QStringLiteral("w > 1 is clamped to 1"),
          clamped.scaleX.count() == 2
              && near(clamped.scaleX.keyframes().first().value, 1.0)
              && near(clamped.scaleY.keyframes().first().value, 1.0));
@@ -100,13 +100,13 @@ int runDynzoomSelftest()
             && near(track->keyframes().last().time,
                     clipStart + clipDuration);
     }
-    gate(5, QStringLiteral("KF 時刻は clipStart と clipStart+duration"),
+    gate(5, QStringLiteral("KF times are clipStart and clipStart+duration"),
          timesMatch);
 
     const dynzoom::Result ignoredLegacyHeight = dynzoom::build(
         dynzoom::Rect{0.5, 0.5, 1.0, 0.5}, full,
         0.0, 1.0, dynzoom::Easing::Linear);
-    gate(6, QStringLiteral("h 入力は無視されキャンバス比に固定"),
+    gate(6, QStringLiteral("h input is ignored, fixed to canvas aspect ratio"),
          twoValues(ignoredLegacyHeight.positionX, 0.0, 0.0)
              && twoValues(ignoredLegacyHeight.positionY, 0.0, 0.0)
              && twoValues(ignoredLegacyHeight.scaleX, 1.0, 1.0)
@@ -120,7 +120,7 @@ int runDynzoomSelftest()
     int publicKeyframeCount = 0;
     for (const KeyframeTrack& track : publicTracks.tracks())
         publicKeyframeCount += track.count();
-    gate(7, QStringLiteral("公開 4 トラックだけが 8 KF の単一ソース"),
+    gate(7, QStringLiteral("Only the 4 public tracks are a single source of 8 KFs"),
          publicTracks.tracks().size() == 4
              && publicKeyframeCount == 8
              && !publicTracks.hasTrack(QStringLiteral("motion.position.x"))

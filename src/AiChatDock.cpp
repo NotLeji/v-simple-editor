@@ -44,7 +44,7 @@ bool containsUnsafeShellCharacter(const QString& value)
 
 AiChatDock::AiChatDock(MainWindow *mainWindow, mcp::McpHttpServer *server,
                        QWidget *parent)
-    : QDockWidget(QStringLiteral("AI チャット"), parent)
+    : QDockWidget(QStringLiteral("AI Chat"), parent)
     , m_mainWindow(mainWindow)
     , m_server(server)
 {
@@ -63,18 +63,18 @@ AiChatDock::AiChatDock(MainWindow *mainWindow, mcp::McpHttpServer *server,
 
     m_input = new QPlainTextEdit(content);
     m_input->setObjectName(QStringLiteral("AiChatInput"));
-    m_input->setPlaceholderText(QStringLiteral("Claude Code に依頼する内容を入力…"));
+    m_input->setPlaceholderText(QStringLiteral("Type your request for Claude Code…"));
     m_input->setFixedHeight(72);
     m_input->installEventFilter(this);
     layout->addWidget(m_input);
 
     auto *buttons = new QHBoxLayout();
-    m_sendButton = new QPushButton(QStringLiteral("送信"), content);
+    m_sendButton = new QPushButton(QStringLiteral("Send"), content);
     m_sendButton->setDefault(true);
-    m_sendButton->setToolTip(QStringLiteral("Ctrl+Enter でも送信できます。"));
-    m_stopButton = new QPushButton(QStringLiteral("停止"), content);
+    m_sendButton->setToolTip(QStringLiteral("You can also send with Ctrl+Enter."));
+    m_stopButton = new QPushButton(QStringLiteral("Stop"), content);
     m_stopButton->setEnabled(false);
-    m_statusLabel = new QLabel(QStringLiteral("待機中"), content);
+    m_statusLabel = new QLabel(QStringLiteral("Waiting"), content);
     m_statusLabel->setObjectName(QStringLiteral("AiChatStatus"));
     connect(m_sendButton, &QPushButton::clicked, this, &AiChatDock::sendPrompt);
     connect(m_stopButton, &QPushButton::clicked, this, &AiChatDock::stopProcess);
@@ -95,7 +95,7 @@ AiChatDock::AiChatDock(MainWindow *mainWindow, mcp::McpHttpServer *server,
     m_providerCombo->addItem(QStringLiteral("Claude Code"), QStringLiteral("claude"));
     m_providerCombo->addItem(QStringLiteral("Codex CLI"), QStringLiteral("codex"));
     m_providerCombo->setToolTip(QStringLiteral(
-        "この Dock が起動する CLI。どちらもログイン済みのサブスク枠で動き、MCP でこのエディタを操作します。"));
+        "The CLI launched by this dock. Both run under your logged-in subscription and control this editor via MCP."));
     {
         QSettings settings(QStringLiteral("VSimpleEditor"), QStringLiteral("Preferences"));
         const QString saved = settings.value(QStringLiteral("aiChatProvider"),
@@ -119,7 +119,7 @@ AiChatDock::AiChatDock(MainWindow *mainWindow, mcp::McpHttpServer *server,
                                                         : QStringLiteral("claude"));
         refreshConnectionStatus();
     });
-    m_connectButton = new QPushButton(QStringLiteral("接続"), content);
+    m_connectButton = new QPushButton(QStringLiteral("Connect"), content);
     m_connectButton->setObjectName(QStringLiteral("AiChatConnectButton"));
     connect(m_connectButton, &QPushButton::clicked, this, &AiChatDock::toggleConnection);
     connection->addWidget(m_connectionLabel, 1);
@@ -136,7 +136,7 @@ AiChatDock::AiChatDock(MainWindow *mainWindow, mcp::McpHttpServer *server,
             m_lastClientName = name;
             m_lastClientVersion = version;
             refreshConnectionStatus();
-            appendLog(QStringLiteral("MCP クライアント接続: %1 %2").arg(name, version).trimmed(),
+            appendLog(QStringLiteral("MCP client connected: %1 %2").arg(name, version).trimmed(),
                       QColor(Qt::gray));
         });
         m_lastClientName = m_server->lastClientName();
@@ -154,7 +154,7 @@ AiChatDock::AiChatDock(MainWindow *mainWindow, mcp::McpHttpServer *server,
             return;
         const int seconds = qMax(1, (m_watchdogTimeoutMs + 999) / 1000);
         appendLog(QStringLiteral(
-                       "%1 秒間応答がありません。停止ボタンで中断できます。")
+                       "No response for %1 seconds. You can interrupt with the Stop button.")
                       .arg(seconds), QColor(Qt::red));
     });
 
@@ -189,19 +189,19 @@ void AiChatDock::refreshConnectionStatus()
         : settings.value(QStringLiteral("aiChatCommand"), QStringLiteral("claude")).toString();
     const CliCommand cli = resolveCliCommand(command);
     const QString serverText = running
-        ? QStringLiteral("● MCP サーバ: 待受中 (ポート %1)").arg(m_server->port())
-        : QStringLiteral("○ MCP サーバ: 停止中");
+        ? QStringLiteral("● MCP server: listening (port %1)").arg(m_server->port())
+        : QStringLiteral("○ MCP server: stopped");
     const QString clientText = m_lastClientName.isEmpty()
-        ? QStringLiteral("接続元: まだ接続なし")
-        : QStringLiteral("接続元: %1 %2").arg(m_lastClientName, m_lastClientVersion).trimmed();
+        ? QStringLiteral("Connected from: not connected yet")
+        : QStringLiteral("Connected from: %1 %2").arg(m_lastClientName, m_lastClientVersion).trimmed();
     QString model = m_model;
     if (model.isEmpty() && codex)
         model = codexConfiguredModel();
     const QString modelText = model.isEmpty()
-        ? (codex ? QStringLiteral("モデル: Codex 既定") : QStringLiteral("モデル: 送信後に表示"))
-        : QStringLiteral("モデル: %1").arg(model);
+        ? (codex ? QStringLiteral("Model: Codex default") : QStringLiteral("Model: shown after sending"))
+        : QStringLiteral("Model: %1").arg(model);
     const QString cliText = QStringLiteral("CLI: %1 %2")
-        .arg(command, cli.program.isEmpty() ? QStringLiteral("未検出") : QStringLiteral("検出済み"));
+        .arg(command, cli.program.isEmpty() ? QStringLiteral("Not detected") : QStringLiteral("Detected"));
     m_connectionLabel->setText(serverText + QStringLiteral(" / ") + clientText
                                + QLatin1Char('\n') + cliText + QStringLiteral(" / ") + modelText);
     m_connectionLabel->setStyleSheet(running
@@ -211,13 +211,13 @@ void AiChatDock::refreshConnectionStatus()
         ? QStringLiteral("npm i -g @openai/codex")
         : QStringLiteral("npm i -g @anthropic-ai/claude-code");
     m_connectionLabel->setToolTip(cli.program.isEmpty()
-        ? QStringLiteral("%1 が見つかりません。%2 を実行してください。\n探索:\n%3")
+        ? QStringLiteral("%1 not found. Please run %2.\nSearched:\n%3")
               .arg(command, installHint, cli.searched.join(QLatin1Char('\n')))
         : cli.program);
-    m_connectButton->setText(running ? QStringLiteral("切断") : QStringLiteral("接続"));
+    m_connectButton->setText(running ? QStringLiteral("Disconnect") : QStringLiteral("Connect"));
     m_connectButton->setToolTip(running
-        ? QStringLiteral("MCP サーバを停止します (Claude Code / Codex CLI からの接続も切れます)")
-        : QStringLiteral("MCP サーバを起動して、Claude Code から接続できるようにします"));
+        ? QStringLiteral("Stop the MCP server (also disconnects Claude Code / Codex CLI)")
+        : QStringLiteral("Start the MCP server so Claude Code can connect"));
 }
 
 void AiChatDock::processCodexOutputLine(const QJsonObject& object)
@@ -240,17 +240,17 @@ void AiChatDock::processCodexOutputLine(const QJsonObject& object)
             const QString tool = item.value(QStringLiteral("server")).toString()
                 + QLatin1Char('/') + item.value(QStringLiteral("tool")).toString();
             if (!completed)
-                appendLog(QStringLiteral("ツール実行: ") + tool, QColor(Qt::gray));
+                appendLog(QStringLiteral("Tool run: ") + tool, QColor(Qt::gray));
             else if (item.value(QStringLiteral("status")).toString() == QStringLiteral("failed"))
-                appendLog(QStringLiteral("ツール失敗: ") + tool, QColor(Qt::red));
+                appendLog(QStringLiteral("Tool failed: ") + tool, QColor(Qt::red));
         } else if (itemType == QStringLiteral("command_execution")) {
             if (!completed) {
-                appendLog(QStringLiteral("コマンド実行: ")
+                appendLog(QStringLiteral("Command run: ")
                               + item.value(QStringLiteral("command")).toString(),
                           QColor(Qt::gray));
             }
         } else if (itemType == QStringLiteral("error")) {
-            appendLog(QStringLiteral("codex エラー: ")
+            appendLog(QStringLiteral("Codex error: ")
                           + item.value(QStringLiteral("message")).toString(),
                       QColor(Qt::red));
             m_gotError = true;
@@ -267,8 +267,8 @@ void AiChatDock::processCodexOutputLine(const QJsonObject& object)
             message = object.value(QStringLiteral("error")).toObject()
                 .value(QStringLiteral("message")).toString();
         }
-        appendLog(QStringLiteral("codex エラー: ")
-                      + (message.isEmpty() ? QStringLiteral("(詳細なし)") : message),
+        appendLog(QStringLiteral("Codex error: ")
+                      + (message.isEmpty() ? QStringLiteral("(No details)") : message),
                   QColor(Qt::red));
         m_gotError = true;
         m_gotResult = true;
@@ -337,12 +337,12 @@ void AiChatDock::toggleConnection()
     refreshConnectionStatus();
     const bool running = m_server && m_server->isRunning();
     if (!wasRunning && running) {
-        appendLog(QStringLiteral("MCP サーバを起動しました (ポート %1)。")
+        appendLog(QStringLiteral("MCP server started (port %1).")
                       .arg(m_server->port()), QColor(Qt::gray));
     } else if (!wasRunning) {
-        appendLog(QStringLiteral("MCP サーバを起動できませんでした。"), QColor(Qt::red));
+        appendLog(QStringLiteral("Could not start MCP server."), QColor(Qt::red));
     } else if (!running) {
-        appendLog(QStringLiteral("MCP サーバを停止しました。"), QColor(Qt::gray));
+        appendLog(QStringLiteral("MCP server stopped."), QColor(Qt::gray));
     }
 }
 
@@ -392,7 +392,7 @@ AiChatDock::CliCommand AiChatDock::resolveCliCommand(
     };
 
     if (command.isEmpty()) {
-        result.searched.append(QStringLiteral("候補: (空のコマンド名)"));
+        result.searched.append(QStringLiteral("Candidate: (empty command name)"));
         return result;
     }
 
@@ -413,11 +413,11 @@ AiChatDock::CliCommand AiChatDock::resolveCliCommand(
     }
 
     for (const QString& candidate : candidates)
-        result.searched.append(QStringLiteral("候補: ") + candidate);
+        result.searched.append(QStringLiteral("Candidate: ") + candidate);
 
     if (!searchPaths.isEmpty()) {
         for (const QString& path : searchPaths)
-            result.searched.append(QStringLiteral("検索先: ") + path);
+            result.searched.append(QStringLiteral("Search target: ") + path);
         for (const QString& candidate : candidates) {
             const QString resolved = QStandardPaths::findExecutable(
                 candidate, searchPaths);
@@ -432,7 +432,7 @@ AiChatDock::CliCommand AiChatDock::resolveCliCommand(
     const QStringList pathEntries = qEnvironmentVariable("PATH")
         .split(QDir::listSeparator(), Qt::SkipEmptyParts);
     for (const QString& path : pathEntries)
-        result.searched.append(QStringLiteral("検索先: ") + path);
+        result.searched.append(QStringLiteral("Search target: ") + path);
     for (const QString& candidate : candidates) {
         const QString resolved = QStandardPaths::findExecutable(candidate);
         if (!resolved.isEmpty()) {
@@ -446,7 +446,7 @@ AiChatDock::CliCommand AiChatDock::resolveCliCommand(
         QDir::home().filePath(QStringLiteral(".local/bin"))
     };
     for (const QString& path : fallbackPaths)
-        result.searched.append(QStringLiteral("検索先: ") + path);
+        result.searched.append(QStringLiteral("Search target: ") + path);
     for (const QString& candidate : candidates) {
         const QString resolved = QStandardPaths::findExecutable(
             candidate, fallbackPaths);
@@ -501,7 +501,7 @@ QString AiChatDock::buildShellCommandLine(const QString& program,
     const auto quote = [error](const QString& value) {
         if (containsUnsafeShellCharacter(value)) {
             if (error) {
-                *error = QStringLiteral("cmd.exe で安全に扱えない値: ") + value;
+                *error = QStringLiteral("Value unsafe for cmd.exe: ") + value;
             }
             return QString();
         }
@@ -510,7 +510,7 @@ QString AiChatDock::buildShellCommandLine(const QString& program,
 
     if (program.isEmpty()) {
         if (error)
-            *error = QStringLiteral("実行ファイルのパスが空です");
+            *error = QStringLiteral("Executable path is empty");
         return {};
     }
 
@@ -598,7 +598,7 @@ bool AiChatDock::writeMcpConfig()
         QFileDevice::ReadOwner | QFileDevice::WriteOwner);
     if (!permissionsOk) {
         appendLog(QStringLiteral(
-            "警告: MCP 設定ファイルの所有者専用権限を設定できませんでした。"),
+            "Warning: could not set owner-only permissions on the MCP config file."),
                   QColor(Qt::gray));
     }
     const QByteArray data = buildMcpConfig(m_server->port(), m_server->token());
@@ -610,7 +610,7 @@ bool AiChatDock::writeMcpConfig()
 void AiChatDock::sendPrompt()
 {
     if (m_process && m_process->state() != QProcess::NotRunning) {
-        appendLog(QStringLiteral("実行中です。完了または停止を待ってください。"),
+        appendLog(QStringLiteral("Already running. Please wait for it to finish or stop."),
                   QColor(Qt::gray));
         return;
     }
@@ -628,16 +628,16 @@ void AiChatDock::sendPrompt()
     const CliCommand cli = resolveCliCommand(command);
     if (cli.program.isEmpty()) {
         const QString searched = cli.searched.isEmpty()
-            ? QStringLiteral("(なし)")
+            ? QStringLiteral("(None)")
             : cli.searched.join(QLatin1Char('\n'));
         appendLog(QStringLiteral(
-                       "%1 が見つかりません\n探索:\n%2\n%3 を実行してください。")
+                       "%1 not found\nSearched:\n%2\nPlease run %3.")
                       .arg(command, searched,
                            codex ? QStringLiteral("npm i -g @openai/codex")
                                  : QStringLiteral("npm i -g @anthropic-ai/claude-code")),
                   QColor(Qt::red));
         if (m_statusLabel)
-            m_statusLabel->setText(QStringLiteral("エラー"));
+            m_statusLabel->setText(QStringLiteral("Error"));
         return;
     }
 
@@ -646,10 +646,10 @@ void AiChatDock::sendPrompt()
             m_mainWindow->toggleMcpServer(true);
     }
     if (!m_server || !m_server->isRunning()) {
-        appendLog(QStringLiteral("MCP サーバを起動できませんでした。"),
+        appendLog(QStringLiteral("Could not start MCP server."),
                   QColor(Qt::red));
         if (m_statusLabel)
-            m_statusLabel->setText(QStringLiteral("エラー"));
+            m_statusLabel->setText(QStringLiteral("Error"));
         return;
     }
 
@@ -665,10 +665,10 @@ void AiChatDock::sendPrompt()
             QFile::remove(m_configPath);
             m_configPath.clear();
         }
-        appendLog(QStringLiteral("MCP 設定ファイルを書き込めませんでした。"),
+        appendLog(QStringLiteral("Could not write MCP config file."),
                   QColor(Qt::red));
         if (m_statusLabel)
-            m_statusLabel->setText(QStringLiteral("エラー"));
+            m_statusLabel->setText(QStringLiteral("Error"));
         return;
     }
 
@@ -695,10 +695,10 @@ void AiChatDock::sendPrompt()
                 m_configPath.clear();
             }
             appendLog(QStringLiteral(
-                           "一時ディレクトリまたはコマンドのパスに使えない文字が含まれています: ")
+                           "Temp directory or command path contains unsupported characters: ")
                           + shellError, QColor(Qt::red));
             if (m_statusLabel)
-                m_statusLabel->setText(QStringLiteral("エラー"));
+                m_statusLabel->setText(QStringLiteral("Error"));
             return;
         }
     }
@@ -732,7 +732,7 @@ void AiChatDock::sendPrompt()
     m_sessionResumeFailureReported = false;
     m_runTimer.start();
     if (m_statusLabel)
-        m_statusLabel->setText(QStringLiteral("実行中 (0 秒)"));
+        m_statusLabel->setText(QStringLiteral("Running (0 s)"));
     if (m_statusTimer)
         m_statusTimer->start();
 
@@ -818,7 +818,7 @@ void AiChatDock::updateRunningStatus()
         || m_process->state() == QProcess::NotRunning) {
         return;
     }
-    m_statusLabel->setText(QStringLiteral("実行中 (%1 秒)")
+    m_statusLabel->setText(QStringLiteral("Running (%1 s)")
                                .arg(m_runTimer.elapsed() / 1000));
 }
 
@@ -872,7 +872,7 @@ void AiChatDock::processOutputLine(const QByteArray& line)
             if (itemType == QStringLiteral("text"))
                 appendLog(item.value(QStringLiteral("text")).toString());
             else if (itemType == QStringLiteral("tool_use"))
-                appendLog(QStringLiteral("ツール実行: ")
+                appendLog(QStringLiteral("Tool run: ")
                               + item.value(QStringLiteral("name")).toString(),
                           QColor(Qt::gray));
         }
@@ -886,7 +886,7 @@ void AiChatDock::processOutputLine(const QByteArray& line)
             .toString();
         if (isError) {
             m_gotError = true;
-            QString message = QStringLiteral("claude エラー");
+            QString message = QStringLiteral("Claude error");
             if (!subtype.isEmpty())
                 message += QStringLiteral(": ") + subtype;
             if (!result.isEmpty()) {
@@ -902,7 +902,7 @@ void AiChatDock::processOutputLine(const QByteArray& line)
                 m_sessionId.clear();
                 if (!m_sessionResumeFailureReported) {
                     appendLog(QStringLiteral(
-                                  "セッションを再開できなかったので次回は新規に開始します。"),
+                                  "Could not resume session; a new session will start next time."),
                               QColor(Qt::red));
                     m_sessionResumeFailureReported = true;
                 }
@@ -914,8 +914,8 @@ void AiChatDock::processOutputLine(const QByteArray& line)
         const QString status = object.value(QStringLiteral("rate_limit_info"))
             .toObject().value(QStringLiteral("status")).toString();
         if (status != QStringLiteral("allowed")) {
-            appendLog(QStringLiteral("claude のレート制限状態: ")
-                          + (status.isEmpty() ? QStringLiteral("不明") : status),
+            appendLog(QStringLiteral("Claude rate-limit status: ")
+                          + (status.isEmpty() ? QStringLiteral("Unknown") : status),
                       QColor(Qt::gray));
         }
     }
@@ -948,14 +948,14 @@ void AiChatDock::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
         && m_stderrText.contains(QStringLiteral("No conversation found"))) {
         m_sessionId.clear();
         appendLog(QStringLiteral(
-                      "セッションを再開できなかったので次回は新規に開始します。"),
+                      "Could not resume session; a new session will start next time."),
                   QColor(Qt::red));
         m_sessionResumeFailureReported = true;
     }
 
     const bool abnormalExit = exitStatus == QProcess::CrashExit || exitCode != 0;
     if (abnormalExit) {
-        QString message = QStringLiteral("%1 が終了コード %2 で終了しました")
+        QString message = QStringLiteral("%1 exited with code %2")
             .arg(m_provider == Provider::Codex ? QStringLiteral("codex")
                                                : QStringLiteral("claude"))
             .arg(exitCode);
@@ -967,7 +967,7 @@ void AiChatDock::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
         m_gotError = true;
     }
     if (!m_gotResult) {
-        appendLog(QStringLiteral("応答が返りませんでした。"), QColor(Qt::red));
+        appendLog(QStringLiteral("No response was returned."), QColor(Qt::red));
         m_gotError = true;
     }
     if (m_sendButton)
@@ -975,8 +975,8 @@ void AiChatDock::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
     if (m_stopButton)
         m_stopButton->setEnabled(false);
     if (m_statusLabel)
-        m_statusLabel->setText(m_gotError ? QStringLiteral("エラー")
-                                          : QStringLiteral("完了"));
+        m_statusLabel->setText(m_gotError ? QStringLiteral("Error")
+                                          : QStringLiteral("Done"));
     if (!m_configPath.isEmpty()) {
         QFile::remove(m_configPath);
         m_configPath.clear();
@@ -995,11 +995,11 @@ void AiChatDock::processError(QProcess::ProcessError error)
                                           QStringLiteral("Preferences"))
             .value(QStringLiteral("aiChatCommand"), QStringLiteral("claude"))
             .toString();
-        appendLog(QStringLiteral("%1 が見つかりません。Claude Code をインストールし、PATH を通してください "
-                               "(npm i -g @anthropic-ai/claude-code)。設定の aiChatCommand で別の CLI を指定できます。")
+        appendLog(QStringLiteral("%1 not found. Install Claude Code and add it to your PATH "
+                               "(npm i -g @anthropic-ai/claude-code). You can specify a different CLI in the aiChatCommand setting.")
                       .arg(command), QColor(Qt::red));
     } else if (m_process) {
-        appendLog(QStringLiteral("AI チャットのプロセスでエラーが発生しました: ")
+        appendLog(QStringLiteral("An error occurred in the AI chat process: ")
                       + m_process->errorString(), QColor(Qt::red));
     }
     if (!m_configPath.isEmpty()) {
@@ -1011,5 +1011,5 @@ void AiChatDock::processError(QProcess::ProcessError error)
     if (m_stopButton)
         m_stopButton->setEnabled(false);
     if (m_statusLabel)
-        m_statusLabel->setText(QStringLiteral("エラー"));
+        m_statusLabel->setText(QStringLiteral("Error"));
 }

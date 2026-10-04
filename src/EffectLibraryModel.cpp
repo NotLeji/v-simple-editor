@@ -50,31 +50,31 @@ QString kindTag(SourceKind kind)
 QString shaderCategory(const QString &category)
 {
     if (category.compare(QStringLiteral("Blur"), Qt::CaseInsensitive) == 0)
-        return QStringLiteral("ブラー");
+        return QStringLiteral("Blur");
     if (category.compare(QStringLiteral("Color"), Qt::CaseInsensitive) == 0)
-        return QStringLiteral("カラー");
+        return QStringLiteral("Color");
     if (category.compare(QStringLiteral("Distort"), Qt::CaseInsensitive) == 0)
-        return QStringLiteral("ディストーション");
+        return QStringLiteral("Distortion");
     if (category.compare(QStringLiteral("Stylize"), Qt::CaseInsensitive) == 0)
-        return QStringLiteral("スタイライズ");
-    return category.isEmpty() ? QStringLiteral("その他") : category;
+        return QStringLiteral("Stylize");
+    return category.isEmpty() ? QStringLiteral("Other") : category;
 }
 
 QString particleName(ParticleType type)
 {
     switch (type) {
-    case ParticleType::Snow:     return QStringLiteral("スノー");
-    case ParticleType::Rain:     return QStringLiteral("レイン");
-    case ParticleType::Spark:    return QStringLiteral("スパーク");
-    case ParticleType::Smoke:    return QStringLiteral("スモーク");
-    case ParticleType::Fire:     return QStringLiteral("ファイア");
-    case ParticleType::Confetti: return QStringLiteral("コンフェッティ");
-    case ParticleType::Dust:     return QStringLiteral("ダスト");
-    case ParticleType::Bubble:   return QStringLiteral("バブル");
-    case ParticleType::Star:     return QStringLiteral("スター");
-    case ParticleType::Custom:   return QStringLiteral("カスタム");
+    case ParticleType::Snow:     return QStringLiteral("Snow");
+    case ParticleType::Rain:     return QStringLiteral("Rain");
+    case ParticleType::Spark:    return QStringLiteral("Spark");
+    case ParticleType::Smoke:    return QStringLiteral("Smoke");
+    case ParticleType::Fire:     return QStringLiteral("Fire");
+    case ParticleType::Confetti: return QStringLiteral("Confetti");
+    case ParticleType::Dust:     return QStringLiteral("Dust");
+    case ParticleType::Bubble:   return QStringLiteral("Bubble");
+    case ParticleType::Star:     return QStringLiteral("Star");
+    case ParticleType::Custom:   return QStringLiteral("Custom");
     }
-    return QStringLiteral("パーティクル");
+    return QStringLiteral("Particles");
 }
 
 QString videoCategory(VideoEffectType type)
@@ -84,7 +84,7 @@ QString videoCategory(VideoEffectType type)
     case VideoEffectType::GaussianBlur:
     case VideoEffectType::DirectionalBlur:
     case VideoEffectType::RadialBlur:
-        return QStringLiteral("ブラー");
+        return QStringLiteral("Blur");
     case VideoEffectType::ChromaKey:
     case VideoEffectType::Sepia:
     case VideoEffectType::Grayscale:
@@ -100,7 +100,7 @@ QString videoCategory(VideoEffectType type)
     case VideoEffectType::PhotoFilter:
     case VideoEffectType::Tritone:
     case VideoEffectType::BrightnessContrast:
-        return QStringLiteral("カラー");
+        return QStringLiteral("Color");
     case VideoEffectType::Mosaic:
     case VideoEffectType::DisplacementMap:
     case VideoEffectType::FractalNoiseGen:
@@ -116,7 +116,7 @@ QString videoCategory(VideoEffectType type)
     case VideoEffectType::RollingShutterRepair:
     case VideoEffectType::LensDistortion:
     case VideoEffectType::CornerPinSimple:
-        return QStringLiteral("ディストーション");
+        return QStringLiteral("Distortion");
     case VideoEffectType::Vignette:
     case VideoEffectType::Noise:
     case VideoEffectType::Glow:
@@ -133,29 +133,29 @@ QString videoCategory(VideoEffectType type)
     case VideoEffectType::Sharpen:
     case VideoEffectType::FilmGrain:
     case VideoEffectType::Echo:
-        return QStringLiteral("スタイライズ");
+        return QStringLiteral("Stylize");
     case VideoEffectType::None:
-        return QStringLiteral("その他");
+        return QStringLiteral("Other");
     }
-    return QStringLiteral("その他");
+    return QStringLiteral("Other");
 }
 
 QString localizedVideoName(VideoEffectType type)
 {
     const QString original = VideoEffect::typeName(type);
-    if (original == QStringLiteral("Blur")) return QStringLiteral("ブラー");
-    if (original == QStringLiteral("Sharpen")) return QStringLiteral("シャープ");
-    if (original == QStringLiteral("Mosaic")) return QStringLiteral("モザイク");
-    if (original == QStringLiteral("Vignette")) return QStringLiteral("ビネット");
-    if (original == QStringLiteral("Noise")) return QStringLiteral("ノイズ");
-    if (original == QStringLiteral("Displacement Map")) return QStringLiteral("ディスプレイスメント");
-    if (original == QStringLiteral("Fractal Noise")) return QStringLiteral("フラクタルノイズ");
+    if (original == QStringLiteral("Blur")) return QStringLiteral("Blur");
+    if (original == QStringLiteral("Sharpen")) return QStringLiteral("Sharpen");
+    if (original == QStringLiteral("Mosaic")) return QStringLiteral("Mosaic");
+    if (original == QStringLiteral("Vignette")) return QStringLiteral("Vignette");
+    if (original == QStringLiteral("Noise")) return QStringLiteral("Noise");
+    if (original == QStringLiteral("Displacement Map")) return QStringLiteral("Displacement");
+    if (original == QStringLiteral("Fractal Noise")) return QStringLiteral("Fractal noise");
     return original;
 }
 
 VideoEffectType shaderVideoType(const QString &name)
 {
-    if (name == QStringLiteral("レンズ歪み補正"))
+    if (name == QStringLiteral("Lens Distortion Correction"))
         return VideoEffectType::LensDistortion;
     if (name.contains(QStringLiteral("Chromatic"), Qt::CaseInsensitive))
         return VideoEffectType::RGBSplit;
@@ -206,7 +206,7 @@ VideoEffectType pluginVideoType(const QString &name)
 
 QString shaderNativeParam(const QString &effectName, const QString &shaderParam)
 {
-    if (effectName == QStringLiteral("レンズ歪み補正")) {
+    if (effectName == QStringLiteral("Lens Distortion Correction")) {
         if (shaderParam == QStringLiteral("uK1")) return QStringLiteral("k1");
         if (shaderParam == QStringLiteral("uK2")) return QStringLiteral("k2");
         if (shaderParam == QStringLiteral("uScale")) return QStringLiteral("scale");
@@ -370,7 +370,7 @@ void EffectLibraryModel::registerAll()
         EntryData data;
         data.entry.id = QStringLiteral("particle:%1").arg(typeIndex);
         data.entry.displayName = particleName(type);
-        data.entry.category = QStringLiteral("パーティクル");
+        data.entry.category = QStringLiteral("Particles");
         data.entry.kind = SourceKind::Particle;
         data.sourceName = particleName(type);
         data.particle = config;
@@ -387,7 +387,7 @@ void EffectLibraryModel::registerAll()
         EntryData data;
         data.entry.id = encodedId(QStringLiteral("vfx"), sourceName);
         data.entry.displayName = VfxGenerators::displayName(type);
-        data.entry.category = QStringLiteral("VFX ジェネレータ");
+        data.entry.category = QStringLiteral("VFX Generator");
         data.entry.kind = SourceKind::VfxGenerator;
         data.sourceName = sourceName;
         data.vfxType = type;
@@ -432,7 +432,7 @@ void EffectLibraryModel::registerAll()
         EntryData data;
         data.entry.id = encodedId(QStringLiteral("preset"), preset.name);
         data.entry.displayName = preset.name;
-        data.entry.category = QStringLiteral("プリセット");
+        data.entry.category = QStringLiteral("Preset");
         data.entry.kind = SourceKind::Preset;
         data.entry.isUserPreset = !preset.isBuiltIn;
         data.sourceName = preset.name;
@@ -455,7 +455,7 @@ void EffectLibraryModel::registerAll()
         data.entry.id = encodedId(QStringLiteral("footage"), item.filePath);
         data.entry.displayName = item.displayName;
         data.entry.category = item.category.isEmpty()
-            ? QStringLiteral("その他") : item.category;
+            ? QStringLiteral("Other") : item.category;
         data.entry.kind = SourceKind::Footage;
         data.sourceName = item.filePath;
         data.footagePath = item.filePath;
@@ -661,7 +661,7 @@ QVector<ParameterSpec> EffectLibraryModel::parametersForData(
             ParameterSpec spec;
             spec.name = param.name;
             spec.displayName = param.name;
-            if (data.sourceName == QStringLiteral("レンズ歪み補正")) {
+            if (data.sourceName == QStringLiteral("Lens Distortion Correction")) {
                 const QString nativeName = shaderNativeParam(data.sourceName, param.name);
                 for (const auto &native : effectctrl::paramSchemaFor(VideoEffectType::LensDistortion)) {
                     if (native.name == nativeName) {
@@ -720,7 +720,7 @@ QVector<ParameterSpec> EffectLibraryModel::parametersForData(
     } else if (data.entry.kind == SourceKind::Footage) {
         ParameterSpec intensity;
         intensity.name = QStringLiteral("vfxIntensity");
-        intensity.displayName = QStringLiteral("強度");
+        intensity.displayName = QStringLiteral("Intensity");
         intensity.minValue = 0.0;
         intensity.maxValue = 8.0;
         intensity.defaultValue = 1.0;
@@ -728,7 +728,7 @@ QVector<ParameterSpec> EffectLibraryModel::parametersForData(
 
         ParameterSpec blackLevel;
         blackLevel.name = QStringLiteral("vfxBlackLevel");
-        blackLevel.displayName = QStringLiteral("黒レベル");
+        blackLevel.displayName = QStringLiteral("Black level");
         blackLevel.minValue = 0.0;
         blackLevel.maxValue = 64.0;
         blackLevel.defaultValue = 16.0;

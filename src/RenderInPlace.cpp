@@ -79,23 +79,23 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
         return false;
     };
     if (trackIndex < 0 || trackIndex >= timeline.videoTracks().size())
-        return fail(QStringLiteral("映像トラックが見つかりません"));
+        return fail(QStringLiteral("No video track found"));
     auto *track = timeline.videoTracks()[trackIndex];
     if (track->isLocked() || clipIndex < 0 || clipIndex >= track->clipCount())
-        return fail(QStringLiteral("クリップを変更できません"));
+        return fail(QStringLiteral("Cannot modify clip"));
     if (!std::isfinite(options.handlesSec) || options.handlesSec < 0.0
         || options.handlesSec > 5.0 || !std::isfinite(options.fps) || options.fps <= 0.0
         || options.outputSize.width() <= 0 || options.outputSize.height() <= 0
         || (options.codec != QStringLiteral("h264") && options.codec != QStringLiteral("prores")))
-        return fail(QStringLiteral("書き出し設定が不正です"));
+        return fail(QStringLiteral("Invalid export settings"));
     const ClipInfo original = track->clips()[clipIndex];
     if (!std::isfinite(original.speed) || original.speed <= 0.0
         || !std::isfinite(original.duration) || original.duration <= 0.0)
-        return fail(QStringLiteral("クリップの尺または速度が不正です"));
+        return fail(QStringLiteral("Invalid clip duration or speed"));
     const double length = original.effectiveDuration();
     if (!std::isfinite(length) || length <= 0.0 || original.isSequenceReference()
         || original.isAdjustment)
-        return fail(QStringLiteral("このクリップは焼き込みに対応していません"));
+        return fail(QStringLiteral("This clip does not support baking"));
 
     // Keep the retained interval on the export frame grid, including when
     // requested handles contain a fractional frame.
@@ -104,24 +104,24 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
     };
     const double handles = snap(options.handlesSec);
     if (isOverlapTransition(original.leadIn.type) || isOverlapTransition(original.trailOut.type))
-        return fail(QStringLiteral("重ね合わせトランジション付きクリップは焼き込めません。先にトランジションを解除してください"));
+        return fail(QStringLiteral("Clips with overlay transitions cannot be baked. Please remove the transition first."));
     // The available codecs flatten alpha to black. Inspect the entire stack,
     // including effects whose active interval/keyframes exclude the current frame.
     for (const auto &effect : original.effects) {
         if (effect.type == VideoEffectType::ChromaKey && effect.enabled)
-            return fail(QStringLiteral("クロマキー付きクリップは透明部分を保持できないため焼き込めません。先にクロマキーを無効にしてください"));
+            return fail(QStringLiteral("Clips with chroma key cannot be baked because transparent areas would be lost. Please disable chroma key first."));
     }
     if (!original.maskTrackingData.isEmpty() || !original.stabilizerKeyframes.isEmpty())
-        return fail(QStringLiteral("追跡マスクまたはスタビライズ付きクリップの焼き込みには対応していません"));
+        return fail(QStringLiteral("Baking clips with tracked masks or stabilization is not supported"));
     const QSize outputSize = nativeVideoSize(original.filePath);
     if (outputSize.isEmpty())
-        return fail(QStringLiteral("素材の映像サイズを取得できません"));
+        return fail(QStringLiteral("Cannot get source video size"));
     // Edge transitions are evaluated relative to clip boundaries by the
     // shared renderer. Extending those boundaries would move the transition
     // in the retained region. Do not silently change that picture.
     if (handles > 0.0 && (original.leadIn.type != TransitionType::None
                          || original.trailOut.type != TransitionType::None))
-        return fail(QStringLiteral("トランジション付きクリップの焼き込みは、ハンドル秒を0に設定してください"));
+        return fail(QStringLiteral("To bake a clip with a transition, set handle seconds to 0"));
     ClipInfo isolated = original;
     isolated.renderInPlaceOriginal.reset();
     copyComposition(ClipInfo{}, isolated);
@@ -203,11 +203,11 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
                 ClipInfo audio = audioTrack->clips()[i];
                 if (audio.linkGroup != original.linkGroup) continue;
                 if (audioTrack->isLocked())
-                    return fail(QStringLiteral("リンク音声トラックがロックされています"));
+                    return fail(QStringLiteral("Linked audio track is locked"));
                 const double relative = startAt(audioTrack, i) - videoStart;
                 if (!std::isfinite(audio.effectiveDuration()) || audio.effectiveDuration() <= 0.0
                     || !std::isfinite(relative))
-                    return fail(QStringLiteral("リンク音声の尺が不正です"));
+                    return fail(QStringLiteral("Invalid linked audio duration"));
                 prefix = qMax(prefix, -relative);
                 suffix = qMax(suffix, relative + audio.effectiveDuration() - length);
                 audio.leadInSec = relative;
@@ -228,7 +228,7 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
     for (auto &audio : linked) {
         const double start = audio.leadInSec + prefix;
         if (start < audioEnd - 1e-6)
-            return fail(QStringLiteral("重なったリンク音声は焼き込めません"));
+            return fail(QStringLiteral("Overlapping linked audio cannot be baked"));
         audio.leadInSec = qMax(0.0, start - audioEnd);
         audioEnd = start + audio.effectiveDuration();
     }
@@ -261,7 +261,7 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
         directory = QDir(directory).filePath(QStringLiteral("RenderInPlace"));
     }
     if (!QDir().mkpath(directory))
-        return fail(QStringLiteral("出力先を作成できません"));
+        return fail(QStringLiteral("Cannot create output destination"));
     QString name = QFileInfo(original.displayName.isEmpty() ? original.filePath : original.displayName).completeBaseName();
     name.replace(QRegularExpression(QStringLiteral("[<>:\"/\\\\|?*\\x00-\\x1f]")), QStringLiteral("_"));
     if (name.isEmpty()) name = QStringLiteral("clip");
@@ -271,7 +271,7 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
     QString path = QDir(directory).absoluteFilePath(name + extension);
     for (int suffix = 1; QFileInfo::exists(path); ++suffix)
         path = QDir(directory).absoluteFilePath(name + QStringLiteral("_%1").arg(suffix) + extension);
-    RenderPreset preset{QStringLiteral("クリップ焼き込み"), outputSize.width(),
+    RenderPreset preset{QStringLiteral("Bake Clip"), outputSize.width(),
         outputSize.height(), options.codec, 100000000, extension.mid(1)};
     RenderJob job = RenderQueue::jobFromPreset(preset, path, 0,
         qRound64((length + prefix + suffix) * 1000000.0));
@@ -282,19 +282,19 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
     // probe disables passthrough. Keep it alive until the queue has finished.
     QTemporaryFile silentInput(QDir(directory).filePath(QStringLiteral(".render-in-place-XXXXXX.png")));
     if (!silentInput.open())
-        return fail(QStringLiteral("一時ファイルを作成できません"));
+        return fail(QStringLiteral("Cannot create temporary file"));
     silentInput.close();
     QImage silentFrame(2, 2, QImage::Format_RGB32);
     silentFrame.fill(Qt::black);
     if (!silentFrame.save(silentInput.fileName(), "PNG"))
-        return fail(QStringLiteral("音声なしの入力を準備できません"));
+        return fail(QStringLiteral("Cannot prepare no-audio input"));
     job.projectFilePath = silentInput.fileName();
     // .veditor is not an audio-mix trigger in RenderQueue: it falls back to
     // V1 media. Prepare the normal export mix and mux it in this same job.
     QTemporaryDir mixDirectory(QDir(directory).filePath(QStringLiteral(".render-in-place-mix-XXXXXX")));
     if (!linked.isEmpty()) {
         if (!mixDirectory.isValid())
-            return fail(QStringLiteral("リンク音声の一時フォルダーを作成できません"));
+            return fail(QStringLiteral("Cannot create temporary folder for linked audio"));
         // Keep the intermediate beneath outputDir when a selftest needs diagnostics.
         if (options.retainAudioMixForDiagnostics)
             mixDirectory.setAutoRemove(false);
@@ -303,7 +303,7 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
             mixDirectory.filePath(QStringLiteral("linked-audio.m4a")),
             length + prefix + suffix, &mixError);
         if (mixPath.isEmpty() || !mixError.isEmpty())
-            return fail(mixError.isEmpty() ? QStringLiteral("リンク音声を準備できません") : mixError);
+            return fail(mixError.isEmpty() ? QStringLiteral("Cannot prepare linked audio") : mixError);
         job.projectFilePath = mixPath;
     }
     job.exportConfig["fps"] = options.fps;
@@ -333,13 +333,13 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
     QObject::disconnect(connection);
     if (!success) {
         QFile::remove(path);
-        return fail(renderError.isEmpty() ? QStringLiteral("焼き込みを中止しました") : renderError);
+        return fail(renderError.isEmpty() ? QStringLiteral("Bake cancelled") : renderError);
     }
     const auto duration = libavcore::probeDurationMicroseconds(path.toStdString());
     if (!duration || *duration <= 0 || changed) {
         QFile::remove(path);
-        return fail(changed ? QStringLiteral("処理中にタイムラインが変更されました")
-                            : QStringLiteral("出力メディアを確認できません"));
+        return fail(changed ? QStringLiteral("Timeline was modified during processing")
+                            : QStringLiteral("Cannot verify output media"));
     }
     // Reset baked material/time properties and retain the live composition.
     ClipInfo replacement{};
@@ -366,9 +366,9 @@ bool renderClipInPlace(Timeline &timeline, int trackIndex, int clipIndex,
     replacement.volumeEnvelope = original.volumeEnvelope;
     replacement.renderInPlaceOriginal = std::make_shared<ClipInfo>(original);
     if (!timeline.replaceRenderedClip(trackIndex, clipIndex, replacement,
-                                     QStringLiteral("効果を焼き込んで差し替え"))) {
+                                     QStringLiteral("Render and Replace Effect"))) {
         QFile::remove(path);
-        return fail(QStringLiteral("クリップを差し替えられません"));
+        return fail(QStringLiteral("Cannot replace clip"));
     }
     if (outPath) *outPath = path;
     return true;
@@ -381,6 +381,6 @@ bool decomposeRenderInPlace(Timeline &timeline, int trackIndex, int clipIndex)
     if (clipIndex < 0 || clipIndex >= track->clipCount()) return false;
     const auto original = track->clips()[clipIndex].renderInPlaceOriginal;
     return original && timeline.replaceRenderedClip(trackIndex, clipIndex, *original,
-                                                    QStringLiteral("元のクリップに戻す"));
+                                                    QStringLiteral("Revert to Original Clip"));
 }
 }

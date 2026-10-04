@@ -296,7 +296,7 @@ void TransitionDialog::refreshPresetCombo()
     if (!m_presetCombo) return;
     m_presetCombo->blockSignals(true);
     m_presetCombo->clear();
-    m_presetCombo->addItem(QStringLiteral("(プリセットを選択)"), QString());
+    m_presetCombo->addItem(QStringLiteral("(Select a preset)"), QString());
     for (const auto &p : TransitionPresetStore::loadAll()) {
         m_presetCombo->addItem(p.name, p.name);
     }
@@ -312,13 +312,13 @@ void TransitionDialog::setupUI()
     // without touching the rest of the form. Save-as button next to it
     // captures the current Type/Duration/Alignment/Easing as a new preset.
     m_presetCombo = new QComboBox(this);
-    auto *saveBtn = new QPushButton(QStringLiteral("名前を付けて保存..."), this);
-    auto *delBtn  = new QPushButton(QStringLiteral("削除"), this);
+    auto *saveBtn = new QPushButton(QStringLiteral("Save As..."), this);
+    auto *delBtn  = new QPushButton(QStringLiteral("Delete"), this);
     auto *presetRow = new QHBoxLayout();
     presetRow->addWidget(m_presetCombo, 1);
     presetRow->addWidget(saveBtn);
     presetRow->addWidget(delBtn);
-    form->addRow(QStringLiteral("プリセット:"), presetRow);
+    form->addRow(QStringLiteral("Preset:"), presetRow);
 
     m_typeCombo = new QComboBox(this);
     // Display order grouped by family. Labels come from Transition::typeName
@@ -350,7 +350,7 @@ void TransitionDialog::setupUI()
         TransitionType::CameraShake, TransitionType::ColorChannelShift,
     };
     for (const TransitionType t : kDialogTypeOrder)
-        m_typeCombo->addItem(t == TransitionType::MorphCut ? QStringLiteral("モーフカット") : Transition::typeName(t), static_cast<int>(t));
+        m_typeCombo->addItem(t == TransitionType::MorphCut ? QStringLiteral("Morph Cut") : Transition::typeName(t), static_cast<int>(t));
     form->addRow("Type:", m_typeCombo);
 
     m_durationSpin = new QDoubleSpinBox(this);
@@ -379,15 +379,15 @@ void TransitionDialog::setupUI()
     m_softnessSpin = new QDoubleSpinBox(this);
     m_softnessSpin->setRange(0.0, 100.0);
     m_softnessSpin->setSuffix("%");
-    form->addRow(QStringLiteral("ソフトネス"), m_softnessSpin);
+    form->addRow(QStringLiteral("Softness"), m_softnessSpin);
     m_borderWidthSpin = new QDoubleSpinBox(this);
     m_borderWidthSpin->setRange(0.0, 50.0);
     m_borderWidthSpin->setSuffix(" px");
-    form->addRow(QStringLiteral("境界線の幅"), m_borderWidthSpin);
+    form->addRow(QStringLiteral("Border width"), m_borderWidthSpin);
     m_borderColorBtn = new QPushButton(m_borderColor.name(), this);
-    form->addRow(QStringLiteral("境界線の色"), m_borderColorBtn);
+    form->addRow(QStringLiteral("Border Color"), m_borderColorBtn);
     connect(m_borderColorBtn, &QPushButton::clicked, this, [this]() {
-        const QColor color = QColorDialog::getColor(m_borderColor, this, QStringLiteral("境界線の色"));
+        const QColor color = QColorDialog::getColor(m_borderColor, this, QStringLiteral("Border Color"));
         if (!color.isValid()) return;
         m_borderColor = color;
         m_borderColorBtn->setText(color.name());
@@ -406,7 +406,7 @@ void TransitionDialog::setupUI()
     refreshPresetCombo();
     connect(m_presetCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
         this, [this](int idx) {
-            if (idx <= 0) return; // sentinel "(プリセットを選択)"
+            if (idx <= 0) return; // sentinel "(Select a preset)"
             const QString name = m_presetCombo->itemData(idx).toString();
             for (const auto &p : TransitionPresetStore::loadAll()) {
                 if (p.name != name) continue;
@@ -427,8 +427,8 @@ void TransitionDialog::setupUI()
     connect(saveBtn, &QPushButton::clicked, this, [this]() {
         bool ok = false;
         const QString name = QInputDialog::getText(this,
-            QStringLiteral("プリセット保存"),
-            QStringLiteral("プリセット名:"),
+            QStringLiteral("Save Preset"),
+            QStringLiteral("Preset name:"),
             QLineEdit::Normal, QString(), &ok);
         if (!ok || name.trimmed().isEmpty()) return;
         Transition t;
@@ -451,8 +451,8 @@ void TransitionDialog::setupUI()
         if (idx <= 0) return;
         const QString name = m_presetCombo->itemData(idx).toString();
         if (QMessageBox::question(this,
-                QStringLiteral("プリセット削除"),
-                QStringLiteral("プリセット「%1」を削除しますか?").arg(name))
+                QStringLiteral("Delete Preset"),
+                QStringLiteral("Delete preset \"%1\"?").arg(name))
             != QMessageBox::Yes) return;
         TransitionPresetStore::remove(name);
         refreshPresetCombo();

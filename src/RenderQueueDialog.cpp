@@ -21,19 +21,19 @@ namespace {
 QString statusToDisplay(RenderJobStatus s)
 {
     switch (s) {
-    case RenderJobStatus::Pending:   return QStringLiteral("待機");
-    case RenderJobStatus::Rendering: return QStringLiteral("実行中");
-    case RenderJobStatus::Completed: return QStringLiteral("完了");
-    case RenderJobStatus::Failed:    return QStringLiteral("失敗");
-    case RenderJobStatus::Cancelled: return QStringLiteral("中止");
+    case RenderJobStatus::Pending:   return QStringLiteral("Pending");
+    case RenderJobStatus::Rendering: return QStringLiteral("Running");
+    case RenderJobStatus::Completed: return QStringLiteral("Done");
+    case RenderJobStatus::Failed:    return QStringLiteral("Failed");
+    case RenderJobStatus::Cancelled: return QStringLiteral("Abort");
     }
-    return QStringLiteral("待機");
+    return QStringLiteral("Pending");
 }
 
 QString humanRange(qint64 startUs, qint64 endUs)
 {
     if (startUs == 0 && endUs == 0)
-        return QStringLiteral("全体");
+        return QStringLiteral("Entire");
     auto fmt = [](qint64 us) {
         const qint64 totalMs = us / 1000;
         const int h = static_cast<int>((totalMs / 3600000) % 100);
@@ -62,7 +62,7 @@ public:
     AddRenderJobDialog(qint64 defaultStartUs, qint64 defaultEndUs, QWidget *parent = nullptr)
         : QDialog(parent)
     {
-        setWindowTitle(QStringLiteral("ジョブ追加"));
+        setWindowTitle(QStringLiteral("Add Job"));
         setModal(true);
 
         auto *form = new QFormLayout;
@@ -70,12 +70,12 @@ public:
         // Source / project file (optional — if blank, RenderQueue uses the
         // currently-open project path implicitly when MainWindow wires it).
         m_sourceEdit = new QLineEdit(this);
-        m_sourceEdit->setPlaceholderText(QStringLiteral("(現在開いているプロジェクト)"));
+        m_sourceEdit->setPlaceholderText(QStringLiteral("(Currently open project)"));
         auto *sourceBrowse = new QPushButton(QStringLiteral("..."), this);
         sourceBrowse->setMaximumWidth(40);
         connect(sourceBrowse, &QPushButton::clicked, this, [this]() {
             const QString p = QFileDialog::getOpenFileName(
-                this, QStringLiteral("入力ファイル"), QString(),
+                this, QStringLiteral("Input File"), QString(),
                 QStringLiteral("Video files (*.mp4 *.mov *.mkv *.webm);;All files (*.*)"));
             if (!p.isEmpty())
                 m_sourceEdit->setText(p);
@@ -83,7 +83,7 @@ public:
         auto *sourceRow = new QHBoxLayout;
         sourceRow->addWidget(m_sourceEdit, 1);
         sourceRow->addWidget(sourceBrowse);
-        form->addRow(QStringLiteral("入力:"), sourceRow);
+        form->addRow(QStringLiteral("Input:"), sourceRow);
 
         // Output path picker.
         m_outputEdit = new QLineEdit(this);
@@ -92,7 +92,7 @@ public:
         outputBrowse->setMaximumWidth(40);
         connect(outputBrowse, &QPushButton::clicked, this, [this]() {
             const QString p = QFileDialog::getSaveFileName(
-                this, QStringLiteral("出力先"), QString(),
+                this, QStringLiteral("Output"), QString(),
                 QStringLiteral("MP4 (*.mp4);;MOV (*.mov);;MKV (*.mkv);;WebM (*.webm);;All files (*.*)"));
             if (!p.isEmpty())
                 m_outputEdit->setText(p);
@@ -100,13 +100,13 @@ public:
         auto *outputRow = new QHBoxLayout;
         outputRow->addWidget(m_outputEdit, 1);
         outputRow->addWidget(outputBrowse);
-        form->addRow(QStringLiteral("出力:"), outputRow);
+        form->addRow(QStringLiteral("Output:"), outputRow);
 
         // Preset selector.
         m_presetCombo = new QComboBox(this);
         for (const RenderPreset &p : RenderQueue::availablePresets())
             m_presetCombo->addItem(p.name);
-        form->addRow(QStringLiteral("プリセット:"), m_presetCombo);
+        form->addRow(QStringLiteral("Preset:"), m_presetCombo);
 
         // Range — defaults seeded by the queue dialog's setDefaultTimelineRange.
         m_startSpin = new QSpinBox(this);
@@ -117,7 +117,7 @@ public:
         m_endSpin = new QSpinBox(this);
         m_endSpin->setRange(0, 24 * 3600 * 1000);
         m_endSpin->setSuffix(QStringLiteral(" ms"));
-        m_endSpin->setSpecialValueText(QStringLiteral("(末尾まで)"));
+        m_endSpin->setSpecialValueText(QStringLiteral("(to the end)"));
         m_endSpin->setValue(static_cast<int>(defaultEndUs / 1000));
 
         // 2-pass VBR toggle.
@@ -129,8 +129,8 @@ public:
         rangeRow->addWidget(m_startSpin);
         rangeRow->addWidget(new QLabel(QStringLiteral("〜")));
         rangeRow->addWidget(m_endSpin);
-        form->addRow(QStringLiteral("範囲:"), rangeRow);
-        form->addRow(QStringLiteral("パス:"), m_passesCombo);
+        form->addRow(QStringLiteral("Range:"), rangeRow);
+        form->addRow(QStringLiteral("Passes:"), m_passesCombo);
 
         auto *root = new QVBoxLayout(this);
         root->addLayout(form);
@@ -181,7 +181,7 @@ private:
 RenderQueueDialog::RenderQueueDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("レンダーキュー"));
+    setWindowTitle(QStringLiteral("Render Queue"));
     setModal(false);
 
     m_queue = new RenderQueue(this);
@@ -243,10 +243,10 @@ void RenderQueueDialog::buildUi()
 
     // Top: action toolbar.
     auto *toolbar = new QHBoxLayout;
-    m_addBtn    = new QPushButton(QStringLiteral("ジョブ追加"), this);
-    m_removeBtn = new QPushButton(QStringLiteral("削除"), this);
-    m_startBtn  = new QPushButton(QStringLiteral("開始"), this);
-    m_stopBtn   = new QPushButton(QStringLiteral("停止"), this);
+    m_addBtn    = new QPushButton(QStringLiteral("Add Job"), this);
+    m_removeBtn = new QPushButton(QStringLiteral("Delete"), this);
+    m_startBtn  = new QPushButton(QStringLiteral("Start"), this);
+    m_stopBtn   = new QPushButton(QStringLiteral("Stop"), this);
     toolbar->addWidget(m_addBtn);
     toolbar->addWidget(m_removeBtn);
     toolbar->addStretch(1);
@@ -259,10 +259,10 @@ void RenderQueueDialog::buildUi()
     m_table->setColumnCount(5);
     m_table->setHorizontalHeaderLabels(
         QStringList{ QStringLiteral("ID"),
-                     QStringLiteral("プリセット"),
-                     QStringLiteral("範囲"),
-                     QStringLiteral("状態"),
-                     QStringLiteral("進捗") });
+                     QStringLiteral("Preset"),
+                     QStringLiteral("Range"),
+                     QStringLiteral("Status"),
+                     QStringLiteral("Progress") });
     m_table->verticalHeader()->setVisible(false);
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -276,11 +276,11 @@ void RenderQueueDialog::buildUi()
     root->addWidget(m_table, 1);
 
     // Bottom: status label.
-    m_statusLabel = new QLabel(QStringLiteral("キューは空です"), this);
+    m_statusLabel = new QLabel(QStringLiteral("Queue is empty"), this);
     root->addWidget(m_statusLabel);
 
     // Close button.
-    m_closeBtn = new QPushButton(QStringLiteral("閉じる"), this);
+    m_closeBtn = new QPushButton(QStringLiteral("Close"), this);
     auto *closeRow = new QHBoxLayout;
     closeRow->addStretch(1);
     closeRow->addWidget(m_closeBtn);
@@ -332,14 +332,14 @@ void RenderQueueDialog::rebuildTable()
 
     // Status label.
     if (jobs.isEmpty()) {
-        m_statusLabel->setText(QStringLiteral("キューは空です"));
+        m_statusLabel->setText(QStringLiteral("Queue is empty"));
     } else {
         const int pending   = m_queue->pendingCount();
         const int completed = m_queue->completedCount();
         const QString state = m_queue->isRunning()
-            ? QStringLiteral("実行中")
-            : QStringLiteral("待機中");
-        m_statusLabel->setText(QString(QStringLiteral("%1 / %2 件完了 — %3"))
+            ? QStringLiteral("Running")
+            : QStringLiteral("Waiting");
+        m_statusLabel->setText(QString(QStringLiteral("%1 / %2 done — %3"))
                                    .arg(completed).arg(jobs.size()).arg(state));
     }
 
@@ -390,12 +390,12 @@ void RenderQueueDialog::onAddJobClicked()
     RenderJob j = dlg.job();
     if (j.outputPath.trimmed().isEmpty()) {
         QMessageBox::warning(this,
-                             QStringLiteral("出力先未指定"),
-                             QStringLiteral("出力ファイルを指定してください。"));
+                             QStringLiteral("No destination specified"),
+                             QStringLiteral("Please specify an output file."));
         return;
     }
 
-    // RM-1.4: blank source path == the "(現在開いているプロジェクト)"
+    // RM-1.4: blank source path == the "(Currently open project)"
     // placeholder. Previously this produced an empty projectFilePath →
     // RenderQueue::resolveTimeline returned nullptr → the whole render,
     // and every track matte, was silently dropped. Carry the live
@@ -403,9 +403,9 @@ void RenderQueueDialog::onAddJobClicked()
     if (j.projectFilePath.isEmpty()) {
         if (!m_liveTimeline) {
             QMessageBox::warning(this,
-                QStringLiteral("プロジェクト未指定"),
-                QStringLiteral("ソースを空にする場合は現在のプロジェクトが"
-                               "必要です。プロジェクトファイルを指定してください。"));
+                QStringLiteral("No project specified"),
+                QStringLiteral("If the source is empty, the current project is"
+                               "required. Please specify a project file."));
             return;
         }
         j.timeline = m_liveTimeline;
@@ -477,7 +477,7 @@ void RenderQueueDialog::onAllCompleted()
     if (m_statusLabel) {
         const int total     = m_queue ? m_queue->jobs().size() : 0;
         const int completed = m_queue ? m_queue->completedCount() : 0;
-        m_statusLabel->setText(QString(QStringLiteral("%1 / %2 件完了 — 終了"))
+        m_statusLabel->setText(QString(QStringLiteral("%1 / %2 done — finished"))
                                    .arg(completed).arg(total));
     }
     updateButtons();

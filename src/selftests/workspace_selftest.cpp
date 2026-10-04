@@ -29,11 +29,11 @@ int runWorkspaceSelftest()
     // G1: 新規追加が count / names に反映され、get で取得できる。
     {
         workspace::WorkspaceManager m;
-        const bool added = m.addOrUpdate(QStringLiteral("編集"), blobA, geomA);
-        const workspace::Workspace* w = m.get(QStringLiteral("編集"));
+        const bool added = m.addOrUpdate(QStringLiteral("Edit"), blobA, geomA);
+        const workspace::Workspace* w = m.get(QStringLiteral("Edit"));
         if (added && m.count() == 1
-            && m.names() == QStringList{ QStringLiteral("編集") }
-            && w != nullptr && w->name == QStringLiteral("編集")
+            && m.names() == QStringList{ QStringLiteral("Edit") }
+            && w != nullptr && w->name == QStringLiteral("Edit")
             && w->windowState == blobA && w->geometry == geomA) {
             pass("G1 addOrUpdate inserts and is retrievable");
         } else {
@@ -46,9 +46,9 @@ int runWorkspaceSelftest()
     // G2: 同名 addOrUpdate は上書き (count 増えず blob 更新)。
     {
         workspace::WorkspaceManager m;
-        m.addOrUpdate(QStringLiteral("編集"), blobA, geomA);
-        const bool updated = m.addOrUpdate(QStringLiteral("編集"), blobB, geomB);
-        const workspace::Workspace* w = m.get(QStringLiteral("編集"));
+        m.addOrUpdate(QStringLiteral("Edit"), blobA, geomA);
+        const bool updated = m.addOrUpdate(QStringLiteral("Edit"), blobB, geomB);
+        const workspace::Workspace* w = m.get(QStringLiteral("Edit"));
         if (updated && m.count() == 1
             && w != nullptr && w->windowState == blobB && w->geometry == geomB) {
             pass("G2 addOrUpdate same name overwrites without growth");
@@ -72,13 +72,13 @@ int runWorkspaceSelftest()
     // G4: remove で消える、不在 remove は false。
     {
         workspace::WorkspaceManager m;
-        m.addOrUpdate(QStringLiteral("編集"), blobA, geomA);
-        m.addOrUpdate(QStringLiteral("カラー"), blobB, geomB);
-        const bool removed = m.remove(QStringLiteral("編集"));
-        const bool removeMissing = m.remove(QStringLiteral("存在しない"));
+        m.addOrUpdate(QStringLiteral("Edit"), blobA, geomA);
+        m.addOrUpdate(QStringLiteral("Color"), blobB, geomB);
+        const bool removed = m.remove(QStringLiteral("Edit"));
+        const bool removeMissing = m.remove(QStringLiteral("Nonexistent"));
         if (removed && !removeMissing && m.count() == 1
-            && m.get(QStringLiteral("編集")) == nullptr
-            && m.get(QStringLiteral("カラー")) != nullptr) {
+            && m.get(QStringLiteral("Edit")) == nullptr
+            && m.get(QStringLiteral("Color")) != nullptr) {
             pass("G4 remove deletes present, false on missing");
         } else {
             fail("G4 remove",
@@ -90,15 +90,15 @@ int runWorkspaceSelftest()
     // G5: rename で名前が変わる、newName 重複 / 空は false。
     {
         workspace::WorkspaceManager m;
-        m.addOrUpdate(QStringLiteral("編集"), blobA, geomA);
-        m.addOrUpdate(QStringLiteral("カラー"), blobB, geomB);
-        const bool ok = m.rename(QStringLiteral("編集"), QStringLiteral("配色"));
-        const bool dup = m.rename(QStringLiteral("配色"), QStringLiteral("カラー"));
-        const bool empty = m.rename(QStringLiteral("配色"), QString());
-        const workspace::Workspace* renamed = m.get(QStringLiteral("配色"));
+        m.addOrUpdate(QStringLiteral("Edit"), blobA, geomA);
+        m.addOrUpdate(QStringLiteral("Color"), blobB, geomB);
+        const bool ok = m.rename(QStringLiteral("Edit"), QStringLiteral("Color Scheme"));
+        const bool dup = m.rename(QStringLiteral("Color Scheme"), QStringLiteral("Color"));
+        const bool empty = m.rename(QStringLiteral("Color Scheme"), QString());
+        const workspace::Workspace* renamed = m.get(QStringLiteral("Color Scheme"));
         if (ok && !dup && !empty
             && renamed != nullptr && renamed->windowState == blobA
-            && m.get(QStringLiteral("編集")) == nullptr) {
+            && m.get(QStringLiteral("Edit")) == nullptr) {
             pass("G5 rename succeeds; duplicate/empty newName rejected");
         } else {
             fail("G5 rename",
@@ -110,8 +110,8 @@ int runWorkspaceSelftest()
     // G6: get(不在) は nullptr。
     {
         workspace::WorkspaceManager m;
-        m.addOrUpdate(QStringLiteral("編集"), blobA, geomA);
-        if (m.get(QStringLiteral("無い")) == nullptr && m.get(QString()) == nullptr) {
+        m.addOrUpdate(QStringLiteral("Edit"), blobA, geomA);
+        if (m.get(QStringLiteral("None")) == nullptr && m.get(QString()) == nullptr) {
             pass("G6 get on missing name returns nullptr");
         } else {
             fail("G6 get missing", QStringLiteral("non-null returned"));
@@ -121,15 +121,15 @@ int runWorkspaceSelftest()
     // G7: setCurrent/currentName が反映、remove で current が消えたときに安全。
     {
         workspace::WorkspaceManager m;
-        m.addOrUpdate(QStringLiteral("編集"), blobA, geomA);
-        m.addOrUpdate(QStringLiteral("カラー"), blobB, geomB);
-        m.setCurrent(QStringLiteral("編集"));
-        const bool setOk = m.currentName() == QStringLiteral("編集");
-        m.remove(QStringLiteral("編集"));
+        m.addOrUpdate(QStringLiteral("Edit"), blobA, geomA);
+        m.addOrUpdate(QStringLiteral("Color"), blobB, geomB);
+        m.setCurrent(QStringLiteral("Edit"));
+        const bool setOk = m.currentName() == QStringLiteral("Edit");
+        m.remove(QStringLiteral("Edit"));
         const bool clearedOnRemove = m.currentName().isEmpty();
-        m.setCurrent(QStringLiteral("カラー"));
-        m.remove(QStringLiteral("存在しない"));
-        const bool keptOnOtherRemove = m.currentName() == QStringLiteral("カラー");
+        m.setCurrent(QStringLiteral("Color"));
+        m.remove(QStringLiteral("Nonexistent"));
+        const bool keptOnOtherRemove = m.currentName() == QStringLiteral("Color");
         if (setOk && clearedOnRemove && keptOnOtherRemove) {
             pass("G7 setCurrent/currentName reflect; remove clears current safely");
         } else {
@@ -142,8 +142,8 @@ int runWorkspaceSelftest()
     // G8: 非 ASCII バイナリの windowState / geometry が get で完全一致保持。
     {
         workspace::WorkspaceManager m;
-        m.addOrUpdate(QStringLiteral("バイナリ"), blobA, geomA);
-        const workspace::Workspace* w = m.get(QStringLiteral("バイナリ"));
+        m.addOrUpdate(QStringLiteral("Binary"), blobA, geomA);
+        const workspace::Workspace* w = m.get(QStringLiteral("Binary"));
         if (w != nullptr
             && w->windowState == blobA && w->windowState.size() == blobA.size()
             && w->geometry == geomA && w->geometry.size() == geomA.size()) {
@@ -156,10 +156,10 @@ int runWorkspaceSelftest()
     // G9: toJson/fromJson round-trip。件数 + 各 name + blob (base64 経由) + currentName 完全一致。
     {
         workspace::WorkspaceManager src;
-        src.addOrUpdate(QStringLiteral("編集"), blobA, geomA);
-        src.addOrUpdate(QStringLiteral("カラー"), blobB, geomB);
-        src.addOrUpdate(QStringLiteral("空白"), QByteArray(), QByteArray());
-        src.setCurrent(QStringLiteral("カラー"));
+        src.addOrUpdate(QStringLiteral("Edit"), blobA, geomA);
+        src.addOrUpdate(QStringLiteral("Color"), blobB, geomB);
+        src.addOrUpdate(QStringLiteral("Blank"), QByteArray(), QByteArray());
+        src.setCurrent(QStringLiteral("Color"));
 
         const QJsonObject json = src.toJson();
         workspace::WorkspaceManager dst;
@@ -188,11 +188,11 @@ int runWorkspaceSelftest()
     // G10: clear で空に。
     {
         workspace::WorkspaceManager m;
-        m.addOrUpdate(QStringLiteral("編集"), blobA, geomA);
-        m.setCurrent(QStringLiteral("編集"));
+        m.addOrUpdate(QStringLiteral("Edit"), blobA, geomA);
+        m.setCurrent(QStringLiteral("Edit"));
         m.clear();
         if (m.count() == 0 && m.names().isEmpty() && m.currentName().isEmpty()
-            && m.get(QStringLiteral("編集")) == nullptr) {
+            && m.get(QStringLiteral("Edit")) == nullptr) {
             pass("G10 clear empties workspaces and currentName");
         } else {
             fail("G10 clear",

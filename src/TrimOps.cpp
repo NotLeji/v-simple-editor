@@ -61,7 +61,7 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
     if (errorOut) errorOut->clear();
 
     if (!validIndex(clips, index)) {
-        setErr(QObject::tr("トリム対象クリップのインデックスが不正です。"));
+        setErr(QObject::tr("Invalid trim target clip index."));
         return false;
     }
 
@@ -77,11 +77,11 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
         const double newIn = c.inPoint + srcDelta;
         const double oEff = outEff(c);
         if (newIn < -kEps) {
-            setErr(QObject::tr("リップル(左)が素材の先頭を超えています。"));
+            setErr(QObject::tr("Ripple (left) goes past the start of the source media."));
             return false;
         }
         if (newIn >= oEff - kEps) {
-            setErr(QObject::tr("リップル(左)でクリップ長が 0 以下になります。"));
+            setErr(QObject::tr("Ripple (left) would make the clip length zero or negative."));
             return false;
         }
         c.inPoint = (newIn < 0.0) ? 0.0 : newIn;
@@ -95,18 +95,18 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
         const double srcDelta = deltaSec * safeSpeed(c);
         const double newOut = outEff(c) + srcDelta;
         if (newOut <= c.inPoint + kEps) {
-            setErr(QObject::tr("リップル(右)でクリップ長が 0 以下になります。"));
+            setErr(QObject::tr("Ripple (right) would make the clip length zero or negative."));
             return false;
         }
         if (newOut > c.duration + kEps) {
-            setErr(QObject::tr("リップル(右)が素材の末尾を超えています。"));
+            setErr(QObject::tr("Ripple (right) goes past the end of the source media."));
             return false;
         }
         // 下流が存在する場合、clip[i+1].leadInSec を deltaSec 動かして ripple。
         if (index + 1 < clips.size()) {
             const double newLeadNext = clips[index + 1].leadInSec + deltaSec;
             if (newLeadNext < -kEps) {
-                setErr(QObject::tr("リップル(右)で後続クリップが重なります。"));
+                setErr(QObject::tr("Ripple (right) would overlap the following clip."));
                 return false;
             }
             clips[index + 1].leadInSec = (newLeadNext < 0.0) ? 0.0 : newLeadNext;
@@ -120,7 +120,7 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
         // それぞれ delta*speed 分動かす。両クリップの実尺が逆向きに変化し、編集点
         // (clip[i] 終端 = clip[i+1] 始端) が deltaSec 動く。総尺・下流位置は不変。
         if (index + 1 >= clips.size()) {
-            setErr(QObject::tr("ロールには次のクリップが必要です。"));
+            setErr(QObject::tr("Roll requires the next clip."));
             return false;
         }
         ClipInfo &a = clips[index];
@@ -128,12 +128,12 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
         const double newOutA = outEff(a) + deltaSec * safeSpeed(a);
         const double newInB  = b.inPoint + deltaSec * safeSpeed(b);
         if (newOutA <= a.inPoint + kEps || newOutA > a.duration + kEps) {
-            setErr(QObject::tr("ロールが左クリップの素材範囲を超えています。"));
+            setErr(QObject::tr("Roll goes past the left clip's source media range."));
             return false;
         }
         const double oEffB = outEff(b);
         if (newInB < -kEps || newInB >= oEffB - kEps) {
-            setErr(QObject::tr("ロールが右クリップの素材範囲を超えています。"));
+            setErr(QObject::tr("Roll goes past the right clip's source media range."));
             return false;
         }
         a.outPoint = (newOutA > a.duration) ? a.duration : newOutA;
@@ -151,11 +151,11 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
         const double newIn  = c.inPoint + srcDelta;
         const double newOut = outEff(c) + srcDelta;
         if (newIn < -kEps) {
-            setErr(QObject::tr("スリップが素材の先頭を超えています。"));
+            setErr(QObject::tr("Slip goes past the start of the source media."));
             return false;
         }
         if (newOut > c.duration + kEps) {
-            setErr(QObject::tr("スリップが素材の末尾を超えています。"));
+            setErr(QObject::tr("Slip goes past the end of the source media."));
             return false;
         }
         c.inPoint  = (newIn < 0.0) ? 0.0 : newIn;
@@ -180,13 +180,13 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
             ClipInfo &p = clips[index - 1];
             newPrevOut = outEff(p) + deltaSec * safeSpeed(p);
             if (newPrevOut <= p.inPoint + kEps || newPrevOut > p.duration + kEps) {
-                setErr(QObject::tr("スライドが前クリップの素材範囲を超えています。"));
+                setErr(QObject::tr("Slide goes past the previous clip's source media range."));
                 return false;
             }
         } else {
             newLeadSelf = c.leadInSec + deltaSec;
             if (newLeadSelf < -kEps) {
-                setErr(QObject::tr("スライドでクリップがタイムライン原点より前に出ます。"));
+                setErr(QObject::tr("Slide would move the clip before the timeline origin."));
                 return false;
             }
         }
@@ -199,7 +199,7 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
             const double oEffN = outEff(nx);
             newNextIn = nx.inPoint + deltaSec * safeSpeed(nx);
             if (newNextIn < -kEps || newNextIn >= oEffN - kEps) {
-                setErr(QObject::tr("スライドが次クリップの素材範囲を超えています。"));
+                setErr(QObject::tr("Slide goes past the next clip's source media range."));
                 return false;
             }
         }
@@ -219,7 +219,7 @@ bool applyTrim(QVector<ClipInfo> &clips, int index, TrimType type,
     }
     }
 
-    setErr(QObject::tr("未知のトリム種別です。"));
+    setErr(QObject::tr("Unknown trim type."));
     return false;
 }
 

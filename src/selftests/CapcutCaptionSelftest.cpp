@@ -93,15 +93,15 @@ int runCapcutCaptionSelftest()
               passed,
               failed);
 
-    const caption::Style* boxBlack = styleByName(presets, QStringLiteral("ボックス・ブラック"));
-    const caption::Style* popWhite = styleByName(presets, QStringLiteral("ポップ・ホワイト"));
+    const caption::Style* boxBlack = styleByName(presets, QStringLiteral("Box Black"));
+    const caption::Style* popWhite = styleByName(presets, QStringLiteral("Pop White"));
     printGate("G4",
               boxBlack != nullptr
                   && popWhite != nullptr
                   && boxBlack->background
                   && boxBlack->backgroundColor.alpha() > 0
                   && (!popWhite->background || popWhite->backgroundColor.alpha() == 0),
-              QStringLiteral("expected ボックス・ブラック background and ポップ・ホワイト no background"),
+              QStringLiteral("expected box-black background and pop-white no background"),
               passed,
               failed);
 

@@ -41,7 +41,7 @@ QDoubleSpinBox *makeRectSpinBox(QWidget *parent, double minimum)
 DynamicZoomDialog::DynamicZoomDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("ダイナミックズーム"));
+    setWindowTitle(QStringLiteral("Dynamic Zoom"));
     setModal(true);
     setMinimumWidth(560);
 
@@ -49,23 +49,23 @@ DynamicZoomDialog::DynamicZoomDialog(QWidget *parent)
     auto *presetRow = new QFormLayout();
     m_presetCombo = new QComboBox(this);
     m_presetCombo->addItems({
-        QStringLiteral("ズームイン"),
-        QStringLiteral("ズームアウト"),
-        QStringLiteral("左パン"),
-        QStringLiteral("右パン"),
-        QStringLiteral("上パン"),
-        QStringLiteral("下パン"),
-        QStringLiteral("カスタム")
+        QStringLiteral("Zoom in"),
+        QStringLiteral("Zoom Out"),
+        QStringLiteral("Pan left"),
+        QStringLiteral("Pan right"),
+        QStringLiteral("Pan up"),
+        QStringLiteral("Pan down"),
+        QStringLiteral("Custom")
     });
-    presetRow->addRow(QStringLiteral("プリセット"), m_presetCombo);
+    presetRow->addRow(QStringLiteral("Preset"), m_presetCombo);
 
     m_easingCombo = new QComboBox(this);
-    m_easingCombo->addItem(QStringLiteral("リニア (Linear)"),
+    m_easingCombo->addItem(QStringLiteral("Linear (Linear)"),
                            static_cast<int>(dynzoom::Easing::Linear));
-    m_easingCombo->addItem(QStringLiteral("イーズイン・アウト (EaseInOut)"),
+    m_easingCombo->addItem(QStringLiteral("Ease In/Out (EaseInOut)"),
                            static_cast<int>(dynzoom::Easing::EaseInOut));
     m_easingCombo->setCurrentIndex(1);
-    presetRow->addRow(QStringLiteral("イージング"), m_easingCombo);
+    presetRow->addRow(QStringLiteral("Easing"), m_easingCombo);
     root->addLayout(presetRow);
 
     const auto makeRectGroup = [this](const QString& title,
@@ -79,29 +79,29 @@ DynamicZoomDialog::DynamicZoomDialog(QWidget *parent)
         editors->h = makeRectSpinBox(group, 0.01);
         editors->h->setEnabled(false);
         editors->h->setToolTip(
-            QStringLiteral("キャンバスのアスペクト比に合わせて自動設定されます"));
-        form->addRow(QStringLiteral("中心 X (cx)"), editors->cx);
-        form->addRow(QStringLiteral("中心 Y (cy)"), editors->cy);
-        form->addRow(QStringLiteral("幅 (w)"), editors->w);
-        form->addRow(QStringLiteral("高さ (h、自動)"), editors->h);
+            QStringLiteral("Automatically set to match the canvas aspect ratio"));
+        form->addRow(QStringLiteral("Center X (cx)"), editors->cx);
+        form->addRow(QStringLiteral("Center Y (cy)"), editors->cy);
+        form->addRow(QStringLiteral("Width (w)"), editors->w);
+        form->addRow(QStringLiteral("Height (h, auto)"), editors->h);
         return group;
     };
     auto *frames = new QHBoxLayout();
-    frames->addWidget(makeRectGroup(QStringLiteral("開始枠"), &m_startEditors));
-    frames->addWidget(makeRectGroup(QStringLiteral("終了枠"), &m_endEditors));
+    frames->addWidget(makeRectGroup(QStringLiteral("Start region"), &m_startEditors));
+    frames->addWidget(makeRectGroup(QStringLiteral("End region"), &m_endEditors));
     root->addLayout(frames);
 
     auto *swapRow = new QHBoxLayout();
     swapRow->addStretch();
-    auto *swapButton = new QPushButton(QStringLiteral("スワップ"), this);
-    swapButton->setToolTip(QStringLiteral("開始枠と終了枠を入れ替えます"));
+    auto *swapButton = new QPushButton(QStringLiteral("Swap"), this);
+    swapButton->setToolTip(QStringLiteral("Swap the start and end regions"));
     swapRow->addWidget(swapButton);
     root->addLayout(swapRow);
 
     auto *buttons = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("適用"));
-    buttons->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("キャンセル"));
+    buttons->button(QDialogButtonBox::Ok)->setText(QStringLiteral("Apply"));
+    buttons->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("Cancel"));
     root->addWidget(buttons);
 
     connect(m_presetCombo, &QComboBox::currentIndexChanged,

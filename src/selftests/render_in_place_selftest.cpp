@@ -154,7 +154,7 @@ bool renderControl(Timeline &timeline, const renderinplace::Options &options,
         *error = QStringLiteral("control: cannot save silent input");
         return false;
     }
-    RenderPreset preset{QStringLiteral("対照書き出し"), options.outputSize.width(),
+    RenderPreset preset{QStringLiteral("Reference Export"), options.outputSize.width(),
         options.outputSize.height(), options.codec, 100000000, QStringLiteral("mp4")};
     RenderJob job = RenderQueue::jobFromPreset(preset, *path, 0,
         qRound64(timeline.totalDuration() * 1000000.0));
@@ -311,7 +311,7 @@ int runRenderInPlaceSelftest()
     QTemporaryDir output;
     ClipInfo original{};
     original.filePath = QFileInfo(QStringLiteral("test_assets/e2e_clip.mp4")).absoluteFilePath();
-    original.displayName = QStringLiteral("焼き込みテスト");
+    original.displayName = QStringLiteral("Bake test");
     const auto sourceDuration = libavcore::probeDurationMicroseconds(original.filePath.toStdString());
     original.duration = sourceDuration ? double(*sourceDuration) / 1000000.0 : 0.0;
     if (!output.isValid() || !QFileInfo::exists(original.filePath)
@@ -331,7 +331,7 @@ int runRenderInPlaceSelftest()
     timeline.restoreFromProject(QVector<QVector<ClipInfo>>{{original}},
                                 QVector<QVector<ClipInfo>>{}, 0, -1, -1, 10);
     timeline.undoManager()->clear();
-    timeline.saveUndoState(QStringLiteral("テスト初期状態"));
+    timeline.saveUndoState(QStringLiteral("Test initial state"));
     renderinplace::Options options;
     options.outputDir = output.path();
     options.outputSize = QSize(640, 360);
@@ -491,7 +491,7 @@ int runRenderInPlaceSelftest()
             overlap.restoreFromProject(QVector<QVector<ClipInfo>>{{first, second}},
                 QVector<QVector<ClipInfo>>{}, 0, -1, -1, 10);
             overlap.undoManager()->clear();
-            overlap.saveUndoState(QStringLiteral("重ね合わせ初期状態"));
+            overlap.saveUndoState(QStringLiteral("Overlay initial state"));
             const quint64 initialSerial = overlap.undoManager()->saveSerial();
             auto rejectOptions = options;
             rejectOptions.handlesSec = handles;
@@ -537,7 +537,7 @@ int runRenderInPlaceSelftest()
         linkedTimeline.restoreFromProject(QVector<QVector<ClipInfo>>{{linkedVideo}},
             QVector<QVector<ClipInfo>>{{linkedAudio}}, 0, -1, -1, 10);
         linkedTimeline.undoManager()->clear();
-        linkedTimeline.saveUndoState(QStringLiteral("リンク音声初期状態"));
+        linkedTimeline.saveUndoState(QStringLiteral("Linked audio initial state"));
         const quint64 linkedSerial = linkedTimeline.undoManager()->saveSerial();
         const double rmsBefore = mixerWindowRms(linkedTimeline.computeAudioPlaybackSequence(), 0.5);
         auto linkedOptions = options;
@@ -705,7 +705,7 @@ int runRenderInPlaceSelftest()
     chroma.restoreFromProject(QVector<QVector<ClipInfo>>{{keyed}, {background}},
         QVector<QVector<ClipInfo>>{}, 0, -1, -1, 10);
     chroma.undoManager()->clear();
-    chroma.saveUndoState(QStringLiteral("クロマキー初期状態"));
+    chroma.saveUndoState(QStringLiteral("Chroma key initial state"));
     const quint64 chromaSerial = chroma.undoManager()->saveSerial();
     auto chromaOptions = options;
     chromaOptions.handlesSec = 0.0;

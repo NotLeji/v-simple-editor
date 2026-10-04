@@ -185,9 +185,9 @@ QString platformDisplayName(Platform p)
     case Platform::Twitter:          return QStringLiteral("Twitter");
     case Platform::LinkedIn:         return QStringLiteral("LinkedIn");
     case Platform::FacebookFeed:     return QStringLiteral("Facebook");
-    case Platform::Custom:           return QStringLiteral("カスタム");
+    case Platform::Custom:           return QStringLiteral("Custom");
     }
-    return QStringLiteral("カスタム");
+    return QStringLiteral("Custom");
 }
 
 // ---------------------------------------------------------------------------
@@ -195,7 +195,7 @@ QString platformDisplayName(Platform p)
 // ---------------------------------------------------------------------------
 Preset customPreset(const QSize& res, int fps, int vBitrate)
 {
-    const QString displayName = QStringLiteral("カスタム %1x%2 %3fps")
+    const QString displayName = QStringLiteral("Custom %1x%2 %3fps")
                                     .arg(res.width())
                                     .arg(res.height())
                                     .arg(fps);

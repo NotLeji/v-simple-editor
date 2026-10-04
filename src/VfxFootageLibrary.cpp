@@ -99,7 +99,7 @@ QString VfxFootageLibrary::defaultDirectory()
     if (!overridePath.isEmpty())
         return QDir(overridePath).absolutePath();
 
-    const QString relative = QStringLiteral("vfx素材");
+    const QString relative = QStringLiteral("VFX assets");
     const QString applicationDir = QCoreApplication::instance()
         ? QCoreApplication::applicationDirPath() : QDir::currentPath();
     QDir candidate(applicationDir);
@@ -145,23 +145,23 @@ QString VfxFootageLibrary::inferCategory(const QString &fileName)
         return false;
     };
 
-    if (has({QStringLiteral("fire"), QStringLiteral("flame"), QStringLiteral("炎")}))
-        return QStringLiteral("炎");
-    if (has({QStringLiteral("smoke"), QStringLiteral("煙")}))
-        return QStringLiteral("煙");
-    if (has({QStringLiteral("explosion"), QStringLiteral("爆発")}))
-        return QStringLiteral("爆発");
-    if (has({QStringLiteral("spark"), QStringLiteral("sparks"), QStringLiteral("火花")}))
-        return QStringLiteral("火花");
-    if (has({QStringLiteral("lightning"), QStringLiteral("thunder"), QStringLiteral("稲妻")}))
-        return QStringLiteral("稲妻");
-    if (has({QStringLiteral("dust"), QStringLiteral("debris"), QStringLiteral("塵")}))
-        return QStringLiteral("塵");
-    if (has({QStringLiteral("rain"), QStringLiteral("雨")}))
-        return QStringLiteral("雨");
-    if (has({QStringLiteral("snow"), QStringLiteral("雪")}))
-        return QStringLiteral("雪");
-    return QStringLiteral("その他");
+    if (has({QStringLiteral("fire"), QStringLiteral("flame"), QStringLiteral("Fire")}))
+        return QStringLiteral("Fire");
+    if (has({QStringLiteral("smoke"), QStringLiteral("Smoke")}))
+        return QStringLiteral("Smoke");
+    if (has({QStringLiteral("explosion"), QStringLiteral("Explosion")}))
+        return QStringLiteral("Explosion");
+    if (has({QStringLiteral("spark"), QStringLiteral("sparks"), QStringLiteral("Sparks")}))
+        return QStringLiteral("Sparks");
+    if (has({QStringLiteral("lightning"), QStringLiteral("thunder"), QStringLiteral("Lightning")}))
+        return QStringLiteral("Lightning");
+    if (has({QStringLiteral("dust"), QStringLiteral("debris"), QStringLiteral("Dust")}))
+        return QStringLiteral("Dust");
+    if (has({QStringLiteral("rain"), QStringLiteral("Rain")}))
+        return QStringLiteral("Rain");
+    if (has({QStringLiteral("snow"), QStringLiteral("Snow")}))
+        return QStringLiteral("Snow");
+    return QStringLiteral("Other");
 }
 
 QStringList VfxFootageLibrary::inferTags(const QString &fileName,

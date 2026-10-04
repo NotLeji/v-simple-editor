@@ -21,7 +21,7 @@
 ExpressionBindingDialog::ExpressionBindingDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("式バインディング編集"));
+    setWindowTitle(QStringLiteral("Expression binding editor"));
     resize(820, 520);
 
     // -----------------------------------------------------------------------
@@ -30,8 +30,8 @@ ExpressionBindingDialog::ExpressionBindingDialog(QWidget *parent)
     m_listWidget = new QListWidget(this);
     m_listWidget->setMinimumWidth(220);
 
-    m_addButton    = new QPushButton(QStringLiteral("追加"), this);
-    m_removeButton = new QPushButton(QStringLiteral("削除"), this);
+    m_addButton    = new QPushButton(QStringLiteral("Add"), this);
+    m_removeButton = new QPushButton(QStringLiteral("Delete"), this);
     m_removeButton->setEnabled(false);
 
     auto *leftButtonLayout = new QHBoxLayout;
@@ -52,7 +52,7 @@ ExpressionBindingDialog::ExpressionBindingDialog(QWidget *parent)
 
     // Expression editor
     m_codeEdit = new QPlainTextEdit(this);
-    m_codeEdit->setPlaceholderText(QStringLiteral("ここに式を入力 (例: value * 0.5)"));
+    m_codeEdit->setPlaceholderText(QStringLiteral("Enter an expression here (e.g. value * 0.5)"));
     m_codeEdit->setEnabled(false);
 
     // Validity label
@@ -64,7 +64,7 @@ ExpressionBindingDialog::ExpressionBindingDialog(QWidget *parent)
     m_previewLabel->setWordWrap(true);
 
     // Functions reference (collapsible via a checkable QGroupBox)
-    m_funcBox  = new QGroupBox(QStringLiteral("関数リファレンス"), this);
+    m_funcBox  = new QGroupBox(QStringLiteral("Function reference"), this);
     m_funcBox->setCheckable(true);
     m_funcBox->setChecked(false);   // collapsed by default
     m_funcList = new QListWidget(m_funcBox);
@@ -87,15 +87,15 @@ ExpressionBindingDialog::ExpressionBindingDialog(QWidget *parent)
 
     // Assemble right panel
     auto *validityRow = new QHBoxLayout;
-    validityRow->addWidget(new QLabel(QStringLiteral("構文:"), this));
+    validityRow->addWidget(new QLabel(QStringLiteral("Syntax:"), this));
     validityRow->addWidget(m_validityLabel, 1);
 
     auto *previewRow = new QHBoxLayout;
-    previewRow->addWidget(new QLabel(QStringLiteral("評価値:"), this));
+    previewRow->addWidget(new QLabel(QStringLiteral("Evaluated value:"), this));
     previewRow->addWidget(m_previewLabel, 1);
 
     auto *rightLayout = new QVBoxLayout;
-    rightLayout->addWidget(new QLabel(QStringLiteral("式コード:"), this));
+    rightLayout->addWidget(new QLabel(QStringLiteral("Expression code:"), this));
     rightLayout->addWidget(m_codeEdit, 1);
     rightLayout->addLayout(validityRow);
     rightLayout->addLayout(previewRow);
@@ -203,8 +203,8 @@ void ExpressionBindingDialog::onAddBinding()
     bool ok = false;
     const QString chosen = QInputDialog::getItem(
         this,
-        QStringLiteral("プロパティを選択"),
-        QStringLiteral("バインドするプロパティパス:"),
+        QStringLiteral("Select a property"),
+        QStringLiteral("Property path to bind:"),
         paths,
         0,
         /*editable=*/false,
@@ -347,7 +347,7 @@ void ExpressionBindingDialog::updateValidityAndPreview(const QString &code)
     const QString trimmed = code.trimmed();
 
     if (trimmed.isEmpty()) {
-        m_validityLabel->setText(QStringLiteral("(空)"));
+        m_validityLabel->setText(QStringLiteral("(empty)"));
         m_validityLabel->setStyleSheet(QStringLiteral("color: gray;"));
         m_previewLabel->setText(QStringLiteral("—"));
         return;

@@ -541,9 +541,9 @@ KeyframeDialog::KeyframeDialog(const KeyframeTrack &track, double clipDuration, 
     m_interpCombo->addItem("Ease Out", static_cast<int>(KeyframePoint::EaseOut));
     m_interpCombo->addItem("Ease In/Out", static_cast<int>(KeyframePoint::EaseInOut));
     m_interpCombo->addItem("Hold", static_cast<int>(KeyframePoint::Hold));
-    m_interpCombo->addItem("エラスティック", static_cast<int>(KeyframePoint::ElasticOut));
-    m_interpCombo->addItem("バウンス", static_cast<int>(KeyframePoint::BounceOut));
-    m_interpCombo->addItem("バック(オーバーシュート)", static_cast<int>(KeyframePoint::BackOut));
+    m_interpCombo->addItem("Elastic", static_cast<int>(KeyframePoint::ElasticOut));
+    m_interpCombo->addItem("Bounce", static_cast<int>(KeyframePoint::BounceOut));
+    m_interpCombo->addItem("Back (Overshoot)", static_cast<int>(KeyframePoint::BackOut));
     addLayout->addWidget(m_interpCombo);
 
     mainLayout->addLayout(addLayout);

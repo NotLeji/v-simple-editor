@@ -9,7 +9,7 @@
 
 class QTreeWidget;
 
-// User-customizable "お気に入り" (favorites) editor.
+// User-customizable "Favorite" (favorites) editor.
 //
 // Presents every favoritable menu command, grouped by its parent menu
 // (menuPath), each with a checkbox. The set of checked ids — in the original

@@ -16,7 +16,7 @@ SocialExportDialog::SocialExportDialog(QWidget* parent)
     : QDialog(parent)
 {
     setObjectName(QStringLiteral("socialExportDialog"));
-    setWindowTitle(tr("SNS 向けエクスポート"));
+    setWindowTitle(tr("Export for Social Media"));
     resize(560, 360);
 
     // -----------------------------------------------------------------------
@@ -31,13 +31,13 @@ SocialExportDialog::SocialExportDialog(QWidget* parent)
     m_presetInfoLabel->setWordWrap(true);
 
     auto* presetForm = new QFormLayout;
-    presetForm->addRow(tr("プラットフォーム:"), m_presetCombo);
-    presetForm->addRow(tr("詳細:"),             m_presetInfoLabel);
+    presetForm->addRow(tr("Platform:"), m_presetCombo);
+    presetForm->addRow(tr("Details:"),             m_presetInfoLabel);
 
     // -----------------------------------------------------------------------
     // リフレーミング
     // -----------------------------------------------------------------------
-    m_reframeGroup = new QGroupBox(tr("リフレーミング (元動画 → ターゲット比率)"), this);
+    m_reframeGroup = new QGroupBox(tr("Reframing (Source → Target Aspect Ratio)"), this);
 
     m_modeCombo = new QComboBox(m_reframeGroup);
     for (const QString& modeName : reframe::availableModes())
@@ -62,12 +62,12 @@ SocialExportDialog::SocialExportDialog(QWidget* parent)
     m_zoomLabel = new QLabel(tr("100%"), m_reframeGroup);
 
     auto* reframeForm = new QFormLayout(m_reframeGroup);
-    reframeForm->addRow(tr("モード:"),   m_modeCombo);
-    reframeForm->addRow(tr("中心 X:"),   m_manualXSlider);
+    reframeForm->addRow(tr("Mode:"),   m_modeCombo);
+    reframeForm->addRow(tr("Center X:"),   m_manualXSlider);
     reframeForm->addRow(QString(),       m_manualXLabel);
-    reframeForm->addRow(tr("中心 Y:"),   m_manualYSlider);
+    reframeForm->addRow(tr("Center Y:"),   m_manualYSlider);
     reframeForm->addRow(QString(),       m_manualYLabel);
-    reframeForm->addRow(tr("ズーム %:"), m_zoomSlider);
+    reframeForm->addRow(tr("Zoom %:"), m_zoomSlider);
     reframeForm->addRow(QString(),       m_zoomLabel);
 
     // -----------------------------------------------------------------------
@@ -75,7 +75,7 @@ SocialExportDialog::SocialExportDialog(QWidget* parent)
     // -----------------------------------------------------------------------
     m_buttonBox = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    m_buttonBox->button(QDialogButtonBox::Ok)->setText(tr("プロジェクトに適用"));
+    m_buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Apply to Project"));
 
     // -----------------------------------------------------------------------
     // メインレイアウト
@@ -147,7 +147,7 @@ void SocialExportDialog::onPresetChanged(int index)
 
     const double vBitrateMbps = preset.videoBitrateBps / 1'000'000.0;
     m_presetInfoLabel->setText(
-        QString(tr("解像度: %1x%2 | %3fps | %4Mbps | %5/%6 | 最大 %7 秒"))
+        QString(tr("Resolution: %1x%2 | %3fps | %4Mbps | %5/%6 | Max %7 s"))
             .arg(preset.resolution.width())
             .arg(preset.resolution.height())
             .arg(preset.targetFps)

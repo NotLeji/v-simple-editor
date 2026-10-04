@@ -32,7 +32,7 @@ static QPixmap makeCheckerboard(const QSize &size)
 LowerThirdDialog::LowerThirdDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Lower Third テンプレート"));
+    setWindowTitle(tr("Lower third templates"));
     setObjectName(QStringLiteral("lowerThirdDialog"));
     setModal(false);
     resize(900, 480);

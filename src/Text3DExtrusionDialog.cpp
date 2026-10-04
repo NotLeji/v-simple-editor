@@ -48,7 +48,7 @@ Text3DExtrusionDialog::Text3DExtrusionDialog(QWidget *parent)
     , m_sideColor(180, 150, 90)
     , m_ambientColor(40, 40, 40)
 {
-    setWindowTitle(QStringLiteral("3Dテキスト押し出し設定"));
+    setWindowTitle(QStringLiteral("3D Text Extrusion Settings"));
     setMinimumWidth(480);
 
     auto *rootLayout = new QVBoxLayout(this);
@@ -58,14 +58,14 @@ Text3DExtrusionDialog::Text3DExtrusionDialog(QWidget *parent)
     // -----------------------------------------------------------------------
     {
         auto *row = new QHBoxLayout;
-        auto *lbl = new QLabel(QStringLiteral("テキスト:"), this);
+        auto *lbl = new QLabel(QStringLiteral("Text:"), this);
         m_textEdit = new QLineEdit(this);
-        m_textEdit->setPlaceholderText(QStringLiteral("テキストを入力…"));
+        m_textEdit->setPlaceholderText(QStringLiteral("Enter text…"));
 
-        m_fontButton = new QPushButton(QStringLiteral("フォント…"), this);
+        m_fontButton = new QPushButton(QStringLiteral("Font…"), this);
         // Show current font family/size in button text
         m_fontButton->setText(
-            QStringLiteral("フォント: %1 %2pt")
+            QStringLiteral("Font: %1 %2pt")
                 .arg(m_currentFont.family())
                 .arg(m_currentFont.pointSize()));
 
@@ -78,7 +78,7 @@ Text3DExtrusionDialog::Text3DExtrusionDialog(QWidget *parent)
     // -----------------------------------------------------------------------
     // 押し出し設定
     // -----------------------------------------------------------------------
-    m_extrudeBox = new QGroupBox(QStringLiteral("押し出し"), this);
+    m_extrudeBox = new QGroupBox(QStringLiteral("Extrusion"), this);
     {
         auto *fl = new QFormLayout(m_extrudeBox);
 
@@ -87,50 +87,50 @@ Text3DExtrusionDialog::Text3DExtrusionDialog(QWidget *parent)
         m_depthSpin->setSingleStep(0.01);
         m_depthSpin->setDecimals(3);
         m_depthSpin->setValue(0.2);
-        fl->addRow(QStringLiteral("深さ (depth):"), m_depthSpin);
+        fl->addRow(QStringLiteral("Depth:"), m_depthSpin);
 
         m_bevelDepthSpin = new QDoubleSpinBox(this);
         m_bevelDepthSpin->setRange(0.0, 1.0);
         m_bevelDepthSpin->setSingleStep(0.005);
         m_bevelDepthSpin->setDecimals(4);
         m_bevelDepthSpin->setValue(0.02);
-        fl->addRow(QStringLiteral("ベベル深さ:"), m_bevelDepthSpin);
+        fl->addRow(QStringLiteral("Bevel Depth:"), m_bevelDepthSpin);
 
         m_bevelWidthSpin = new QDoubleSpinBox(this);
         m_bevelWidthSpin->setRange(0.0, 1.0);
         m_bevelWidthSpin->setSingleStep(0.005);
         m_bevelWidthSpin->setDecimals(4);
         m_bevelWidthSpin->setValue(0.02);
-        fl->addRow(QStringLiteral("ベベル幅:"), m_bevelWidthSpin);
+        fl->addRow(QStringLiteral("Bevel Width:"), m_bevelWidthSpin);
 
         m_bevelSegSpin = new QSpinBox(this);
         m_bevelSegSpin->setRange(0, 8);
         m_bevelSegSpin->setValue(2);
-        fl->addRow(QStringLiteral("ベベルセグメント:"), m_bevelSegSpin);
+        fl->addRow(QStringLiteral("Bevel Segments:"), m_bevelSegSpin);
     }
     rootLayout->addWidget(m_extrudeBox);
 
     // -----------------------------------------------------------------------
     // マテリアル
     // -----------------------------------------------------------------------
-    m_materialBox = new QGroupBox(QStringLiteral("マテリアル"), this);
+    m_materialBox = new QGroupBox(QStringLiteral("Material"), this);
     {
         auto *fl = new QFormLayout(m_materialBox);
 
         // Front color
-        m_frontColorBtn = new QPushButton(QStringLiteral("前面色"), this);
+        m_frontColorBtn = new QPushButton(QStringLiteral("Front Color"), this);
         setButtonColor(m_frontColorBtn, m_frontColor);
-        fl->addRow(QStringLiteral("前面色:"), m_frontColorBtn);
+        fl->addRow(QStringLiteral("Front Color:"), m_frontColorBtn);
 
         // Side color
-        m_sideColorBtn = new QPushButton(QStringLiteral("側面色"), this);
+        m_sideColorBtn = new QPushButton(QStringLiteral("Side Color"), this);
         setButtonColor(m_sideColorBtn, m_sideColor);
-        fl->addRow(QStringLiteral("側面色:"), m_sideColorBtn);
+        fl->addRow(QStringLiteral("Side Color:"), m_sideColorBtn);
 
         // Ambient
-        m_ambientBtn = new QPushButton(QStringLiteral("環境光色"), this);
+        m_ambientBtn = new QPushButton(QStringLiteral("Ambient Light Color"), this);
         setButtonColor(m_ambientBtn, m_ambientColor);
-        fl->addRow(QStringLiteral("環境光色:"), m_ambientBtn);
+        fl->addRow(QStringLiteral("Ambient Light Color:"), m_ambientBtn);
 
         // Light direction
         m_lightXSpin = new QDoubleSpinBox(this);
@@ -138,28 +138,28 @@ Text3DExtrusionDialog::Text3DExtrusionDialog(QWidget *parent)
         m_lightXSpin->setSingleStep(0.1);
         m_lightXSpin->setDecimals(3);
         m_lightXSpin->setValue(0.3);
-        fl->addRow(QStringLiteral("ライト方向 X:"), m_lightXSpin);
+        fl->addRow(QStringLiteral("Light Direction X:"), m_lightXSpin);
 
         m_lightYSpin = new QDoubleSpinBox(this);
         m_lightYSpin->setRange(-5.0, 5.0);
         m_lightYSpin->setSingleStep(0.1);
         m_lightYSpin->setDecimals(3);
         m_lightYSpin->setValue(0.4);
-        fl->addRow(QStringLiteral("ライト方向 Y:"), m_lightYSpin);
+        fl->addRow(QStringLiteral("Light Direction Y:"), m_lightYSpin);
 
         m_lightZSpin = new QDoubleSpinBox(this);
         m_lightZSpin->setRange(-5.0, 5.0);
         m_lightZSpin->setSingleStep(0.1);
         m_lightZSpin->setDecimals(3);
         m_lightZSpin->setValue(-1.0);
-        fl->addRow(QStringLiteral("ライト方向 Z:"), m_lightZSpin);
+        fl->addRow(QStringLiteral("Light Direction Z:"), m_lightZSpin);
     }
     rootLayout->addWidget(m_materialBox);
 
     // -----------------------------------------------------------------------
     // 向き / スピン
     // -----------------------------------------------------------------------
-    m_orientBox = new QGroupBox(QStringLiteral("向き / スピン"), this);
+    m_orientBox = new QGroupBox(QStringLiteral("Orientation / Spin"), this);
     {
         auto *fl = new QFormLayout(m_orientBox);
 
@@ -168,28 +168,28 @@ Text3DExtrusionDialog::Text3DExtrusionDialog(QWidget *parent)
         m_yawSpin->setSingleStep(1.0);
         m_yawSpin->setDecimals(2);
         m_yawSpin->setValue(0.0);
-        fl->addRow(QStringLiteral("基準ヨー (deg):"), m_yawSpin);
+        fl->addRow(QStringLiteral("Base Yaw (deg):"), m_yawSpin);
 
         m_pitchSpin = new QDoubleSpinBox(this);
         m_pitchSpin->setRange(-360.0, 360.0);
         m_pitchSpin->setSingleStep(1.0);
         m_pitchSpin->setDecimals(2);
         m_pitchSpin->setValue(0.0);
-        fl->addRow(QStringLiteral("基準ピッチ (deg):"), m_pitchSpin);
+        fl->addRow(QStringLiteral("Base Pitch (deg):"), m_pitchSpin);
 
         m_camDistSpin = new QDoubleSpinBox(this);
         m_camDistSpin->setRange(0.5, 50.0);
         m_camDistSpin->setSingleStep(0.1);
         m_camDistSpin->setDecimals(2);
         m_camDistSpin->setValue(3.0);
-        fl->addRow(QStringLiteral("カメラ距離:"), m_camDistSpin);
+        fl->addRow(QStringLiteral("Camera Distance:"), m_camDistSpin);
 
         m_spinSpeedSpin = new QDoubleSpinBox(this);
         m_spinSpeedSpin->setRange(-2.0, 2.0);
         m_spinSpeedSpin->setSingleStep(0.05);
         m_spinSpeedSpin->setDecimals(3);
         m_spinSpeedSpin->setValue(0.0);
-        fl->addRow(QStringLiteral("スピン速度 (rotAnimAxis.y):"), m_spinSpeedSpin);
+        fl->addRow(QStringLiteral("Spin Speed (rotAnimAxis.y):"), m_spinSpeedSpin);
     }
     rootLayout->addWidget(m_orientBox);
 
@@ -197,7 +197,7 @@ Text3DExtrusionDialog::Text3DExtrusionDialog(QWidget *parent)
     // プレビュー
     // -----------------------------------------------------------------------
     {
-        auto *previewBox = new QGroupBox(QStringLiteral("プレビュー"), this);
+        auto *previewBox = new QGroupBox(QStringLiteral("Preview"), this);
         auto *pvLayout   = new QVBoxLayout(previewBox);
 
         m_previewLabel = new QLabel(this);
@@ -206,7 +206,7 @@ Text3DExtrusionDialog::Text3DExtrusionDialog(QWidget *parent)
         m_previewLabel->setStyleSheet(QStringLiteral("background-color: #1a1a1a;"));
 
         auto *sliderRow = new QHBoxLayout;
-        auto *sliderLbl = new QLabel(QStringLiteral("プレビュー時刻:"), this);
+        auto *sliderLbl = new QLabel(QStringLiteral("Preview Time:"), this);
         m_timeSider = new QSlider(Qt::Horizontal, this);
         m_timeSider->setRange(0, 1000);
         m_timeSider->setValue(0);
@@ -322,7 +322,7 @@ void Text3DExtrusionDialog::setLayer(const Text3DLayer &src)
         if (pointSz > 0.0)
             m_currentFont.setPointSizeF(pointSz);
         m_fontButton->setText(
-            QStringLiteral("フォント: %1 %2pt")
+            QStringLiteral("Font: %1 %2pt")
                 .arg(m_currentFont.family())
                 .arg(m_currentFont.pointSize()));
     }
@@ -476,11 +476,11 @@ void Text3DExtrusionDialog::onFontButtonClicked()
 {
     bool ok = false;
     const QFont chosen = QFontDialog::getFont(&ok, m_currentFont, this,
-                                              QStringLiteral("フォントを選択"));
+                                              QStringLiteral("Select Font"));
     if (ok) {
         m_currentFont = chosen;
         m_fontButton->setText(
-            QStringLiteral("フォント: %1 %2pt")
+            QStringLiteral("Font: %1 %2pt")
                 .arg(m_currentFont.family())
                 .arg(m_currentFont.pointSize()));
         updatePreview();
@@ -497,7 +497,7 @@ void Text3DExtrusionDialog::onExtrudeParamChanged()
 void Text3DExtrusionDialog::onFrontColorClicked()
 {
     const QColor chosen = QColorDialog::getColor(m_frontColor, this,
-                                                 QStringLiteral("前面色を選択"));
+                                                 QStringLiteral("Select Front Color"));
     if (chosen.isValid()) {
         m_frontColor = chosen;
         setButtonColor(m_frontColorBtn, m_frontColor);
@@ -509,7 +509,7 @@ void Text3DExtrusionDialog::onFrontColorClicked()
 void Text3DExtrusionDialog::onSideColorClicked()
 {
     const QColor chosen = QColorDialog::getColor(m_sideColor, this,
-                                                 QStringLiteral("側面色を選択"));
+                                                 QStringLiteral("Select Side Color"));
     if (chosen.isValid()) {
         m_sideColor = chosen;
         setButtonColor(m_sideColorBtn, m_sideColor);
@@ -521,7 +521,7 @@ void Text3DExtrusionDialog::onSideColorClicked()
 void Text3DExtrusionDialog::onAmbientColorClicked()
 {
     const QColor chosen = QColorDialog::getColor(m_ambientColor, this,
-                                                 QStringLiteral("環境光色を選択"));
+                                                 QStringLiteral("Select Ambient Light Color"));
     if (chosen.isValid()) {
         m_ambientColor = chosen;
         setButtonColor(m_ambientBtn, m_ambientColor);

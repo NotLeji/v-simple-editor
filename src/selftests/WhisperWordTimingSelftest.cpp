@@ -253,11 +253,11 @@ int runWhisperWordTimingSelftest()
             {
                 "start": 2.0,
                 "end": 3.0,
-                "text": "日本語",
+                "text": "Japanese",
                 "tokens": [
-                    { "text": "日", "start": 2.0, "end": 2.3 },
-                    { "text": "本", "start": 2.3, "end": 2.6 },
-                    { "text": "語", "start": 2.6, "end": 3.0 }
+                    { "text": "day", "start": 2.0, "end": 2.3 },
+                    { "text": "book", "start": 2.3, "end": 2.6 },
+                    { "text": "language", "start": 2.6, "end": 3.0 }
                 ]
             }
         ]
@@ -275,7 +275,7 @@ int runWhisperWordTimingSelftest()
               && multilingualSegments.at(1).words.size() == 1
               && multilingualSegments.at(1).words.first().text == QString::fromUtf8("Привет")
               && multilingualSegments.at(2).words.size() == 1
-              && multilingualSegments.at(2).words.first().text == QString::fromUtf8("日本語")
+              && multilingualSegments.at(2).words.first().text == QString::fromUtf8("Japanese")
               && multilingualSegments.at(2).words.first().startMs == 2000
               && multilingualSegments.at(2).words.first().endMs == 3000,
           QStringLiteral("error='%1' segments=%2 words=%3/%4/%5")

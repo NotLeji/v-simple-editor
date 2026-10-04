@@ -267,7 +267,7 @@ void PlanarCornerWidget::mouseReleaseEvent(QMouseEvent* event)
 PlanarTrackerDialog::PlanarTrackerDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("プラナートラッカー"));
+    setWindowTitle(tr("Planar Tracker"));
     setObjectName(QStringLiteral("planarTrackerDialog"));
     resize(880, 640);
 
@@ -304,15 +304,15 @@ PlanarTrackerDialog::PlanarTrackerDialog(QWidget* parent)
     m_dampingSpin->setValue(30);
     m_dampingSpin->setSuffix(tr(" %"));
 
-    m_saveCustomPresetButton = new QPushButton(tr("カスタム preset 保存"), this);
-    m_deletePresetBtn = new QPushButton(tr("選択中の preset を削除"), this);
+    m_saveCustomPresetButton = new QPushButton(tr("Save Custom Preset"), this);
+    m_deletePresetBtn = new QPushButton(tr("Delete Selected Preset"), this);
     m_resetPresetButton = new QPushButton(tr("Reset to defaults"), this);
-    m_exportPresetButton = new QPushButton(tr("Preset を JSON エクスポート"), this);
-    m_importPresetButton = new QPushButton(tr("Preset を JSON インポート"), this);
+    m_exportPresetButton = new QPushButton(tr("Export Preset to JSON"), this);
+    m_importPresetButton = new QPushButton(tr("Import Preset from JSON"), this);
     m_deletePresetBtn->setEnabled(false);
 
-    m_resetButton = new QPushButton(tr("リセット"), this);
-    m_trackButton = new QPushButton(tr("追跡実行"), this);
+    m_resetButton = new QPushButton(tr("Reset"), this);
+    m_trackButton = new QPushButton(tr("Run Tracking"), this);
 
     m_progress = new QProgressBar(this);
     m_progress->setRange(0, 100);
@@ -326,9 +326,9 @@ PlanarTrackerDialog::PlanarTrackerDialog(QWidget* parent)
 
     // --- Right panel layout ---
     auto* form = new QFormLayout;
-    form->addRow(tr("パッチサイズ:"),    m_patchSizeSpin);
-    form->addRow(tr("探索半径:"),        m_searchRadiusSpin);
-    form->addRow(tr("ダンピング:"),      m_dampingSpin);
+    form->addRow(tr("Patch size:"),    m_patchSizeSpin);
+    form->addRow(tr("Search radius:"),        m_searchRadiusSpin);
+    form->addRow(tr("Damping:"),      m_dampingSpin);
 
     auto* presetButtonsTop = new QHBoxLayout;
     presetButtonsTop->addWidget(m_saveCustomPresetButton);
@@ -347,7 +347,7 @@ PlanarTrackerDialog::PlanarTrackerDialog(QWidget* parent)
     rightLayout->addLayout(form);
     rightLayout->addWidget(m_resetButton);
     rightLayout->addWidget(m_trackButton);
-    m_cameraSolveButton = new QPushButton(tr("3D カメラを解析"), this);
+    m_cameraSolveButton = new QPushButton(tr("Solve 3D Camera"), this);
     m_cameraSolveButton->setObjectName(QStringLiteral("cameraSolveButton"));
     m_cameraSolveButton->setEnabled(false);
     rightLayout->addWidget(m_cameraSolveButton);
@@ -530,14 +530,14 @@ void PlanarTrackerDialog::onPresetSelectionChanged(int index)
     const int presetIndex = m_presetCombo->itemData(index).toInt(&ok);
     if (!ok || presetIndex < 0 || presetIndex >= m_presets.size()) {
         if (m_descriptionLabel)
-            m_descriptionLabel->setText(tr("説明: なし"));
+            m_descriptionLabel->setText(tr("Description: None"));
         return;
     }
 
     const planar_tracker_preset::PlanarTrackerPreset& preset = m_presets.at(presetIndex);
     if (m_descriptionLabel) {
         m_descriptionLabel->setText(
-            preset.description.isEmpty() ? tr("説明: なし") : preset.description);
+            preset.description.isEmpty() ? tr("Description: None") : preset.description);
     }
     applyPresetToWidgets(preset);
 }
@@ -547,8 +547,8 @@ void PlanarTrackerDialog::onSaveCustomPreset()
 {
     bool ok = false;
     const QString name = QInputDialog::getText(this,
-                                               tr("カスタム preset 保存"),
-                                               tr("名前:"),
+                                               tr("Save Custom Preset"),
+                                               tr("Name:"),
                                                QLineEdit::Normal,
                                                QString(),
                                                &ok).trimmed();
@@ -576,8 +576,8 @@ void PlanarTrackerDialog::onDeleteSelectedPreset()
 
     const QMessageBox::StandardButton answer =
         QMessageBox::question(this,
-                              tr("選択中の preset を削除"),
-                              tr("「%1」を削除しますか?").arg(preset.displayName),
+                              tr("Delete Selected Preset"),
+                              tr("Delete \"%1\"?").arg(preset.displayName),
                               QMessageBox::Yes | QMessageBox::No,
                               QMessageBox::No);
     if (answer != QMessageBox::Yes)
@@ -598,7 +598,7 @@ void PlanarTrackerDialog::onResetPresetToDefaults()
     applyPresetToWidgets(preset);
     if (m_descriptionLabel) {
         m_descriptionLabel->setText(
-            preset.description.isEmpty() ? tr("説明: なし") : preset.description);
+            preset.description.isEmpty() ? tr("Description: None") : preset.description);
     }
     updateDeletePresetButton();
 }
@@ -607,7 +607,7 @@ void PlanarTrackerDialog::onResetPresetToDefaults()
 void PlanarTrackerDialog::onExportPreset()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("Preset を JSON エクスポート"),
+                                                    tr("Export Preset to JSON"),
                                                     QString(),
                                                     tr("Planar Tracker Preset JSON (*.json)"));
     if (fileName.isEmpty())
@@ -618,8 +618,8 @@ void PlanarTrackerDialog::onExportPreset()
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         QMessageBox::warning(this,
-                             tr("Preset を JSON エクスポート"),
-                             tr("JSON ファイルを書き込めませんでした。"));
+                             tr("Export Preset to JSON"),
+                             tr("Could not write JSON file."));
         return;
     }
 
@@ -627,8 +627,8 @@ void PlanarTrackerDialog::onExportPreset()
     const QByteArray json = QJsonDocument(obj).toJson(QJsonDocument::Indented);
     if (file.write(json) != json.size()) {
         QMessageBox::warning(this,
-                             tr("Preset を JSON エクスポート"),
-                             tr("JSON ファイルを書き込めませんでした。"));
+                             tr("Export Preset to JSON"),
+                             tr("Could not write JSON file."));
     }
 }
 
@@ -637,7 +637,7 @@ void PlanarTrackerDialog::onImportPreset()
 {
     const QString fileName = QFileDialog::getOpenFileName(
         this,
-        tr("Preset を JSON インポート"),
+        tr("Import Preset from JSON"),
         QString(),
         tr("Planar Tracker Preset JSON (*.json)"));
     if (fileName.isEmpty())
@@ -646,8 +646,8 @@ void PlanarTrackerDialog::onImportPreset()
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
         QMessageBox::warning(this,
-                             tr("Preset を JSON インポート"),
-                             tr("JSON ファイルを読み込めませんでした。"));
+                             tr("Import Preset from JSON"),
+                             tr("Could not load JSON file."));
         return;
     }
 
@@ -655,24 +655,24 @@ void PlanarTrackerDialog::onImportPreset()
     const QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
     if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
         QMessageBox::warning(this,
-                             tr("Preset を JSON インポート"),
-                             tr("JSON が不正です"));
+                             tr("Import Preset from JSON"),
+                             tr("Invalid JSON"));
         return;
     }
 
     auto imported = planar_tracker_preset::fromJson(doc.object());
     if (!imported) {
         QMessageBox::warning(this,
-                             tr("Preset を JSON インポート"),
-                             tr("JSON が不正です"));
+                             tr("Import Preset from JSON"),
+                             tr("Invalid JSON"));
         return;
     }
 
     imported->id = makeUserPresetId(imported->displayName);
     if (!planar_tracker_preset::Registry::instance().saveUserPreset(*imported)) {
         QMessageBox::warning(this,
-                             tr("Preset を JSON インポート"),
-                             tr("Preset を保存できませんでした。"));
+                             tr("Import Preset from JSON"),
+                             tr("Could not save preset."));
         return;
     }
 
@@ -711,11 +711,11 @@ void PlanarTrackerDialog::rebuildPresetCombo(const QString& selectedId)
         applyPresetToWidgets(preset);
         if (m_descriptionLabel) {
             m_descriptionLabel->setText(
-                preset.description.isEmpty() ? tr("説明: なし") : preset.description);
+                preset.description.isEmpty() ? tr("Description: None") : preset.description);
         }
     } else {
         if (m_descriptionLabel)
-            m_descriptionLabel->setText(tr("説明: なし"));
+            m_descriptionLabel->setText(tr("Description: None"));
     }
     updateDeletePresetButton();
 }
@@ -788,8 +788,8 @@ void PlanarTrackerDialog::onResetCorners()
 void PlanarTrackerDialog::onTrackClicked()
 {
     if (m_frames.isEmpty()) {
-        QMessageBox::information(this, tr("情報"),
-                                 tr("フレームが投入されていません。"));
+        QMessageBox::information(this, tr("Information"),
+                                 tr("No frames submitted."));
         return;
     }
 
@@ -853,15 +853,15 @@ void PlanarTrackerDialog::onCameraSolveClicked()
             residual += pose.residual;
         }
     }
-    const QString summary = tr("有効フレーム: %1 / %2\n平均残差: %3")
+    const QString summary = tr("Valid frames: %1 / %2\nMean residual: %3")
         .arg(valid).arg(poses.size())
-        .arg(valid ? QString::number(residual / valid, 'g', 6) : tr("算出不可"));
+        .arg(valid ? QString::number(residual / valid, 'g', 6) : tr("N/A"));
     if (!valid) {
-        QMessageBox::information(this, tr("3D カメラ解析"), summary);
+        QMessageBox::information(this, tr("3D Camera Analysis"), summary);
         return;
     }
-    if (QMessageBox::question(this, tr("3D カメラ解析"),
-            summary + tr("\nカメラのキーフレームとして適用しますか？"),
+    if (QMessageBox::question(this, tr("3D Camera Analysis"),
+            summary + tr("\nApply as camera keyframes?"),
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
         emit cameraSolveApplied(poses, m_cameraFps, m_cameraStartSec);
 }
@@ -897,7 +897,7 @@ void PlanarTrackerDialog::rebuildSummary()
     if (tracked > 0)
         avgConf /= tracked;
 
-    const QString text = tr("投入: %1 / 追跡済: %2 / 平均信頼度: %3")
+    const QString text = tr("Submitted: %1 / Tracked: %2 / Mean confidence: %3")
                              .arg(total)
                              .arg(tracked)
                              .arg(avgConf, 0, 'f', 2);

@@ -58,7 +58,7 @@ int runSubtitleCpsSelftest()
               failed);
 
     printGate("G6",
-              closeTo(captioncps::cps(QString::fromUtf8("あいう"), 1.0), 3.0),
+              closeTo(captioncps::cps(QString::fromUtf8("aiu"), 1.0), 3.0),
               passed,
               failed);
 

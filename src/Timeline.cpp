@@ -170,7 +170,7 @@ bool validAudioFadeDuration(double durationSec, QString *errorOut)
 {
     if (!std::isfinite(durationSec) || durationSec <= 0.0) {
         if (errorOut)
-            *errorOut = QStringLiteral("フェード時間は 0 より大きい有限値で指定してください");
+            *errorOut = QStringLiteral("Fade duration must be a finite value greater than 0");
         return false;
     }
     return true;
@@ -185,7 +185,7 @@ bool applyCrossfade(QVector<ClipInfo> &clips, int clipIndexA,
         return false;
     if (clipIndexA < 0 || clipIndexA + 1 >= clips.size()) {
         if (errorOut)
-            *errorOut = QStringLiteral("クロスフェードには隣接する A/B クリップが必要です");
+            *errorOut = QStringLiteral("Crossfade requires adjacent A/B clips");
         return false;
     }
 
@@ -204,7 +204,7 @@ bool applyFade(QVector<ClipInfo> &clips, int clipIndex,
         return false;
     if (clipIndex < 0 || clipIndex >= clips.size()) {
         if (errorOut)
-            *errorOut = QStringLiteral("音声クリップの index が範囲外です");
+            *errorOut = QStringLiteral("Audio clip index is out of range");
         return false;
     }
 
@@ -363,9 +363,9 @@ QString audioChannelModeMenuLabel(AudioChannelMode mode)
     case AudioChannelMode::FillRight:
         return QStringLiteral("Fill Right (R→LR)");
     case AudioChannelMode::Swap:
-        return QStringLiteral("LRスワップ");
+        return QStringLiteral("LR Swap");
     case AudioChannelMode::Mono:
-        return QStringLiteral("モノ化");
+        return QStringLiteral("Mono");
     }
     return QStringLiteral("Stereo");
 }
@@ -408,17 +408,17 @@ QColor clipLabelColor(ClipLabel label)
 QString clipLabelName(ClipLabel label)
 {
     switch (label) {
-    case ClipLabel::None:   return QStringLiteral("なし");
-    case ClipLabel::Red:    return QStringLiteral("赤");
-    case ClipLabel::Orange: return QStringLiteral("オレンジ");
-    case ClipLabel::Yellow: return QStringLiteral("黄");
-    case ClipLabel::Green:  return QStringLiteral("緑");
-    case ClipLabel::Cyan:   return QStringLiteral("シアン");
-    case ClipLabel::Blue:   return QStringLiteral("青");
-    case ClipLabel::Purple: return QStringLiteral("紫");
-    case ClipLabel::Pink:   return QStringLiteral("ピンク");
+    case ClipLabel::None:   return QStringLiteral("None");
+    case ClipLabel::Red:    return QStringLiteral("Red");
+    case ClipLabel::Orange: return QStringLiteral("Orange");
+    case ClipLabel::Yellow: return QStringLiteral("Yellow");
+    case ClipLabel::Green:  return QStringLiteral("Green");
+    case ClipLabel::Cyan:   return QStringLiteral("Cyan");
+    case ClipLabel::Blue:   return QStringLiteral("Blue");
+    case ClipLabel::Purple: return QStringLiteral("Purple");
+    case ClipLabel::Pink:   return QStringLiteral("Pink");
     }
-    return QStringLiteral("なし");
+    return QStringLiteral("None");
 }
 
 ClipLabel clipLabelFromString(const QString &value)
@@ -3365,7 +3365,7 @@ void Timeline::setupUI()
         "QPushButton { background-color: #444; color: #ddd; border: 1px solid #666;"
         "  border-radius: 3px; font-size: 13px; padding: 0 6px; }"
         "QPushButton:hover { background-color: #555; }";
-    auto *rowHLabel = new QLabel(QStringLiteral("行高"), this);
+    auto *rowHLabel = new QLabel(QStringLiteral("Row Height"), this);
     rowHLabel->setStyleSheet("color: #999; font-size: 11px;");
     auto *rowMinus = new QPushButton(QString::fromUtf8("\xE2\x88\x92"), this); // −
     auto *rowPlus  = new QPushButton(QString::fromUtf8("\x2B"), this);          // +
@@ -3373,8 +3373,8 @@ void Timeline::setupUI()
     rowPlus->setFixedSize(26, 22);
     rowMinus->setStyleSheet(sizeBtnStyle);
     rowPlus->setStyleSheet(sizeBtnStyle);
-    rowMinus->setToolTip(QStringLiteral("行を低く"));
-    rowPlus->setToolTip(QStringLiteral("行を高く"));
+    rowMinus->setToolTip(QStringLiteral("Lower Row Height"));
+    rowPlus->setToolTip(QStringLiteral("Raise Row Height"));
     connect(rowMinus, &QPushButton::clicked, this, &Timeline::decreaseTrackHeight);
     connect(rowPlus,  &QPushButton::clicked, this, &Timeline::increaseTrackHeight);
     infoRow->addWidget(rowHLabel);
@@ -3421,7 +3421,7 @@ void Timeline::setupUI()
     magnetBtn->setCheckable(true);
     magnetBtn->setChecked(snapEnabled());
     magnetBtn->setFixedSize(32, 26);
-    magnetBtn->setToolTip(QStringLiteral("マグネット / スナップ 切替"));
+    magnetBtn->setToolTip(QStringLiteral("Toggle Magnet / Snap"));
     magnetBtn->setStyleSheet(
         "QPushButton { background-color: #444; color: #ddd; border: 1px solid #666;"
         "  border-radius: 3px; font-size: 14px; padding: 0; }"
@@ -3745,7 +3745,7 @@ QWidget *Timeline::createTrackHeader(TimelineTrack *track, const QString &name, 
     lockBtn->setObjectName(QStringLiteral("timelineTrackLockButton"));
     lockBtn->setFixedSize(28, 28);
     lockBtn->setCheckable(true);
-    lockBtn->setToolTip(QStringLiteral("編集ロック"));
+    lockBtn->setToolTip(QStringLiteral("Lock Editing"));
     lockBtn->setStyleSheet(
         "QPushButton { background-color: #444; color: #ddd; border: 1px solid #666;"
         "  border-radius: 3px; font-size: 14px; padding: 0; }"
@@ -3761,7 +3761,7 @@ QWidget *Timeline::createTrackHeader(TimelineTrack *track, const QString &name, 
         muteBtn->setObjectName(QStringLiteral("timelineTrackMuteButton"));
         muteBtn->setFixedSize(28, 28);
         muteBtn->setCheckable(true);
-        muteBtn->setToolTip(QStringLiteral("ミュート (audio)"));
+        muteBtn->setToolTip(QStringLiteral("Mute (Audio)"));
         muteBtn->setStyleSheet(
             "QPushButton { background-color: #444; color: #ddd; border: 1px solid #666;"
             "  border-radius: 3px; font-size: 14px; padding: 0; }"
@@ -3772,7 +3772,7 @@ QWidget *Timeline::createTrackHeader(TimelineTrack *track, const QString &name, 
         soloBtn->setObjectName(QStringLiteral("timelineTrackSoloButton"));
         soloBtn->setFixedSize(28, 28);
         soloBtn->setCheckable(true);
-        soloBtn->setToolTip(QStringLiteral("ソロ（音声）"));
+        soloBtn->setToolTip(QStringLiteral("Solo (Audio)"));
         soloBtn->setStyleSheet(
             "QPushButton { background-color: #444; color: #ddd; border: 1px solid #666;"
             "  border-radius: 3px; font-size: 13px; font-weight: bold; padding: 0; }"
@@ -3783,7 +3783,7 @@ QWidget *Timeline::createTrackHeader(TimelineTrack *track, const QString &name, 
         hideBtn->setObjectName(QStringLiteral("timelineTrackHideButton"));
         hideBtn->setFixedSize(28, 28);
         hideBtn->setCheckable(true);
-        hideBtn->setToolTip(QStringLiteral("非表示 (hide video)"));
+        hideBtn->setToolTip(QStringLiteral("Hide (Video)"));
         hideBtn->setStyleSheet(
             "QPushButton { background-color: #444; color: #ddd; border: 1px solid #666;"
             "  border-radius: 3px; font-size: 16px; padding: 0; }"
@@ -4276,7 +4276,7 @@ bool Timeline::importMedia(const QString &filePath,
     };
     const QFileInfo fileInfo(filePath);
     if (!fileInfo.exists() || !fileInfo.isFile())
-        return fail(QStringLiteral("ファイルが見つかりません: %1").arg(filePath));
+        return fail(QStringLiteral("File not found: %1").arg(filePath));
     if (requestedTrackIndex < -1)
         return fail(QStringLiteral("trackIndex must be non-negative"));
     if (!std::isfinite(requestedStartSec) || requestedStartSec < -1.0) {
@@ -4318,13 +4318,13 @@ bool Timeline::importMedia(const QString &filePath,
     // addClip で置く前提を保つ)。
     if (kind != ImportMediaKind::LinkedPair
         && (!openedOk || (!videoStreamFound && !audioStreamFound))) {
-        return fail(QStringLiteral("メディアとして開けません (動画/音声ストリームがありません): %1")
+        return fail(QStringLiteral("Cannot open as media (no video/audio streams): %1")
                         .arg(filePath));
     }
     if (kind == ImportMediaKind::VideoOnly && !videoStreamFound)
-        return fail(QStringLiteral("映像ストリームがありません: %1").arg(filePath));
+        return fail(QStringLiteral("No video stream: %1").arg(filePath));
     if (kind == ImportMediaKind::AudioOnly && !audioStreamFound)
-        return fail(QStringLiteral("音声ストリームがありません: %1").arg(filePath));
+        return fail(QStringLiteral("No audio stream: %1").arg(filePath));
     const bool placeVideo = kind == ImportMediaKind::LinkedPair
         || kind == ImportMediaKind::VideoOnly
         || (kind == ImportMediaKind::Auto && videoStreamFound);
@@ -4434,7 +4434,7 @@ bool Timeline::importMedia(const QString &filePath,
     TimelineTrack *videoTrack = placeVideo ? m_videoTracks.value(videoTrackIdx, nullptr) : nullptr;
     TimelineTrack *audioTrack = placeAudio ? m_audioTracks.value(audioTrackIdx, nullptr) : nullptr;
     if ((placeVideo && !videoTrack) || (placeAudio && !audioTrack))
-        return fail(QStringLiteral("取り込み先のトラックを準備できません"));
+        return fail(QStringLiteral("Cannot prepare the destination track"));
 
     // 指定位置は空きへ正確に入れ、既存クリップと重なる要求は MCP から
     // 黙って丸めない。startSec 省略時だけ対象トラック末尾へ追記する。
@@ -4452,12 +4452,12 @@ bool Timeline::importMedia(const QString &filePath,
     if (placeVideo) {
         videoPlan = videoTrack->planDrop(videoDropTime, importDuration);
         if (!videoPlan.valid)
-            return fail(QStringLiteral("指定位置にクリップを配置できません"));
+            return fail(QStringLiteral("Cannot place clip at the specified position"));
     }
     if (placeAudio) {
         audioPlan = audioTrack->planDrop(audioDropTime, importDuration);
         if (!audioPlan.valid)
-            return fail(QStringLiteral("指定位置にクリップを配置できません"));
+            return fail(QStringLiteral("Cannot place clip at the specified position"));
     }
 
     // Auto-proxy dispatch — runs after the track index is settled so that
@@ -5253,7 +5253,7 @@ bool Timeline::moveClipByIndex(bool audio, int trackIndex, int clipIndex,
                 moveResult.actualStartSec = qMax(0.0, newStartSec + correction);
                 moveResult.trackIndex = newTrackIndex;
                 moveResult.clipIndex = -1;
-                moveResult.reason = QStringLiteral("指定位置は他のクリップと重なっています");
+                moveResult.reason = QStringLiteral("The specified position overlaps another clip");
                 return true;
             }
         }
@@ -5290,7 +5290,7 @@ bool Timeline::moveClipByIndex(bool audio, int trackIndex, int clipIndex,
             oppositeDestination = trackAt(true, newTrackIndex);
         }
         if (!oppositeDestination)
-            return setTimelineEditError(err, QStringLiteral("リンク先のトラックを準備できません"));
+            return setTimelineEditError(err, QStringLiteral("Cannot prepare the linked track"));
         for (MovingMember &member : members) {
             if (!member.destinationTrack)
                 member.destinationTrack = oppositeDestination;
@@ -5505,7 +5505,7 @@ bool Timeline::setClipReversed(TrackKind kind, int trackIndex, int clipIndex,
 
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, snapBefore);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
-    saveUndoState(QStringLiteral("逆再生"));
+    saveUndoState(QStringLiteral("Reverse"));
     updateInfoLabel();
     scheduleEmitSequenceChanged();
     return true;
@@ -5531,7 +5531,7 @@ bool Timeline::setClipAutoOrientEnabled(TrackKind kind, int trackIndex,
 
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, snapBefore);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
-    saveUndoState(QStringLiteral("パスに沿って自動回転"));
+    saveUndoState(QStringLiteral("Auto-Rotate Along Path"));
     updateInfoLabel();
     scheduleEmitSequenceChanged();
     return true;
@@ -5550,7 +5550,7 @@ bool Timeline::matchFrame(double timelineSec, MatchFrameResult *result,
         return false;
     };
     if (!std::isfinite(timelineSec) || timelineSec < 0.0)
-        return fail(QStringLiteral("タイムライン時刻が不正です"));
+        return fail(QStringLiteral("Invalid timeline time"));
 
     QVector<int> trackOrder;
     const auto appendTrack = [&trackOrder, this](int index) {
@@ -5587,10 +5587,10 @@ bool Timeline::matchFrame(double timelineSec, MatchFrameResult *result,
             if (timelineSec + kEpsilon >= clipStart
                 && timelineSec < clipEnd - kEpsilon) {
                 if (clip.filePath.isEmpty())
-                    return fail(QStringLiteral("クリップにソースファイルがありません"));
+                    return fail(QStringLiteral("Clip has no source file"));
                 if (clip.isSequenceReference()) {
                     return fail(QStringLiteral(
-                        "シーケンス参照はソースモニターで開けません"));
+                        "Sequence references cannot be opened in the source monitor"));
                 }
                 if (result) {
                     result->filePath = clip.filePath;
@@ -5605,7 +5605,7 @@ bool Timeline::matchFrame(double timelineSec, MatchFrameResult *result,
         }
     }
 
-    return fail(QStringLiteral("再生ヘッド位置に動画クリップがありません"));
+    return fail(QStringLiteral("No video clip at the playhead position"));
 }
 
 bool Timeline::replaceRenderedClip(int trackIndex, int clipIndex,
@@ -5686,30 +5686,30 @@ bool Timeline::replaceClipMedia(TrackKind kind, int trackIndex, int clipIndex,
 
     const QFileInfo fileInfo(newPath);
     if (newPath.isEmpty() || !fileInfo.exists() || !fileInfo.isFile())
-        return fail(QStringLiteral("ファイルが見つかりません: %1").arg(newPath));
+        return fail(QStringLiteral("File not found: %1").arg(newPath));
 
     TimelineTrack *targetTrack = trackAt(kind == TrackKind::Audio, trackIndex);
     if (!targetTrack)
-        return fail(QStringLiteral("トラック番号が範囲外です"));
+        return fail(QStringLiteral("Track number out of range"));
     if (clipIndex < 0 || clipIndex >= targetTrack->clipCount())
-        return fail(QStringLiteral("クリップ番号が範囲外です"));
+        return fail(QStringLiteral("Clip number out of range"));
     if (targetTrack->isLocked())
-        return fail(QStringLiteral("トラックがロックされています"));
+        return fail(QStringLiteral("Track is locked"));
 
     const TimelineMediaProbe mediaProbe = probeTimelineMedia(newPath);
     if (!mediaProbe.openedOk
         || (!mediaProbe.videoStreamFound && !mediaProbe.audioStreamFound)) {
-        return fail(QStringLiteral("メディアとして開けません: %1").arg(newPath));
+        return fail(QStringLiteral("Cannot open as media: %1").arg(newPath));
     }
     if (kind == TrackKind::Video && !mediaProbe.videoStreamFound)
-        return fail(QStringLiteral("映像ストリームがありません: %1").arg(newPath));
+        return fail(QStringLiteral("No video stream: %1").arg(newPath));
     if (kind == TrackKind::Audio && !mediaProbe.audioStreamFound)
-        return fail(QStringLiteral("音声ストリームがありません: %1").arg(newPath));
+        return fail(QStringLiteral("No audio stream: %1").arg(newPath));
 
     const double sourceDuration = mediaProbe.durationSec > 0.0
         ? mediaProbe.durationSec : newSourceDurationSec;
     if (!std::isfinite(sourceDuration) || sourceDuration <= 0.0)
-        return fail(QStringLiteral("新しい素材の長さを取得できません"));
+        return fail(QStringLiteral("Cannot get the new media's duration"));
 
     const QVector<ClipInfo> targetClips = targetTrack->clips();
     const int linkGroup = targetClips.at(clipIndex).linkGroup;
@@ -5756,10 +5756,10 @@ bool Timeline::replaceClipMedia(TrackKind kind, int trackIndex, int clipIndex,
                 if (!shouldReplace(track, i, audioTrack))
                     continue;
                 if (track->isLocked())
-                    return fail(QStringLiteral("リンクしたトラックがロックされています"));
+                    return fail(QStringLiteral("Linked track is locked"));
                 if (sourceDuration <= clips.at(i).inPoint + 1e-9) {
                     return fail(QStringLiteral(
-                        "新しい素材が現在のイン点 (%1 秒) より短いため置き換えできません")
+                        "Cannot replace: the new media is shorter than the current in point (%1 s)")
                                     .arg(clips.at(i).inPoint, 0, 'f', 3));
                 }
             }
@@ -5838,7 +5838,7 @@ bool Timeline::replaceClipMedia(TrackKind kind, int trackIndex, int clipIndex,
     replaceOnTracks(m_audioTracks, true);
 
     if (!changed)
-        return fail(QStringLiteral("置き換え対象のクリップがありません"));
+        return fail(QStringLiteral("No clip to replace"));
 
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, remapSnapshot);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, remapSnapshot);
@@ -5849,12 +5849,12 @@ bool Timeline::replaceClipMedia(TrackKind kind, int trackIndex, int clipIndex,
     QStringList warnings;
     if (shortened) {
         warnings.append(QStringLiteral(
-            "新しい素材が短いため、クリップを %1 秒に短縮しました。")
+            "The new media is shorter, so the clip was trimmed to %1 s.")
                             .arg(shortestTimelineDuration, 0, 'f', 3));
     }
     if (linkedAudioLeftUnchanged) {
         warnings.append(QStringLiteral(
-            "新しい素材に音声がないため、リンクした音声クリップは変更していません。"));
+            "The new media has no audio, so the linked audio clip was left unchanged."));
     }
     if (messageOut)
         *messageOut = warnings.join(QLatin1Char(' '));
@@ -5874,18 +5874,18 @@ bool Timeline::relinkMediaPaths(const QHash<QString, QString> &oldToNew,
         return false;
     };
     if (oldToNew.isEmpty())
-        return fail(QStringLiteral("mapping が空です"));
+        return fail(QStringLiteral("mapping is empty"));
 
     for (auto it = oldToNew.cbegin(); it != oldToNew.cend(); ++it) {
         if (timeline_nesting::isSequenceClipFilePath(it.key())
             || clipgeom::isNullObjectFilePath(it.key())) {
-            return fail(QStringLiteral("内部メディア参照は再リンクできません: %1")
+            return fail(QStringLiteral("Internal media references cannot be relinked: %1")
                             .arg(it.key()));
         }
         const QFileInfo destination(it.value());
         if (it.key().isEmpty() || it.value().isEmpty()
             || !destination.exists() || !destination.isFile()) {
-            return fail(QStringLiteral("ファイルが見つかりません: %1")
+            return fail(QStringLiteral("File not found: %1")
                             .arg(it.value()));
         }
     }
@@ -5970,11 +5970,11 @@ bool Timeline::relinkMediaPaths(const QHash<QString, QString> &oldToNew,
         changed = relinkSidecars(oldToNew) || changed;
 
     if (!changed)
-        return fail(QStringLiteral("置換対象のメディア参照がありません"));
+        return fail(QStringLiteral("No media reference to replace"));
 
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, remapSnapshot);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, remapSnapshot);
-    saveUndoState(QStringLiteral("メディアを再リンク"));
+    saveUndoState(QStringLiteral("Relink Media"));
     updateInfoLabel();
     scheduleEmitSequenceChanged();
     return true;
@@ -6126,7 +6126,7 @@ bool Timeline::applyRippleDeleteTimeRangesToAllTracks(QVector<TimeRangeSec> rang
 void Timeline::rippleDeleteSelectedClip()
 {
     applyRippleDeleteTimeRangesToAllTracks(selectedClipTimeRanges(),
-                                           QStringLiteral("リップル削除"));
+                                           QStringLiteral("Ripple Delete"));
 }
 
 bool Timeline::closeGapAt(TimelineTrack *track, double timeSec)
@@ -6147,7 +6147,7 @@ bool Timeline::closeGapAt(TimelineTrack *track, double timeSec)
     QVector<TimeRangeSec> ranges;
     ranges.append(gap);
     return applyRippleDeleteTimeRangesToAllTracks(ranges,
-                                                  QStringLiteral("ギャップを詰める"));
+                                                  QStringLiteral("Close Gaps"));
 }
 
 void Timeline::showGapContextMenu(TimelineTrack *track, double timeSec, const QPoint &globalPos)
@@ -6164,10 +6164,10 @@ void Timeline::showGapContextMenu(TimelineTrack *track, double timeSec, const QP
     }
 
     QMenu menu;
-    QAction *closeGapAct = menu.addAction(QStringLiteral("ギャップを詰める"));
+    QAction *closeGapAct = menu.addAction(QStringLiteral("Close Gaps"));
     closeGapAct->setEnabled(hasGap && !blockedByClip);
     menu.addSeparator();
-    QAction *addAdjustmentAct = menu.addAction(QStringLiteral("調整レイヤーを作成"));
+    QAction *addAdjustmentAct = menu.addAction(QStringLiteral("Create Adjustment Layer"));
     addAdjustmentAct->setEnabled(!m_videoTracks.isEmpty());
     QAction *chosen = menu.exec(globalPos);
     if (chosen == closeGapAct && closeGapAct->isEnabled())
@@ -6372,14 +6372,14 @@ bool Timeline::mapSourceCaptionTrackToTimeline(
         errorMessage->clear();
     if (!mappedTrack) {
         if (errorMessage)
-            *errorMessage = tr("字幕の変換先がありません。");
+            *errorMessage = tr("No subtitle conversion target.");
         return false;
     }
     mappedTrack->clear();
     if (sourceTrack.clipCount() <= 0 || sourcePath.isEmpty()
         || m_videoTracks.isEmpty() || !m_videoTracks.first()) {
         if (errorMessage)
-            *errorMessage = tr("字幕または V1 の元動画がありません。");
+            *errorMessage = tr("No subtitles or V1 source video.");
         return false;
     }
 
@@ -6477,12 +6477,12 @@ bool Timeline::mapSourceCaptionTrackToTimeline(
     mappedTrack->sortByStart();
     if (!matchedMedia) {
         if (errorMessage)
-            *errorMessage = tr("選択した元動画は V1 に見つかりません。");
+            *errorMessage = tr("The selected source video was not found on V1.");
         return false;
     }
     if (mappedTrack->clipCount() <= 0) {
         if (errorMessage)
-            *errorMessage = tr("トリムまたはタイムリマップ範囲内に字幕がありません。");
+            *errorMessage = tr("No subtitles within the trim or time remap range.");
         return false;
     }
     return true;
@@ -6496,12 +6496,12 @@ bool Timeline::applySingleWordCaptionOverlays(
 
     if (overlays.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("適用できる字幕がありません。");
+            *errorMessage = tr("No captions available to apply.");
         return false;
     }
     if (m_videoTracks.isEmpty() || !m_videoTracks.first()) {
         if (errorMessage)
-            *errorMessage = tr("字幕を適用する V1 トラックがありません。");
+            *errorMessage = tr("No V1 track to apply subtitles to.");
         return false;
     }
 
@@ -6509,7 +6509,7 @@ bool Timeline::applySingleWordCaptionOverlays(
     QVector<ClipInfo> clips = track->clips();
     if (clips.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("字幕を適用する動画クリップがありません。");
+            *errorMessage = tr("No video clip to apply subtitles to.");
         return false;
     }
 
@@ -6522,7 +6522,7 @@ bool Timeline::applySingleWordCaptionOverlays(
             || overlay.startTime < 0.0
             || overlay.endTime <= overlay.startTime) {
             if (errorMessage)
-                *errorMessage = tr("字幕の本文または表示時刻が不正です。");
+                *errorMessage = tr("Subtitle text or timing is invalid.");
             return false;
         }
         overlay.templateName = CaptionOverlayBuilder::generatedTemplateName();
@@ -6536,7 +6536,7 @@ bool Timeline::applySingleWordCaptionOverlays(
     for (int i = 1; i < generated.size(); ++i) {
         if (generated.at(i).startTime < generated.at(i - 1).endTime) {
             if (errorMessage)
-                *errorMessage = tr("1語字幕の表示時刻が重複しています。");
+                *errorMessage = tr("One-word subtitle display times overlap.");
             return false;
         }
     }
@@ -6555,7 +6555,7 @@ bool Timeline::applySingleWordCaptionOverlays(
 
     m_generatedCaptionOverlays = generated;
     track->setClips(clips);
-    saveUndoState(tr("1語字幕をタイムラインに適用"));
+    saveUndoState(tr("Apply Word Captions to Timeline"));
     refreshTextStrip();
     scheduleEmitSequenceChanged();
     return true;
@@ -6765,7 +6765,7 @@ bool Timeline::updateTextOverlayTime(int overlayIndex, double startTime,
         track->setClips(clips);
     }
     if (createUndo || !m_textOverlayTimeEditActive) {
-        saveUndoState(tr("字幕の表示時間を変更"));
+        saveUndoState(tr("Change Caption Display Duration"));
     } else {
         m_textOverlayTimeEditChanged = true;
     }
@@ -6783,7 +6783,7 @@ void Timeline::beginTextOverlayTimeEdit()
 void Timeline::finishTextOverlayTimeEdit()
 {
     if (m_textOverlayTimeEditActive && m_textOverlayTimeEditChanged)
-        saveUndoState(tr("字幕の表示時間を変更"));
+        saveUndoState(tr("Change Caption Display Duration"));
     m_textOverlayTimeEditActive = false;
     m_textOverlayTimeEditChanged = false;
 }
@@ -6994,8 +6994,8 @@ void Timeline::applySilenceCutToClip(TimelineTrack *track, int clipIndex)
     QVector<float> samples;
     int sr = 0;
     if (!WaveformGenerator::decodeAudio(src.filePath, samples, sr) || samples.isEmpty() || sr <= 0) {
-        QMessageBox::warning(nullptr, QStringLiteral("無音カット"),
-                             QStringLiteral("音声のデコードに失敗しました。"));
+        QMessageBox::warning(nullptr, QStringLiteral("Silence Cut"),
+                             QStringLiteral("Failed to decode audio."));
         return;
     }
 
@@ -7004,8 +7004,8 @@ void Timeline::applySilenceCutToClip(TimelineTrack *track, int clipIndex)
     const double activeStart = std::max(src.inPoint, 0.0);
     const double activeEnd   = std::min(srcOut, totalSec);
     if (activeEnd <= activeStart) {
-        QMessageBox::information(nullptr, QStringLiteral("無音カット"),
-                                 QStringLiteral("有効な範囲がありません。"));
+        QMessageBox::information(nullptr, QStringLiteral("Silence Cut"),
+                                 QStringLiteral("No valid range."));
         return;
     }
     const int startSample = static_cast<int>(activeStart * sr);
@@ -7017,25 +7017,25 @@ void Timeline::applySilenceCutToClip(TimelineTrack *track, int clipIndex)
     QVector<ClipInfo> subClips = silencecut::planKeepClips(src, keeps);
 
     if (subClips.isEmpty()) {
-        QMessageBox::information(nullptr, QStringLiteral("無音カット"),
-                                 QStringLiteral("カットする無音が見つかりませんでした。"));
+        QMessageBox::information(nullptr, QStringLiteral("Silence Cut"),
+                                 QStringLiteral("No silence found to cut."));
         return;
     }
     if (subClips.size() == 1
         && qAbs(subClips[0].inPoint  - src.inPoint) < 0.01
         && qAbs(subClips[0].outPoint - srcOut)      < 0.01) {
-        QMessageBox::information(nullptr, QStringLiteral("無音カット"),
-                                 QStringLiteral("カットする無音がありません。"));
+        QMessageBox::information(nullptr, QStringLiteral("Silence Cut"),
+                                 QStringLiteral("There is no silence to cut."));
         return;
     }
 
     const QVector<silencecut::Segment> silences =
         silencecut::detectSilenceSegments(activeSamples, sr, silencecut::Config{});
     const int silenceCount = static_cast<int>(silences.size());
-    const QString msg = QStringLiteral("%1 箇所の無音を除去し、%2 個のクリップに分割します。実行しますか?")
+    const QString msg = QStringLiteral("Remove silence at %1 location(s) and split into %2 clips. Proceed?")
                             .arg(silenceCount)
                             .arg(subClips.size());
-    if (QMessageBox::question(nullptr, QStringLiteral("無音カット"), msg)
+    if (QMessageBox::question(nullptr, QStringLiteral("Silence Cut"), msg)
             != QMessageBox::Yes)
         return;
 
@@ -7066,8 +7066,8 @@ void Timeline::applyBeatMarkersToClip(TimelineTrack *track, int clipIndex)
     QVector<float> samples;
     int sr = 0;
     if (!WaveformGenerator::decodeAudio(src.filePath, samples, sr) || samples.isEmpty() || sr <= 0) {
-        QMessageBox::warning(nullptr, QStringLiteral("ビートマーカー"),
-                             QStringLiteral("音声のデコードに失敗しました。"));
+        QMessageBox::warning(nullptr, QStringLiteral("Beat Markers"),
+                             QStringLiteral("Failed to decode audio."));
         return;
     }
 
@@ -7076,8 +7076,8 @@ void Timeline::applyBeatMarkersToClip(TimelineTrack *track, int clipIndex)
     const double activeStart = std::max(src.inPoint, 0.0);
     const double activeEnd   = std::min(srcOut, totalSec);
     if (activeEnd <= activeStart) {
-        QMessageBox::information(nullptr, QStringLiteral("ビートマーカー"),
-                                 QStringLiteral("有効な範囲がありません。"));
+        QMessageBox::information(nullptr, QStringLiteral("Beat Markers"),
+                                 QStringLiteral("No valid range."));
         return;
     }
     const int startSample = static_cast<int>(activeStart * sr);
@@ -7087,8 +7087,8 @@ void Timeline::applyBeatMarkersToClip(TimelineTrack *track, int clipIndex)
     const beatdetect::Result beats =
         beatdetect::detectBeats(activeSamples, sr, beatdetect::Config{});
     if (beats.beatTimesSec.isEmpty()) {
-        QMessageBox::information(nullptr, QStringLiteral("ビートマーカー"),
-                                 QStringLiteral("ビートが検出されませんでした。"));
+        QMessageBox::information(nullptr, QStringLiteral("Beat Markers"),
+                                 QStringLiteral("No beats detected."));
         return;
     }
 
@@ -7098,10 +7098,10 @@ void Timeline::applyBeatMarkersToClip(TimelineTrack *track, int clipIndex)
     clipStartSec += src.leadInSec;
     const double speed = (src.speed > 0.0) ? src.speed : 1.0;
 
-    const QString msg = QStringLiteral("%1 個のビート (推定 %2 BPM) をマーカーとして追加しますか?")
+    const QString msg = QStringLiteral("Add %1 beats (estimated %2 BPM) as markers?")
                             .arg(beats.beatTimesSec.size())
                             .arg(beats.bpm, 0, 'f', 1);
-    if (QMessageBox::question(nullptr, QStringLiteral("ビートマーカー"), msg)
+    if (QMessageBox::question(nullptr, QStringLiteral("Beat Markers"), msg)
             != QMessageBox::Yes)
         return;
 
@@ -7134,22 +7134,22 @@ bool Timeline::applyMusicRemix(int trackIndex, int clipIndex,
     };
     if (!plan.error.isEmpty() || plan.segments.isEmpty())
         return fail(plan.error.isEmpty()
-                        ? QStringLiteral("リミックス計画が空です") : plan.error);
+                        ? QStringLiteral("Remix plan is empty") : plan.error);
     if (plan.segments.size() > remix::kMaxSegments)
-        return fail(QStringLiteral("リミックス区間数が上限 (%1) を超えています")
+        return fail(QStringLiteral("Number of remix sections exceeds the limit (%1)")
                         .arg(remix::kMaxSegments));
     if (!std::isfinite(plan.resultDuration) || plan.resultDuration <= 0.0)
-        return fail(QStringLiteral("リミックス後の尺が不正です"));
+        return fail(QStringLiteral("Remixed duration is invalid"));
     if (!std::isfinite(plan.crossfadeSec) || plan.crossfadeSec < 0.0)
-        return fail(QStringLiteral("クロスフェード時間が不正です"));
+        return fail(QStringLiteral("Crossfade duration is invalid"));
 
     TimelineTrack *track = trackAt(true, trackIndex);
     if (!track)
-        return fail(QStringLiteral("音声トラックの index が範囲外です"));
+        return fail(QStringLiteral("Audio track index is out of range"));
     if (clipIndex < 0 || clipIndex >= track->clipCount())
-        return fail(QStringLiteral("音声クリップの index が範囲外です"));
+        return fail(QStringLiteral("Audio clip index is out of range"));
     if (track->isLocked())
-        return fail(QStringLiteral("音声トラックがロックされています"));
+        return fail(QStringLiteral("Audio track is locked"));
 
     const ClipInfo original = track->clips().at(clipIndex);
     const double sourceOut = original.outPoint > 0.0
@@ -7158,7 +7158,7 @@ bool Timeline::applyMusicRemix(int trackIndex, int clipIndex,
     const double speed = original.speed > 0.0 ? original.speed : 1.0;
     const double clipDuration = sourceSpan / speed;
     if (!std::isfinite(clipDuration) || clipDuration <= 0.0)
-        return fail(QStringLiteral("対象クリップの尺が不正です"));
+        return fail(QStringLiteral("Target clip has an invalid duration"));
 
     QVector<ClipInfo> replacement;
     replacement.reserve(plan.segments.size());
@@ -7167,7 +7167,7 @@ bool Timeline::applyMusicRemix(int trackIndex, int clipIndex,
             || segment.srcStart < -1.0e-6
             || segment.srcEnd > clipDuration + 1.0e-6
             || segment.srcEnd <= segment.srcStart + 1.0e-9) {
-            return fail(QStringLiteral("リミックス区間が対象クリップ外です"));
+            return fail(QStringLiteral("Remix section is outside the target clip"));
         }
         ClipInfo part = original;
         const double localStart = qBound(0.0, segment.srcStart, clipDuration);
@@ -7180,7 +7180,7 @@ bool Timeline::applyMusicRemix(int trackIndex, int clipIndex,
         replacement.append(part);
     }
     if (replacement.isEmpty())
-        return fail(QStringLiteral("リミックス区間がありません"));
+        return fail(QStringLiteral("No remix sections"));
 
     const double actualDuration = std::accumulate(
         replacement.cbegin(), replacement.cend(), 0.0,
@@ -7188,7 +7188,7 @@ bool Timeline::applyMusicRemix(int trackIndex, int clipIndex,
             return sum + qMax(0.0, clip.effectiveDuration());
         });
     if (!std::isfinite(actualDuration) || actualDuration <= 0.0)
-        return fail(QStringLiteral("リミックス後の尺が不正です"));
+        return fail(QStringLiteral("Remixed duration is invalid"));
 
     const QVector<ClipInfo> before = track->clips();
     const int nextIndexBefore = clipIndex + 1;
@@ -7198,7 +7198,7 @@ bool Timeline::applyMusicRemix(int trackIndex, int clipIndex,
                                   - actualDuration;
     if (!ripple && hasNext && downstreamLeadIn < -1.0e-6)
         return fail(QStringLiteral(
-            "後続クリップの空きが足りません。「後続をリップル」を有効にしてください"));
+            "Not enough free space in following clips. Please enable \"Ripple following\"."));
 
     const Transition originalLeadIn = original.leadIn;
     const Transition originalTrailOut = original.trailOut;
@@ -7233,7 +7233,7 @@ bool Timeline::applyMusicRemix(int trackIndex, int clipIndex,
 
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, snapBefore);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
-    saveUndoState(QStringLiteral("ミュージックリミックス"));
+    saveUndoState(QStringLiteral("Music Remix"));
     updateInfoLabel();
     ensureSequenceFitsViewport();
     scheduleEmitSequenceChanged();
@@ -7254,23 +7254,23 @@ bool Timeline::applyDialogueLevel(
 
     TimelineTrack *track = trackAt(true, trackIndex);
     if (!track)
-        return fail(QStringLiteral("音声トラックの index が範囲外です"));
+        return fail(QStringLiteral("Audio track index is out of range"));
     if (clipIndex < 0 || clipIndex >= track->clipCount())
-        return fail(QStringLiteral("音声クリップの index が範囲外です"));
+        return fail(QStringLiteral("Audio clip index is out of range"));
     if (track->isLocked())
-        return fail(QStringLiteral("音声トラックがロックされています"));
+        return fail(QStringLiteral("Audio track is locked"));
     if (envelope.isEmpty())
-        return fail(QStringLiteral("音量エンベロープが空です"));
+        return fail(QStringLiteral("Volume envelope is empty"));
 
     const double duration = track->clips().at(clipIndex).effectiveDuration();
     if (!std::isfinite(duration) || duration <= 0.0)
-        return fail(QStringLiteral("対象クリップの尺が不正です"));
+        return fail(QStringLiteral("Target clip has an invalid duration"));
     double previousTime = -1.0;
     for (const AudioGainPoint &point : envelope) {
         if (!std::isfinite(point.time) || !std::isfinite(point.gain)
             || point.time < 0.0 || point.time > duration + 1.0e-6
             || point.time + 1.0e-12 < previousTime || point.gain < 0.0) {
-            return fail(QStringLiteral("音量エンベロープが不正です"));
+            return fail(QStringLiteral("Volume envelope is invalid"));
         }
         previousTime = point.time;
     }
@@ -7282,7 +7282,7 @@ bool Timeline::applyDialogueLevel(
     track->setSelectedClip(clipIndex);
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, snapBefore);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
-    saveUndoState(QStringLiteral("ダイアログレベラー"));
+    saveUndoState(QStringLiteral("Dialogue Leveler"));
     updateInfoLabel();
     scheduleEmitSequenceChanged();
     return true;
@@ -7376,20 +7376,20 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
         const bool aHasTrans = aClip.leadIn.type != TransitionType::None
                             || aClip.trailOut.type != TransitionType::None;
         QMenu aMenu;
-        QAction *aCut = aMenu.addAction(QStringLiteral("カット"));
-        QAction *aCopy = aMenu.addAction(QStringLiteral("コピー"));
-        QAction *aDel = aMenu.addAction(QStringLiteral("削除"));
-        QAction *aReplace = aMenu.addAction(QStringLiteral("置き換え"));
+        QAction *aCut = aMenu.addAction(QStringLiteral("Cut"));
+        QAction *aCopy = aMenu.addAction(QStringLiteral("Copy"));
+        QAction *aDel = aMenu.addAction(QStringLiteral("Delete"));
+        QAction *aReplace = aMenu.addAction(QStringLiteral("Replace"));
         aMenu.addSeparator();
-        QAction *aUnlink = aMenu.addAction(QStringLiteral("同期を切る"));
+        QAction *aUnlink = aMenu.addAction(QStringLiteral("Unlink"));
         aUnlink->setEnabled(aLinkGroup > 0);
         aMenu.addSeparator();
-        QAction *aNormalize = aMenu.addAction(QStringLiteral("ノーマライズ"));
+        QAction *aNormalize = aMenu.addAction(QStringLiteral("Normalize"));
         QAction *aDialogueLevel = aMenu.addAction(
-            QStringLiteral("ダイアログレベラー…"));
-        QAction *aRemix = aMenu.addAction(QStringLiteral("ミュージックリミックス…"));
+            QStringLiteral("Dialogue Leveler…"));
+        QAction *aRemix = aMenu.addAction(QStringLiteral("Music Remix…"));
         aMenu.addSeparator();
-        QMenu *aChannelMenu = aMenu.addMenu(QStringLiteral("チャンネルマッピング"));
+        QMenu *aChannelMenu = aMenu.addMenu(QStringLiteral("Channel Mapping"));
         QAction *aStereoAct = addAudioChannelModeAction(aChannelMenu, aClip.audioChannelMode,
                                                         AudioChannelMode::Stereo);
         QAction *aFillLeftAct = addAudioChannelModeAction(aChannelMenu, aClip.audioChannelMode,
@@ -7401,7 +7401,7 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
         QAction *aMonoAct = addAudioChannelModeAction(aChannelMenu, aClip.audioChannelMode,
                                                       AudioChannelMode::Mono);
         aMenu.addSeparator();
-        QMenu *aLabelMenu = aMenu.addMenu(QStringLiteral("ラベルカラー"));
+        QMenu *aLabelMenu = aMenu.addMenu(QStringLiteral("Label Color"));
         const QList<QPair<QAction *, ClipLabel>> aLabelActions{
             {addClipLabelAction(aLabelMenu, aClip.label, ClipLabel::None), ClipLabel::None},
             {addClipLabelAction(aLabelMenu, aClip.label, ClipLabel::Red), ClipLabel::Red},
@@ -7414,15 +7414,15 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             {addClipLabelAction(aLabelMenu, aClip.label, ClipLabel::Pink), ClipLabel::Pink}
         };
         aMenu.addSeparator();
-        QMenu *atMenu = aMenu.addMenu(QStringLiteral("音声トランジション"));
-        QAction *aXdAct = atMenu->addAction(QStringLiteral("クロスフェード (コンスタントパワー)…"));
+        QMenu *atMenu = aMenu.addMenu(QStringLiteral("Audio Transition"));
+        QAction *aXdAct = atMenu->addAction(QStringLiteral("Crossfade (Constant Power)…"));
         aXdAct->setEnabled(clipIndex + 1 < track->clips().size());
-        QAction *aFiAct = atMenu->addAction(QStringLiteral("フェードイン…"));
-        QAction *aFoAct = atMenu->addAction(QStringLiteral("フェードアウト…"));
+        QAction *aFiAct = atMenu->addAction(QStringLiteral("Fade In…"));
+        QAction *aFoAct = atMenu->addAction(QStringLiteral("Fade Out…"));
         QAction *aClearAct = nullptr;
         if (aHasTrans) {
             atMenu->addSeparator();
-            aClearAct = atMenu->addAction(QStringLiteral("音声トランジション削除"));
+            aClearAct = atMenu->addAction(QStringLiteral("Remove Audio Transition"));
         }
         QAction *aChosen = aMenu.exec(globalPos);
         if (!aChosen) return;
@@ -7430,12 +7430,12 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             bool accepted = false;
             const double defaultDuration = crossfade ? 1.0 : 0.5;
             const QString title = crossfade
-                ? QStringLiteral("コンスタントパワー・クロスフェード")
+                ? QStringLiteral("Constant Power Crossfade")
                 : (edge == AudioFadeEdge::In
-                    ? QStringLiteral("音声フェードイン")
-                    : QStringLiteral("音声フェードアウト"));
+                    ? QStringLiteral("Audio Fade In")
+                    : QStringLiteral("Audio Fade Out"));
             const double duration = QInputDialog::getDouble(
-                this, title, QStringLiteral("時間 (秒):"), defaultDuration,
+                this, title, QStringLiteral("Duration (sec):"), defaultDuration,
                 0.01, 60.0, 2, &accepted);
             if (!accepted)
                 return;
@@ -7445,7 +7445,7 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
                 ? applyAudioCrossfade(audioTrackIndex, clipIndex, duration, &error)
                 : applyAudioFade(audioTrackIndex, clipIndex, edge, duration, &error);
             if (!applied && !error.isEmpty())
-                QMessageBox::warning(this, QStringLiteral("音声トランジション"), error);
+                QMessageBox::warning(this, QStringLiteral("Audio Transition"), error);
         };
         auto applyAudioChannelMode = [&](AudioChannelMode mode) {
             auto clips = track->clips();
@@ -7477,8 +7477,8 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
         else if (aChosen == aDialogueLevel) {
             if (!aClip.volumeEnvelope.isEmpty()
                 && QMessageBox::question(
-                       this, QStringLiteral("ダイアログレベラー"),
-                       QStringLiteral("既存の音量エンベロープを上書きしますか？"),
+                       this, QStringLiteral("Dialogue Leveler"),
+                       QStringLiteral("Overwrite the existing volume envelope?"),
                        QMessageBox::Yes | QMessageBox::No,
                        QMessageBox::No) != QMessageBox::Yes) {
                 return;
@@ -7492,8 +7492,8 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             int sampleRate = 0;
             if (!WaveformGenerator::decodeAudio(aClip.filePath, samples, sampleRate)
                 || samples.isEmpty() || sampleRate <= 0) {
-                QMessageBox::warning(this, QStringLiteral("ダイアログレベラー"),
-                                     QStringLiteral("音声のデコードに失敗しました。"));
+                QMessageBox::warning(this, QStringLiteral("Dialogue Leveler"),
+                                     QStringLiteral("Failed to decode audio."));
                 return;
             }
 
@@ -7511,8 +7511,8 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
                 static_cast<int>(samples.size()));
             if (lastSample <= firstSample) {
                 QMessageBox::information(
-                    this, QStringLiteral("ダイアログレベラー"),
-                    QStringLiteral("クリップの有効な音声範囲がありません。"));
+                    this, QStringLiteral("Dialogue Leveler"),
+                    QStringLiteral("Clip has no valid audio range."));
                 return;
             }
 
@@ -7533,7 +7533,7 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             QString error;
             if (!applyDialogueLevel(m_audioTracks.indexOf(track), clipIndex,
                                     envelope, &error)) {
-                QMessageBox::warning(this, QStringLiteral("ダイアログレベラー"),
+                QMessageBox::warning(this, QStringLiteral("Dialogue Leveler"),
                                      error);
             }
         }
@@ -7542,8 +7542,8 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             int sampleRate = 0;
             if (!WaveformGenerator::decodeAudio(aClip.filePath, samples, sampleRate)
                 || samples.isEmpty() || sampleRate <= 0) {
-                QMessageBox::warning(this, QStringLiteral("ミュージックリミックス"),
-                                     QStringLiteral("音声のデコードに失敗しました。"));
+                QMessageBox::warning(this, QStringLiteral("Music Remix"),
+                                     QStringLiteral("Failed to decode audio."));
                 return;
             }
 
@@ -7555,8 +7555,8 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             const double activeEnd = qMin(sourceOut, totalSourceSec);
             if (activeEnd <= activeStart) {
                 QMessageBox::information(
-                    this, QStringLiteral("ミュージックリミックス"),
-                    QStringLiteral("クリップの有効な音声範囲がありません。"));
+                    this, QStringLiteral("Music Remix"),
+                    QStringLiteral("Clip has no valid audio range."));
                 return;
             }
             const int startSample = qBound(
@@ -7571,8 +7571,8 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
                 activeSamples, sampleRate, beatdetect::Config{});
             if (beats.beatTimesSec.size() < 2) {
                 QMessageBox::information(
-                    this, QStringLiteral("ミュージックリミックス"),
-                    QStringLiteral("ビートが 2 個未満のため適用できません。"));
+                    this, QStringLiteral("Music Remix"),
+                    QStringLiteral("Cannot apply: fewer than 2 beats."));
                 return;
             }
 
@@ -7590,8 +7590,8 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             }
             if (localBeatTimes.size() < 2) {
                 QMessageBox::information(
-                    this, QStringLiteral("ミュージックリミックス"),
-                    QStringLiteral("ビート境界を作成できませんでした。"));
+                    this, QStringLiteral("Music Remix"),
+                    QStringLiteral("Could not create beat boundaries."));
                 return;
             }
 
@@ -7603,14 +7603,14 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             const remix::Plan plan = remix::planRemix(
                 localBeatTimes, clipDuration, dialog.targetDuration(), remix::Config{});
             if (!plan.valid) {
-                QMessageBox::warning(this, QStringLiteral("ミュージックリミックス"),
+                QMessageBox::warning(this, QStringLiteral("Music Remix"),
                                      plan.error);
                 return;
             }
             QString error;
             if (!applyMusicRemix(m_audioTracks.indexOf(track), clipIndex, plan,
                                  dialog.rippleFollowingClips(), &error)) {
-                QMessageBox::warning(this, QStringLiteral("ミュージックリミックス"),
+                QMessageBox::warning(this, QStringLiteral("Music Remix"),
                                      error);
             }
         }
@@ -7666,23 +7666,23 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
     QMenu menu;
     const int renderTrack = m_videoTracks.indexOf(track);
     if (renderTrack >= 0) {
-        auto *bake = menu.addAction(QStringLiteral("効果を焼き込んで差し替え…"));
+        auto *bake = menu.addAction(QStringLiteral("Bake Effects and Replace…"));
         bake->setEnabled(!track->isLocked());
         connect(bake, &QAction::triggered, this, [this, renderTrack, clipIndex]() {
             emit renderInPlaceRequested(renderTrack, clipIndex);
         });
-        auto *restore = menu.addAction(QStringLiteral("元のクリップに戻す"));
+        auto *restore = menu.addAction(QStringLiteral("Revert to Original Clip"));
         restore->setEnabled(!track->isLocked() && bool(track->clips()[clipIndex].renderInPlaceOriginal));
         connect(restore, &QAction::triggered, this, [this, renderTrack, clipIndex]() {
             renderinplace::decomposeRenderInPlace(*this, renderTrack, clipIndex);
         });
         menu.addSeparator();
     }
-    QAction *cutAct = menu.addAction(QStringLiteral("カット"));
-    QAction *copyAct = menu.addAction(QStringLiteral("コピー"));
-    QAction *deleteAct = menu.addAction(QStringLiteral("削除"));
-    QAction *replaceAct = menu.addAction(QStringLiteral("置き換え"));
-    QAction *freezeFrameAct = menu.addAction(QStringLiteral("フリーズフレームを追加"));
+    QAction *cutAct = menu.addAction(QStringLiteral("Cut"));
+    QAction *copyAct = menu.addAction(QStringLiteral("Copy"));
+    QAction *deleteAct = menu.addAction(QStringLiteral("Delete"));
+    QAction *replaceAct = menu.addAction(QStringLiteral("Replace"));
+    QAction *freezeFrameAct = menu.addAction(QStringLiteral("Add Freeze Frame"));
     auto playheadInsideClickedClip = [&]() {
         const auto &clips = track->clips();
         double cursor = 0.0;
@@ -7696,17 +7696,17 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
         return false;
     };
     freezeFrameAct->setEnabled(playheadInsideClickedClip());
-    QAction *silenceCutAct = menu.addAction(QStringLiteral("無音を自動カット..."));
-    QAction *beatMarkerAct = menu.addAction(QStringLiteral("ビートでマーカー..."));
+    QAction *silenceCutAct = menu.addAction(QStringLiteral("Auto-Cut Silence..."));
+    QAction *beatMarkerAct = menu.addAction(QStringLiteral("Markers on Beats..."));
     menu.addSeparator();
-    QAction *unlinkAct = menu.addAction(QStringLiteral("同期を切る"));
+    QAction *unlinkAct = menu.addAction(QStringLiteral("Unlink"));
     unlinkAct->setEnabled(linkGroup > 0);
-    QAction *relinkAct = menu.addAction(QStringLiteral("再同期"));
+    QAction *relinkAct = menu.addAction(QStringLiteral("Relink"));
     relinkAct->setEnabled(linkGroup == 0);
 
     menu.addSeparator();
     const AudioChannelMode currentChannelMode = currentLinkedAudioChannelMode();
-    QMenu *channelMenu = menu.addMenu(QStringLiteral("チャンネルマッピング"));
+    QMenu *channelMenu = menu.addMenu(QStringLiteral("Channel Mapping"));
     QAction *stereoAct = addAudioChannelModeAction(channelMenu, currentChannelMode,
                                                    AudioChannelMode::Stereo);
     QAction *fillLeftAct = addAudioChannelModeAction(channelMenu, currentChannelMode,
@@ -7718,7 +7718,7 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
     QAction *monoAct = addAudioChannelModeAction(channelMenu, currentChannelMode,
                                                  AudioChannelMode::Mono);
     menu.addSeparator();
-    QMenu *labelMenu = menu.addMenu(QStringLiteral("ラベルカラー"));
+    QMenu *labelMenu = menu.addMenu(QStringLiteral("Label Color"));
     const QList<QPair<QAction *, ClipLabel>> labelActions{
         {addClipLabelAction(labelMenu, clipInfo.label, ClipLabel::None), ClipLabel::None},
         {addClipLabelAction(labelMenu, clipInfo.label, ClipLabel::Red), ClipLabel::Red},
@@ -7731,69 +7731,69 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
         {addClipLabelAction(labelMenu, clipInfo.label, ClipLabel::Pink), ClipLabel::Pink}
     };
     menu.addSeparator();
-    QMenu *transitionMenu = menu.addMenu(QStringLiteral("トランジション"));
-    QAction *xdAct = transitionMenu->addAction(QStringLiteral("クロスディゾルブ (1.0s)"));
-    QAction *fdAct = transitionMenu->addAction(QStringLiteral("フィルムディゾルブ (1.0s)"));
-    QAction *ddAct = transitionMenu->addAction(QStringLiteral("ディザディゾルブ (1.0s)"));
-    QAction *blAct = transitionMenu->addAction(QStringLiteral("ブラーディゾルブ (1.0s)"));
-    QAction *pxAct = transitionMenu->addAction(QStringLiteral("ピクセレート (1.0s)"));
-    QAction *fiAct = transitionMenu->addAction(QStringLiteral("フェードイン (0.5s)"));
-    QAction *foAct = transitionMenu->addAction(QStringLiteral("フェードアウト (0.5s)"));
-    QAction *dbAct = transitionMenu->addAction(QStringLiteral("黒へディップ (1.0s)"));
-    QAction *dwAct = transitionMenu->addAction(QStringLiteral("白へディップ (1.0s)"));
+    QMenu *transitionMenu = menu.addMenu(QStringLiteral("Transitions"));
+    QAction *xdAct = transitionMenu->addAction(QStringLiteral("Cross Dissolve (1.0s)"));
+    QAction *fdAct = transitionMenu->addAction(QStringLiteral("Film Dissolve (1.0s)"));
+    QAction *ddAct = transitionMenu->addAction(QStringLiteral("Dither Dissolve (1.0s)"));
+    QAction *blAct = transitionMenu->addAction(QStringLiteral("Blur Dissolve (1.0s)"));
+    QAction *pxAct = transitionMenu->addAction(QStringLiteral("Pixelate (1.0s)"));
+    QAction *fiAct = transitionMenu->addAction(QStringLiteral("Fade In (0.5s)"));
+    QAction *foAct = transitionMenu->addAction(QStringLiteral("Fade Out (0.5s)"));
+    QAction *dbAct = transitionMenu->addAction(QStringLiteral("Dip to Black (1.0s)"));
+    QAction *dwAct = transitionMenu->addAction(QStringLiteral("Dip to White (1.0s)"));
     transitionMenu->addSeparator();
-    QMenu *wipeMenu = transitionMenu->addMenu(QStringLiteral("ワイプ (1.0s)"));
-    QAction *wlAct = wipeMenu->addAction(QStringLiteral("左 → 右"));
-    QAction *wrAct = wipeMenu->addAction(QStringLiteral("右 → 左"));
-    QAction *wuAct = wipeMenu->addAction(QStringLiteral("上 → 下"));
-    QAction *wdAct = wipeMenu->addAction(QStringLiteral("下 → 上"));
-    QAction *cwAct  = wipeMenu->addAction(QStringLiteral("時計回り"));
-    QAction *cwcAct = wipeMenu->addAction(QStringLiteral("反時計回り"));
-    QAction *bhAct  = wipeMenu->addAction(QStringLiteral("バーンドア (水平・開く)"));
-    QAction *bhcAct = wipeMenu->addAction(QStringLiteral("バーンドア (水平・閉じる)"));
-    QAction *bvAct  = wipeMenu->addAction(QStringLiteral("バーンドア (垂直・開く)"));
-    QAction *bvcAct = wipeMenu->addAction(QStringLiteral("バーンドア (垂直・閉じる)"));
-    QMenu *slideMenu = transitionMenu->addMenu(QStringLiteral("スライド (1.0s)"));
-    QAction *slAct = slideMenu->addAction(QStringLiteral("左へ"));
-    QAction *srAct = slideMenu->addAction(QStringLiteral("右へ"));
-    QAction *suAct = slideMenu->addAction(QStringLiteral("上へ"));
-    QAction *sdAct = slideMenu->addAction(QStringLiteral("下へ"));
-    QMenu *pushMenu = transitionMenu->addMenu(QStringLiteral("プッシュ (1.0s)"));
-    QAction *plAct = pushMenu->addAction(QStringLiteral("左へ"));
-    QAction *prAct = pushMenu->addAction(QStringLiteral("右へ"));
-    QAction *puAct = pushMenu->addAction(QStringLiteral("上へ"));
-    QAction *pdAct = pushMenu->addAction(QStringLiteral("下へ"));
-    QMenu *irisMenu = transitionMenu->addMenu(QStringLiteral("アイリス (1.0s)"));
-    QAction *irAct  = irisMenu->addAction(QStringLiteral("円・開く"));
-    QAction *ircAct = irisMenu->addAction(QStringLiteral("円・閉じる"));
-    QAction *ibAct  = irisMenu->addAction(QStringLiteral("矩形・開く"));
-    QAction *ibcAct = irisMenu->addAction(QStringLiteral("矩形・閉じる"));
-    QAction *czAct = transitionMenu->addAction(QStringLiteral("クロスズーム (1.0s)"));
-    QMenu *spinMenu = transitionMenu->addMenu(QStringLiteral("スピン (1.0s)"));
-    QAction *scwAct  = spinMenu->addAction(QStringLiteral("時計回り"));
-    QAction *sccwAct = spinMenu->addAction(QStringLiteral("反時計回り"));
-    QMenu *whipMenu = transitionMenu->addMenu(QStringLiteral("ウィップパン (0.5s)"));
-    QAction *wplAct = whipMenu->addAction(QStringLiteral("左へ"));
-    QAction *wprAct = whipMenu->addAction(QStringLiteral("右へ"));
-    QAction *glAct  = transitionMenu->addAction(QStringLiteral("グリッチ (0.5s)"));
-    QAction *mcAct  = transitionMenu->addAction(QStringLiteral("モーフカット (1.0s)"));
-    QAction *llAct  = transitionMenu->addAction(QStringLiteral("ライトリーク (1.0s)"));
-    QAction *lfAct  = transitionMenu->addAction(QStringLiteral("レンズフレア (1.0s)"));
-    QAction *fbAct  = transitionMenu->addAction(QStringLiteral("フィルムバーン (1.0s)"));
-    QAction *skAct  = transitionMenu->addAction(QStringLiteral("カメラシェイク (0.5s)"));
-    QAction *chAct  = transitionMenu->addAction(QStringLiteral("チャンネルシフト (0.5s)"));
-    QMenu *flipMenu = transitionMenu->addMenu(QStringLiteral("フリップ (1.0s)"));
-    QAction *fhAct  = flipMenu->addAction(QStringLiteral("水平 (Y軸回転)"));
-    QAction *fvAct  = flipMenu->addAction(QStringLiteral("垂直 (X軸回転)"));
+    QMenu *wipeMenu = transitionMenu->addMenu(QStringLiteral("Wipe (1.0s)"));
+    QAction *wlAct = wipeMenu->addAction(QStringLiteral("Left → Right"));
+    QAction *wrAct = wipeMenu->addAction(QStringLiteral("Right → Left"));
+    QAction *wuAct = wipeMenu->addAction(QStringLiteral("Top → Bottom"));
+    QAction *wdAct = wipeMenu->addAction(QStringLiteral("Bottom → Top"));
+    QAction *cwAct  = wipeMenu->addAction(QStringLiteral("Clockwise"));
+    QAction *cwcAct = wipeMenu->addAction(QStringLiteral("Counterclockwise"));
+    QAction *bhAct  = wipeMenu->addAction(QStringLiteral("Barn Doors (Horizontal, Open)"));
+    QAction *bhcAct = wipeMenu->addAction(QStringLiteral("Barn Doors (Horizontal, Close)"));
+    QAction *bvAct  = wipeMenu->addAction(QStringLiteral("Barn Doors (Vertical, Open)"));
+    QAction *bvcAct = wipeMenu->addAction(QStringLiteral("Barn Doors (Vertical, Close)"));
+    QMenu *slideMenu = transitionMenu->addMenu(QStringLiteral("Slide (1.0s)"));
+    QAction *slAct = slideMenu->addAction(QStringLiteral("Left"));
+    QAction *srAct = slideMenu->addAction(QStringLiteral("Right"));
+    QAction *suAct = slideMenu->addAction(QStringLiteral("Up"));
+    QAction *sdAct = slideMenu->addAction(QStringLiteral("Down"));
+    QMenu *pushMenu = transitionMenu->addMenu(QStringLiteral("Push (1.0s)"));
+    QAction *plAct = pushMenu->addAction(QStringLiteral("Left"));
+    QAction *prAct = pushMenu->addAction(QStringLiteral("Right"));
+    QAction *puAct = pushMenu->addAction(QStringLiteral("Up"));
+    QAction *pdAct = pushMenu->addAction(QStringLiteral("Down"));
+    QMenu *irisMenu = transitionMenu->addMenu(QStringLiteral("Iris (1.0s)"));
+    QAction *irAct  = irisMenu->addAction(QStringLiteral("Circle, Open"));
+    QAction *ircAct = irisMenu->addAction(QStringLiteral("Circle, Close"));
+    QAction *ibAct  = irisMenu->addAction(QStringLiteral("Rectangle, Open"));
+    QAction *ibcAct = irisMenu->addAction(QStringLiteral("Rectangle, Close"));
+    QAction *czAct = transitionMenu->addAction(QStringLiteral("Cross Zoom (1.0s)"));
+    QMenu *spinMenu = transitionMenu->addMenu(QStringLiteral("Spin (1.0s)"));
+    QAction *scwAct  = spinMenu->addAction(QStringLiteral("Clockwise"));
+    QAction *sccwAct = spinMenu->addAction(QStringLiteral("Counterclockwise"));
+    QMenu *whipMenu = transitionMenu->addMenu(QStringLiteral("Whip Pan (0.5s)"));
+    QAction *wplAct = whipMenu->addAction(QStringLiteral("Left"));
+    QAction *wprAct = whipMenu->addAction(QStringLiteral("Right"));
+    QAction *glAct  = transitionMenu->addAction(QStringLiteral("Glitch (0.5s)"));
+    QAction *mcAct  = transitionMenu->addAction(QStringLiteral("Morph Cut (1.0s)"));
+    QAction *llAct  = transitionMenu->addAction(QStringLiteral("Light Leak (1.0s)"));
+    QAction *lfAct  = transitionMenu->addAction(QStringLiteral("Lens Flare (1.0s)"));
+    QAction *fbAct  = transitionMenu->addAction(QStringLiteral("Film Burn (1.0s)"));
+    QAction *skAct  = transitionMenu->addAction(QStringLiteral("Camera Shake (0.5s)"));
+    QAction *chAct  = transitionMenu->addAction(QStringLiteral("Channel Shift (0.5s)"));
+    QMenu *flipMenu = transitionMenu->addMenu(QStringLiteral("Flip (1.0s)"));
+    QAction *fhAct  = flipMenu->addAction(QStringLiteral("Horizontal (Y-axis rotation)"));
+    QAction *fvAct  = flipMenu->addAction(QStringLiteral("Vertical (X-axis rotation)"));
     transitionMenu->addSeparator();
     // User-saved presets — populated dynamically from QSettings via
     // TransitionPresetStore. Empty submenu when nothing is saved.
-    QMenu *presetMenu = transitionMenu->addMenu(QStringLiteral("プリセット"));
+    QMenu *presetMenu = transitionMenu->addMenu(QStringLiteral("Preset"));
     QList<QPair<QAction *, TransitionPreset>> presetActs;
     {
         const auto loaded = TransitionPresetStore::loadAll();
         if (loaded.isEmpty()) {
-            QAction *empty = presetMenu->addAction(QStringLiteral("(プリセット未登録)"));
+            QAction *empty = presetMenu->addAction(QStringLiteral("(No presets registered)"));
             empty->setEnabled(false);
         } else {
             for (const auto &p : loaded) {
@@ -7806,23 +7806,23 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
             }
         }
     }
-    QAction *transDialogAct = transitionMenu->addAction(QStringLiteral("カスタム..."));
+    QAction *transDialogAct = transitionMenu->addAction(QStringLiteral("Custom..."));
     QAction *transClearAct = nullptr;
     if (hasTransition) {
         transitionMenu->addSeparator();
-        transClearAct = transitionMenu->addAction(QStringLiteral("トランジションを削除"));
+        transClearAct = transitionMenu->addAction(QStringLiteral("Remove Transition"));
     }
 
     QAction *shapeModifiersAct = nullptr;
     if (!clipInfo.shapes.isEmpty())
-        shapeModifiersAct = menu.addAction(QStringLiteral("シェイプモディファイア…"));
+        shapeModifiersAct = menu.addAction(QStringLiteral("Shape Modifiers…"));
 
-    QAction *fxAct = menu.addAction(QStringLiteral("ビデオエフェクト..."));
-    QAction *ccAct = menu.addAction(QStringLiteral("色補正 / グレーディング..."));
-    QAction *adjustmentAct = menu.addAction(QStringLiteral("調整レイヤーを作成"));
-    QAction *parentAct = menu.addAction(QStringLiteral("ペアレント..."));
-    QAction *nullAct = menu.addAction(QStringLiteral("ヌルオブジェクトを作成"));
-    QAction *autoOrientAct = menu.addAction(QStringLiteral("パスに沿って自動回転"));
+    QAction *fxAct = menu.addAction(QStringLiteral("Video Effects..."));
+    QAction *ccAct = menu.addAction(QStringLiteral("Color Correction / Grading..."));
+    QAction *adjustmentAct = menu.addAction(QStringLiteral("Create Adjustment Layer"));
+    QAction *parentAct = menu.addAction(QStringLiteral("Parent..."));
+    QAction *nullAct = menu.addAction(QStringLiteral("Create Null Object"));
+    QAction *autoOrientAct = menu.addAction(QStringLiteral("Auto-Rotate Along Path"));
     autoOrientAct->setCheckable(true);
     autoOrientAct->setChecked(clipInfo.autoOrientEnabled);
     menu.addSeparator();
@@ -7830,9 +7830,9 @@ void Timeline::showClipContextMenu(TimelineTrack *track, int clipIndex, const QP
     // 幅埋め=中央クロップで枠を歪みなく充填 / 解除=既定 (IgnoreAspectRatio で
     // 枠に伸ばす)。fitContain と fitCover は engine 側 (snsfit::maybeFit) で
     // cover 優先の相互排他なので、ここでも片方を立てたら他方は必ず倒す。
-    QAction *snsFitAct = menu.addAction(QStringLiteral("SNS: 幅フィット中央(全表示・レターボックス)"));
-    QAction *snsCoverAct = menu.addAction(QStringLiteral("SNS: 幅埋め(クロップ・歪みなし)"));
-    QAction *snsFillAct = menu.addAction(QStringLiteral("SNS: フィット解除(全画面)"));
+    QAction *snsFitAct = menu.addAction(QStringLiteral("SNS: Fit Width, Centered (Full Display, Letterbox)"));
+    QAction *snsCoverAct = menu.addAction(QStringLiteral("Social: Fill Width (no crop/distortion)"));
+    QAction *snsFillAct = menu.addAction(QStringLiteral("Social: Unfit (Fullscreen)"));
 
     auto applyLinkedAudioChannelMode = [&](AudioChannelMode mode) {
         bool changed = false;
@@ -8426,7 +8426,7 @@ void Timeline::setClipShapeModifiers(int trackIdx, int clipIdx,
     track->setClips(clips);
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, snapBefore);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
-    if (recordUndo) saveUndoState(QStringLiteral("シェイプモディファイア"));
+    if (recordUndo) saveUndoState(QStringLiteral("Shape Modifier"));
     scheduleEmitSequenceChanged();
 }
 
@@ -8436,13 +8436,13 @@ bool Timeline::applyAudioCrossfade(int trackIndex, int clipIndexA,
     if (trackIndex < 0 || trackIndex >= m_audioTracks.size()
         || !m_audioTracks[trackIndex]) {
         if (errorOut)
-            *errorOut = QStringLiteral("音声トラックの index が範囲外です");
+            *errorOut = QStringLiteral("Audio track index is out of range");
         return false;
     }
     TimelineTrack *track = m_audioTracks[trackIndex];
     if (track->isLocked()) {
         if (errorOut)
-            *errorOut = QStringLiteral("音声トラックがロックされています");
+            *errorOut = QStringLiteral("Audio track is locked");
         return false;
     }
 
@@ -8453,7 +8453,7 @@ bool Timeline::applyAudioCrossfade(int trackIndex, int clipIndexA,
     track->setClips(clips);
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, snapBefore);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
-    saveUndoState(QStringLiteral("音声クロスフェード"));
+    saveUndoState(QStringLiteral("Audio Crossfade"));
     scheduleEmitSequenceChanged();
     return true;
 }
@@ -8465,13 +8465,13 @@ bool Timeline::applyAudioFade(int trackIndex, int clipIndex,
     if (trackIndex < 0 || trackIndex >= m_audioTracks.size()
         || !m_audioTracks[trackIndex]) {
         if (errorOut)
-            *errorOut = QStringLiteral("音声トラックの index が範囲外です");
+            *errorOut = QStringLiteral("Audio track index is out of range");
         return false;
     }
     TimelineTrack *track = m_audioTracks[trackIndex];
     if (track->isLocked()) {
         if (errorOut)
-            *errorOut = QStringLiteral("音声トラックがロックされています");
+            *errorOut = QStringLiteral("Audio track is locked");
         return false;
     }
 
@@ -8483,8 +8483,8 @@ bool Timeline::applyAudioFade(int trackIndex, int clipIndex,
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, snapBefore);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
     saveUndoState(edge == AudioFadeEdge::In
-                      ? QStringLiteral("音声フェードイン")
-                      : QStringLiteral("音声フェードアウト"));
+                      ? QStringLiteral("Audio Fade In")
+                      : QStringLiteral("Audio Fade Out"));
     scheduleEmitSequenceChanged();
     return true;
 }
@@ -8846,7 +8846,7 @@ void Timeline::insertClip3PointActive(double timelineStartSec, const ClipInfo &c
         return;
     auto *track = m_videoTracks.first();
     track->insertClip3Point(timelineStartSec, clip);
-    saveUndoState("3点編集: インサート");
+    saveUndoState("Three-Point Edit: Insert");
 }
 
 void Timeline::overwriteClip3PointActive(double timelineStartSec, const ClipInfo &clip)
@@ -8855,7 +8855,7 @@ void Timeline::overwriteClip3PointActive(double timelineStartSec, const ClipInfo
         return;
     auto *track = m_videoTracks.first();
     track->overwriteClip3Point(timelineStartSec, clip);
-    saveUndoState("3点編集: 上書き");
+    saveUndoState("Three-Point Edit: Overwrite");
 }
 
 bool Timeline::insertShapeClipAtPlayhead(const ClipInfo &clip)
@@ -8877,7 +8877,7 @@ bool Timeline::insertShapeClipAtPlayhead(const ClipInfo &clip)
     track->insertClip3Point(qMax(0.0, m_playheadPos), clip);
     remapTimelineCarrierAfterMutation(this, m_trackMatteEntries, snapBefore);
     remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
-    saveUndoState(QStringLiteral("シェイプクリップを挿入"));
+    saveUndoState(QStringLiteral("Insert Shape Clip"));
     updateInfoLabel();
     scheduleEmitSequenceChanged();
     return true;
@@ -8901,7 +8901,7 @@ void Timeline::rippleDeleteTimeRangeActive(double startSec, double endSec)
     // no-op だった場合 (範囲外/空) は Undo スナップショットを積まない。
     if (changed) {
         remapClipParentEntriesAfterMutation(this, m_clipParentEntries, snapBefore);
-        saveUndoState("リップル削除 (範囲)");
+        saveUndoState("Ripple Delete (Range)");
     }
 }
 
@@ -8912,7 +8912,7 @@ bool Timeline::applyTrimActive(trimops::TrimType type, double deltaSec,
     // Roll は「選択クリップ = 編集点の左側クリップ」として扱うので、trimops::
     // applyTrim が clip[sel]/clip[sel+1] の編集点を動かす。選択が無ければ失敗。
     if (m_videoTracks.isEmpty()) {
-        if (errorOut) *errorOut = QObject::tr("動画トラックがありません");
+        if (errorOut) *errorOut = QObject::tr("No video track");
         return false;
     }
     TimelineTrack *track = nullptr;
@@ -8935,17 +8935,17 @@ bool Timeline::applyTrimActive(trimops::TrimType type, double deltaSec,
         }
     }
     if (!track) {
-        if (errorOut) *errorOut = QObject::tr("トリム対象のクリップが選択されていません");
+        if (errorOut) *errorOut = QObject::tr("No clip selected for trimming");
         return false;
     }
     const int sel = track->selectedClip();
     if (sel < 0 || sel >= track->clipCount()) {
-        if (errorOut) *errorOut = QObject::tr("トリム対象のクリップが選択されていません");
+        if (errorOut) *errorOut = QObject::tr("No clip selected for trimming");
         return false;
     }
     if (!applyTrimLinked(track, sel, type, deltaSec, errorOut))
         return false;
-    saveUndoState("トリム");
+    saveUndoState("Trim");
     return true;
 }
 
@@ -8954,7 +8954,7 @@ bool Timeline::applyTrimLinked(TimelineTrack *track, int clipIndex,
                                QString *errorOut)
 {
     if (!track || clipIndex < 0 || clipIndex >= track->clipCount()) {
-        if (errorOut) *errorOut = QObject::tr("トリム対象のクリップがありません");
+        if (errorOut) *errorOut = QObject::tr("No clip to trim");
         return false;
     }
     const int linkGroup = track->clips().at(clipIndex).linkGroup;
@@ -8982,7 +8982,7 @@ bool Timeline::applyTrimLinked(TimelineTrack *track, int clipIndex,
                     entry.first->setClips(entry.second);
                 track->setClips(sourceBefore);
                 if (errorOut) {
-                    *errorOut = QObject::tr("リンクしたクリップをトリムできません: %1")
+                    *errorOut = QObject::tr("Cannot trim linked clip: %1")
                                     .arg(partnerError);
                 }
                 return false;
@@ -9124,7 +9124,7 @@ bool Timeline::replaceAudioClipMedia(int trackIdx, int clipIdx,
     updated[clipIdx].displayName = QFileInfo(wavPath).fileName();
     updated[clipIdx].waveform = WaveformData{};
     track->setClips(updated);
-    saveUndoState(QStringLiteral("音声分離を適用"));
+    saveUndoState(QStringLiteral("Apply Voice Isolation"));
     scheduleEmitSequenceChanged();
     updateInfoLabel();
     return true;
@@ -9174,13 +9174,13 @@ void Timeline::normalizeAudioClipPeak(int trackIdx, int clipIdx)
     ClipInfo clip = clipSrc;
     const QString filePath = clip.filePath;
     if (filePath.isEmpty()) {
-        emit statusMessageRequested(QStringLiteral("ノーマライズ失敗: ファイルを読めません."), 5000);
+        emit statusMessageRequested(QStringLiteral("Normalize failed: cannot read file."), 5000);
         return;
     }
 
     NormalizeDecoderCtx dec;
     if (!dec.open(filePath)) {
-        emit statusMessageRequested(QStringLiteral("ノーマライズ失敗: ファイルを読めません."), 5000);
+        emit statusMessageRequested(QStringLiteral("Normalize failed: cannot read file."), 5000);
         return;
     }
 
@@ -9188,7 +9188,7 @@ void Timeline::normalizeAudioClipPeak(int trackIdx, int clipIdx)
     const double fileOutSec = (clip.outPoint > 0.0) ? clip.outPoint : clip.duration;
     const double searchLenSec = fileOutSec - fileInSec;
     if (searchLenSec <= 0.0) {
-        emit statusMessageRequested(QStringLiteral("ノーマライズ失敗: 信号が検出されませんでした."), 5000);
+        emit statusMessageRequested(QStringLiteral("Normalize failed: no signal detected."), 5000);
         return;
     }
 
@@ -9206,8 +9206,8 @@ void Timeline::normalizeAudioClipPeak(int trackIdx, int clipIdx)
     QProgressDialog *progress = nullptr;
     bool cancelled = false;
     if (searchLenSec > 60.0) {
-        progress = new QProgressDialog(QStringLiteral("ノーマライズ中..."),
-                                        QStringLiteral("キャンセル"), 0, 100, this);
+        progress = new QProgressDialog(QStringLiteral("Normalizing..."),
+                                        QStringLiteral("Cancel"), 0, 100, this);
         progress->setWindowModality(Qt::WindowModal);
         progress->setMinimumDuration(0);
         progress->setValue(0);
@@ -9322,19 +9322,19 @@ void Timeline::normalizeAudioClipPeak(int trackIdx, int clipIdx)
     }
 
     if (cancelled) {
-        emit statusMessageRequested(QStringLiteral("ノーマライズがキャンセルされました."), 3000);
+        emit statusMessageRequested(QStringLiteral("Normalization was cancelled."), 3000);
         return;
     }
 
     // Result: peak analysis
     if (maxSampleAbs < 1e-12) {
-        emit statusMessageRequested(QStringLiteral("ノーマライズ失敗: 信号が検出されませんでした."), 5000);
+        emit statusMessageRequested(QStringLiteral("Normalize failed: no signal detected."), 5000);
         return;
     }
 
     const double peakDb = 20.0 * std::log10(maxSampleAbs / 32768.0);
     if (peakDb < -90.0) {
-        emit statusMessageRequested(QStringLiteral("ノーマライズ失敗: 信号が検出されませんでした."), 5000);
+        emit statusMessageRequested(QStringLiteral("Normalize failed: no signal detected."), 5000);
         return;
     }
 
@@ -9358,7 +9358,7 @@ void Timeline::normalizeAudioClipPeak(int trackIdx, int clipIdx)
     scheduleEmitSequenceChanged();
 
     const QString msg =
-        QStringLiteral("A%1 クリップ %2 ノーマライズ: peak %3dB → gain %4→%5")
+        QStringLiteral("A%1 clip %2 normalized: peak %3dB → gain %4→%5")
             .arg(trackIdx + 1)
             .arg(clipIdx + 1)
             .arg(peakDb, 0, 'f', 1)

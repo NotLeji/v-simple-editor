@@ -25,22 +25,22 @@ ProjectCollectorDialog::ProjectCollectorDialog(const ProjectData& data, QWidget*
     // Destination folder row
     auto* destRow = new QHBoxLayout;
     m_destEdit = new QLineEdit(this);
-    m_browseBtn = new QPushButton("参照...", this);
+    m_browseBtn = new QPushButton("Browse...", this);
     destRow->addWidget(m_destEdit);
     destRow->addWidget(m_browseBtn);
-    formLayout->addRow("出力先フォルダ:", destRow);
+    formLayout->addRow("Output folder:", destRow);
 
     // Project file name row
     m_projectFileNameEdit = new QLineEdit("project.veditor", this);
-    formLayout->addRow("プロジェクトファイル名:", m_projectFileNameEdit);
+    formLayout->addRow("Project File Name:", m_projectFileNameEdit);
 
     // Media count label
     m_mediaCountLabel = new QLabel(
-        QString("参照メディア: %1 件").arg(countReferencedMedia()), this);
+        QString("Referenced media: %1 items").arg(countReferencedMedia()), this);
     formLayout->addRow(m_mediaCountLabel);
 
     // Collect button
-    m_collectBtn = new QPushButton("収集開始", this);
+    m_collectBtn = new QPushButton("Start Collecting", this);
 
     // Progress bar
     m_progressBar = new QProgressBar(this);
@@ -54,7 +54,7 @@ ProjectCollectorDialog::ProjectCollectorDialog(const ProjectData& data, QWidget*
     m_logEdit->setMinimumHeight(120);
 
     // Close button
-    m_closeBtn = new QPushButton("閉じる", this);
+    m_closeBtn = new QPushButton("Close", this);
 
     auto* mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(formLayout);
@@ -95,7 +95,7 @@ QString ProjectCollectorDialog::outputProjectPath() const
 void ProjectCollectorDialog::onBrowseDest()
 {
     QString dir = QFileDialog::getExistingDirectory(
-        this, "出力先フォルダ", m_destEdit->text());
+        this, "Destination Folder", m_destEdit->text());
     if (!dir.isEmpty())
         m_destEdit->setText(dir);
 }
@@ -104,7 +104,7 @@ void ProjectCollectorDialog::onStartCollect()
 {
     QString destDir = m_destEdit->text().trimmed();
     if (destDir.isEmpty() || !QDir(destDir).exists()) {
-        QMessageBox::warning(this, "エラー", "出力先フォルダを指定してください");
+        QMessageBox::warning(this, "Error", "Please specify a destination folder.");
         return;
     }
 
@@ -151,7 +151,7 @@ void ProjectCollectorDialog::onCollectorFinished(bool ok, const QString& message
     if (ok) {
         m_didCollect = true;
         m_outputProjectPath = m_destEdit->text() + "/" + m_projectFileNameEdit->text();
-        m_logEdit->appendPlainText("出力: " + m_outputProjectPath);
+        m_logEdit->appendPlainText("Output: " + m_outputProjectPath);
     }
 
     m_collectBtn->setEnabled(true);

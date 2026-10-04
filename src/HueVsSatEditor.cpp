@@ -33,10 +33,10 @@ HueVsSatEditor::HueVsSatEditor(QWidget *parent)
     layout->setSpacing(4);
 
     auto *headerRow = new QHBoxLayout;
-    headerRow->addWidget(new QLabel(tr("Hue → Sat 倍率"), this));
+    headerRow->addWidget(new QLabel(tr("Hue → Sat multiplier"), this));
     headerRow->addStretch(1);
 
-    m_resetButton = new QPushButton(tr("リセット"), this);
+    m_resetButton = new QPushButton(tr("Reset"), this);
     headerRow->addWidget(m_resetButton);
 
     layout->addLayout(headerRow);

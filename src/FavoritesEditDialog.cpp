@@ -20,13 +20,13 @@ constexpr int kIdRole = Qt::UserRole + 1;
 FavoritesEditDialog::FavoritesEditDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("お気に入りメニューを編集"));
+    setWindowTitle(QStringLiteral("Edit favorites menu"));
     resize(480, 560);
 
     auto *outer = new QVBoxLayout(this);
 
     auto *intro = new QLabel(
-        QStringLiteral("チェックを付けた機能が「お気に入り」メニューに表示されます。"),
+        QStringLiteral("Checked features appear in the \"Favorites\" menu."),
         this);
     intro->setWordWrap(true);
     outer->addWidget(intro);
@@ -41,8 +41,8 @@ FavoritesEditDialog::FavoritesEditDialog(QWidget *parent)
     outer->addWidget(m_tree, /*stretch=*/1);
 
     auto *bulkRow = new QHBoxLayout;
-    auto *checkAllBtn = new QPushButton(QStringLiteral("すべて選択"), this);
-    auto *uncheckAllBtn = new QPushButton(QStringLiteral("すべて解除"), this);
+    auto *checkAllBtn = new QPushButton(QStringLiteral("Select all"), this);
+    auto *uncheckAllBtn = new QPushButton(QStringLiteral("Deselect all"), this);
     bulkRow->addWidget(checkAllBtn);
     bulkRow->addWidget(uncheckAllBtn);
     bulkRow->addStretch(1);
@@ -89,7 +89,7 @@ void FavoritesEditDialog::rebuildTree()
     for (const auto &pair : m_available) {
         const QString &id = pair.first;
         const QString &label = pair.second;
-        const QString menuPath = m_idToMenuPath.value(id, QStringLiteral("その他"));
+        const QString menuPath = m_idToMenuPath.value(id, QStringLiteral("Other"));
 
         QTreeWidgetItem *group = groupItems.value(menuPath, nullptr);
         if (!group) {

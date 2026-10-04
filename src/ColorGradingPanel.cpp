@@ -221,7 +221,7 @@ bool writeHslSecondaryToSelectedClip(Timeline *timeline,
 } // namespace
 
 ColorGradingPanel::ColorGradingPanel(QWidget *parent)
-    : QDockWidget(tr("カラーグレーディング"), parent)
+    : QDockWidget(tr("Color grading"), parent)
 {
     setObjectName("ColorGradingPanel");
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable
@@ -240,7 +240,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     // GLPreview applies uWb at the very top of the grade chain — Temperature
     // shifts in Kelvin, Tint pulls magenta(+) / green(-)). ---
     {
-        auto *wbGroup = new QGroupBox(tr("ホワイトバランス"));
+        auto *wbGroup = new QGroupBox(tr("White balance"));
         auto *wbLayout = new QVBoxLayout(wbGroup);
         wbLayout->setSpacing(4);
 
@@ -286,7 +286,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     // because GLPreview applies the radial mask AFTER curves and BEFORE the
     // .cube LUT). Amount=0 is a free no-op (factor==1.0 in the shader). ---
     {
-        auto *vigGroup = new QGroupBox(tr("ビネット"));
+        auto *vigGroup = new QGroupBox(tr("Vignette"));
         auto *vigLayout = new QVBoxLayout(vigGroup);
         vigLayout->setSpacing(4);
 
@@ -329,17 +329,17 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     // the HSL gating + spill suppression operate on raw frame colour.
     // Default-disabled → bit-identical to a no-key state. ---
     {
-        auto *chromaGroup = new QGroupBox(tr("クロマキー"));
+        auto *chromaGroup = new QGroupBox(tr("Chroma key"));
         auto *chromaLayout = new QVBoxLayout(chromaGroup);
         chromaLayout->setSpacing(4);
 
         // Enable + key colour row
         auto *headerRow = new QHBoxLayout;
-        m_chromaEnabled = new QCheckBox(tr("有効"));
+        m_chromaEnabled = new QCheckBox(tr("Enabled"));
         m_chromaEnabled->setChecked(false);
         headerRow->addWidget(m_chromaEnabled);
 
-        auto *keyLbl = new QLabel(tr("キー色:"));
+        auto *keyLbl = new QLabel(tr("Key color:"));
         headerRow->addWidget(keyLbl);
         m_chromaKeyColourBtn = new QPushButton;
         m_chromaKeyColourBtn->setMinimumWidth(60);
@@ -397,25 +397,25 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     // rect itself lives on this panel for now; per-clip keyframe storage +
     // linear interpolation are deferred to a follow-up (NIT-1). ---
     {
-        auto *maskGroup = new QGroupBox(tr("マスク"));
+        auto *maskGroup = new QGroupBox(tr("Mask"));
         auto *maskLayout = new QVBoxLayout(maskGroup);
         maskLayout->setSpacing(4);
 
         // Row 1: enable + shape + invert
         auto *headerRow = new QHBoxLayout;
-        m_maskEnabled = new QCheckBox(tr("有効"));
+        m_maskEnabled = new QCheckBox(tr("Enabled"));
         m_maskEnabled->setChecked(false);
         headerRow->addWidget(m_maskEnabled);
 
-        auto *shapeLbl = new QLabel(tr("形状:"));
+        auto *shapeLbl = new QLabel(tr("Shape:"));
         headerRow->addWidget(shapeLbl);
         m_maskShape = new QComboBox;
-        m_maskShape->addItem(tr("矩形 (Rect)"));
-        m_maskShape->addItem(tr("楕円 (Ellipse)"));
+        m_maskShape->addItem(tr("Rectangle (Rect)"));
+        m_maskShape->addItem(tr("Ellipse (Ellipse)"));
         m_maskShape->setCurrentIndex(0);
         headerRow->addWidget(m_maskShape, 1);
 
-        m_maskInvert = new QCheckBox(tr("反転"));
+        m_maskInvert = new QCheckBox(tr("Invert"));
         m_maskInvert->setChecked(false);
         headerRow->addWidget(m_maskInvert);
         maskLayout->addLayout(headerRow);
@@ -451,9 +451,9 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
 
         // Row 4: action buttons
         auto *btnRow = new QHBoxLayout;
-        m_maskDrawBtn = new QPushButton(tr("マスクを描画"));
+        m_maskDrawBtn = new QPushButton(tr("Draw Mask"));
         btnRow->addWidget(m_maskDrawBtn);
-        m_maskAddKeyframeBtn = new QPushButton(tr("キーフレーム追加"));
+        m_maskAddKeyframeBtn = new QPushButton(tr("Add Keyframe"));
         btnRow->addWidget(m_maskAddKeyframeBtn);
         maskLayout->addLayout(btnRow);
 
@@ -480,13 +480,13 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     // GLPreview shader applies it AFTER chroma key and BEFORE WB so the
     // qualifier operates on raw frame colour. Default-disabled → free no-op. ---
     {
-        auto *hslqGroup = new QGroupBox(tr("HSL クオリファイア"));
+        auto *hslqGroup = new QGroupBox(tr("HSL qualifier"));
         auto *hslqLayout = new QVBoxLayout(hslqGroup);
         hslqLayout->setSpacing(4);
 
         // Row 1: enable
         auto *headerRow = new QHBoxLayout;
-        m_hslqEnabled = new QCheckBox(tr("有効"));
+        m_hslqEnabled = new QCheckBox(tr("Enabled"));
         m_hslqEnabled->setChecked(false);
         headerRow->addWidget(m_hslqEnabled);
         headerRow->addStretch();
@@ -553,7 +553,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
         addHslqRow(tr("G"), -100, 100, 0, QString(), m_hslqGainG, m_hslqGainGLabel);
         addHslqRow(tr("B"), -100, 100, 0, QString(), m_hslqGainB, m_hslqGainBLabel);
 
-        auto *keyframe = new QPushButton(tr("キーフレーム追加"), hslqGroup);
+        auto *keyframe = new QPushButton(tr("Add Keyframe"), hslqGroup);
         keyframe->setObjectName(QStringLiteral("hslGradeAddKeyframe"));
         hslqLayout->addWidget(keyframe);
         connect(keyframe, &QPushButton::clicked, this, [this] {
@@ -745,7 +745,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     // at the very END (POST stage). All sliders default to 0 (identity →
     // free no-op in the shader). ---
     {
-        auto *efGroup = new QGroupBox(tr("エフェクト"));
+        auto *efGroup = new QGroupBox(tr("Effects"));
         auto *efLayout = new QVBoxLayout(efGroup);
         efLayout->setSpacing(4);
 
@@ -786,7 +786,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     // TOP of the fragment shader (composed AFTER lens distortion). Identity
     // defaults (X=Y=Z=0, perspective=2.0) are a free no-op in the shader. ---
     {
-        auto *rotGroup = new QGroupBox(tr("3D 変形"));
+        auto *rotGroup = new QGroupBox(tr("3D transform"));
         auto *rotLayout = new QVBoxLayout(rotGroup);
         rotLayout->setSpacing(4);
 
@@ -817,7 +817,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
         if (m_rot3DPerspectiveLabel)
             m_rot3DPerspectiveLabel->setText(QStringLiteral("2.0"));
 
-        m_rot3DResetBtn = new QPushButton(tr("リセット"));
+        m_rot3DResetBtn = new QPushButton(tr("Reset"));
         rotLayout->addWidget(m_rot3DResetBtn);
 
         mainLayout->addWidget(rotGroup);
@@ -851,7 +851,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     }
 
     // --- Color Wheels Section ---
-    auto *wheelsGroup = new QGroupBox(tr("カラーホイール (Lift / Gamma / Gain)"));
+    auto *wheelsGroup = new QGroupBox(tr("Color wheels (Lift / Gamma / Gain)"));
     auto *wheelsLayout = new QHBoxLayout(wheelsGroup);
     wheelsLayout->setSpacing(4);
 
@@ -862,7 +862,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     wheelsLayout->addWidget(m_liftWheel);
     wheelsLayout->addWidget(m_gammaWheel);
     wheelsLayout->addWidget(m_gainWheel);
-    auto *lggKeyframe = new QPushButton(tr("キーフレーム追加"), wheelsGroup);
+    auto *lggKeyframe = new QPushButton(tr("Add Keyframe"), wheelsGroup);
     lggKeyframe->setObjectName(QStringLiteral("lggGradeAddKeyframe"));
     wheelsLayout->addWidget(lggKeyframe);
     connect(lggKeyframe, &QPushButton::clicked, this, [this] {
@@ -879,13 +879,13 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
             this, &ColorGradingPanel::onGainChanged);
 
     auto *logWheelsGroup = new QGroupBox(
-        tr("Log ホイール (Shadow / Midtone / Highlight)"));
+        tr("Log wheels (Shadow / Midtone / Highlight)"));
     auto *logWheelsLayout = new QHBoxLayout(logWheelsGroup);
     logWheelsLayout->setSpacing(4);
 
-    m_logShadowWheel = new ColorWheelWidget(tr("シャドウ"));
-    m_logMidWheel = new ColorWheelWidget(tr("ミッドトーン"));
-    m_logHighWheel = new ColorWheelWidget(tr("ハイライト"));
+    m_logShadowWheel = new ColorWheelWidget(tr("Shadows"));
+    m_logMidWheel = new ColorWheelWidget(tr("Midtones"));
+    m_logHighWheel = new ColorWheelWidget(tr("Highlights"));
     m_logShadowWheel->setObjectName(QStringLiteral("logShadowWheel"));
     m_logMidWheel->setObjectName(QStringLiteral("logMidWheel"));
     m_logHighWheel->setObjectName(QStringLiteral("logHighWheel"));
@@ -893,7 +893,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     logWheelsLayout->addWidget(m_logShadowWheel);
     logWheelsLayout->addWidget(m_logMidWheel);
     logWheelsLayout->addWidget(m_logHighWheel);
-    auto *logKeyframe = new QPushButton(tr("キーフレーム追加"), logWheelsGroup);
+    auto *logKeyframe = new QPushButton(tr("Add Keyframe"), logWheelsGroup);
     logKeyframe->setObjectName(QStringLiteral("logGradeAddKeyframe"));
     logWheelsLayout->addWidget(logKeyframe);
     connect(logKeyframe, &QPushButton::clicked, this, [this] {
@@ -909,12 +909,12 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     connect(m_logHighWheel, &ColorWheelWidget::colorChanged,
             this, &ColorGradingPanel::onLogHighChanged);
 
-    auto *warpGroup = new QGroupBox(tr("カラーワーパー (色相 × 彩度)"));
+    auto *warpGroup = new QGroupBox(tr("Color warper (Hue × Saturation)"));
     auto *warpLayout = new QVBoxLayout(warpGroup);
     m_hueSatWarp = new HueSatWarpWidget(warpGroup);
     m_hueSatWarp->setObjectName(QStringLiteral("hueSatWarpWidget"));
     warpLayout->addWidget(m_hueSatWarp);
-    auto *warpKeyframe = new QPushButton(tr("キーフレーム追加"), warpGroup);
+    auto *warpKeyframe = new QPushButton(tr("Add Keyframe"), warpGroup);
     warpKeyframe->setObjectName(QStringLiteral("warpGradeAddKeyframe"));
     warpLayout->addWidget(warpKeyframe);
     connect(warpKeyframe, &QPushButton::clicked, this, [this] {
@@ -932,24 +932,24 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     });
 
     // --- Basic Corrections Section ---
-    auto *basicGroup = new QGroupBox(tr("基本補正"));
+    auto *basicGroup = new QGroupBox(tr("Basic correction"));
     auto *basicLayout = new QVBoxLayout(basicGroup);
     basicLayout->setSpacing(4);
 
-    m_exposure   = addSlider(basicLayout, tr("露出"),         -300, 300, 0, 100);
-    m_brightness = addSlider(basicLayout, tr("明るさ"),       -100, 100, 0);
-    m_contrast   = addSlider(basicLayout, tr("コントラスト"), -100, 100, 0);
-    m_highlights = addSlider(basicLayout, tr("ハイライト"),   -100, 100, 0);
-    m_shadows    = addSlider(basicLayout, tr("シャドウ"),     -100, 100, 0);
-    m_saturation = addSlider(basicLayout, tr("彩度"),         -100, 100, 0);
-    m_hue        = addSlider(basicLayout, tr("色相"),         -180, 180, 0);
-    m_temperature= addSlider(basicLayout, tr("色温度"),       -100, 100, 0);
-    m_tint       = addSlider(basicLayout, tr("色かぶり"),     -100, 100, 0);
-    m_wbPickButton = new QPushButton(tr("WB スポイト"));
+    m_exposure   = addSlider(basicLayout, tr("Exposure"),         -300, 300, 0, 100);
+    m_brightness = addSlider(basicLayout, tr("Brightness"),       -100, 100, 0);
+    m_contrast   = addSlider(basicLayout, tr("Contrast"), -100, 100, 0);
+    m_highlights = addSlider(basicLayout, tr("Highlights"),   -100, 100, 0);
+    m_shadows    = addSlider(basicLayout, tr("Shadows"),     -100, 100, 0);
+    m_saturation = addSlider(basicLayout, tr("Saturation"),         -100, 100, 0);
+    m_hue        = addSlider(basicLayout, tr("Hue"),         -180, 180, 0);
+    m_temperature= addSlider(basicLayout, tr("Temperature"),       -100, 100, 0);
+    m_tint       = addSlider(basicLayout, tr("Tint"),     -100, 100, 0);
+    m_wbPickButton = new QPushButton(tr("WB eyedropper"));
     m_wbPickButton->setCheckable(true);
-    m_wbPickButton->setToolTip(tr("プレビューでニュートラルにしたい画素をクリック"));
+    m_wbPickButton->setToolTip(tr("Click a pixel in the preview that should be neutral"));
     basicLayout->addWidget(m_wbPickButton);
-    m_gamma      = addSlider(basicLayout, tr("ガンマ"),        10, 300, 100, 100);
+    m_gamma      = addSlider(basicLayout, tr("Gamma"),        10, 300, 100, 100);
 
     mainLayout->addWidget(basicGroup);
     connect(m_wbPickButton, &QPushButton::toggled,
@@ -960,11 +960,11 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     auto *lutLayout = new QVBoxLayout(lutGroup);
 
     m_lutCombo = new QComboBox;
-    m_lutCombo->addItem(tr("なし"));
+    m_lutCombo->addItem(tr("None"));
     lutLayout->addWidget(m_lutCombo);
 
     auto *intensityRow = new QHBoxLayout;
-    intensityRow->addWidget(new QLabel(tr("強度:")));
+    intensityRow->addWidget(new QLabel(tr("Strength:")));
     m_lutIntensitySlider = new QSlider(Qt::Horizontal);
     m_lutIntensitySlider->setRange(0, 100);
     m_lutIntensitySlider->setValue(100);
@@ -984,24 +984,24 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
     // US-FEAT-C: Lift/Gamma/Gain wheels
     {
         // --- Lift Sliders ---
-        auto *liftGroup = new QGroupBox(tr("Lift (シャドウ)"));
+        auto *liftGroup = new QGroupBox(tr("Lift (Shadows)"));
         m_liftSliders = addWheelSliders(liftGroup, LiftWheel);
         mainLayout->addWidget(liftGroup);
 
         // --- Gamma Sliders ---
-        auto *gammaGroup = new QGroupBox(tr("Gamma (ミッドトーン)"));
+        auto *gammaGroup = new QGroupBox(tr("Gamma (Midtones)"));
         m_gammaSliders = addWheelSliders(gammaGroup, GammaWheel);
         mainLayout->addWidget(gammaGroup);
 
         // --- Gain Sliders ---
-        auto *gainGroup = new QGroupBox(tr("Gain (ハイライト)"));
+        auto *gainGroup = new QGroupBox(tr("Gain (Highlights)"));
         m_gainSliders = addWheelSliders(gainGroup, GainWheel);
         mainLayout->addWidget(gainGroup);
     }
 
     // --- US-CG-1: RGB Curves Editor ---
     {
-        auto *curvesGroup = new QGroupBox(tr("RGB カーブ"));
+        auto *curvesGroup = new QGroupBox(tr("RGB curves"));
         auto *curvesLayout = new QVBoxLayout(curvesGroup);
         m_curveEditor = new CurveEditor(this);
         m_curveEditor->setMinimumHeight(280);
@@ -1079,7 +1079,7 @@ ColorGradingPanel::ColorGradingPanel(QWidget *parent)
             this, &ColorGradingPanel::emitWheelsDebounced);
 
     // --- Reset Button ---
-    m_resetButton = new QPushButton(tr("すべてリセット"));
+    m_resetButton = new QPushButton(tr("Reset All"));
     mainLayout->addWidget(m_resetButton);
     connect(m_resetButton, &QPushButton::clicked,
             this, &ColorGradingPanel::onResetClicked);
@@ -1625,7 +1625,7 @@ void ColorGradingPanel::setLutList(const QVector<LutData> &luts)
 {
     m_lutCombo->blockSignals(true);
     m_lutCombo->clear();
-    m_lutCombo->addItem(tr("なし"));
+    m_lutCombo->addItem(tr("None"));
     for (const auto &lut : luts)
         m_lutCombo->addItem(lut.name);
     m_lutCombo->blockSignals(false);
@@ -2264,7 +2264,7 @@ void ColorGradingPanel::setMaskRect(const QRectF &normalizedRect)
 void ColorGradingPanel::onChromaKeyColourClicked()
 {
     QColor picked = QColorDialog::getColor(m_chromaKey, this,
-                                            tr("クロマキー色を選択"));
+                                            tr("Select chroma key color"));
     if (!picked.isValid())
         return;
     m_chromaKey = picked;

@@ -14,7 +14,7 @@
 YtdlpDownloadDialog::YtdlpDownloadDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("YouTube 動画をダウンロード"));
+    setWindowTitle(tr("Download YouTube Video"));
     setMinimumWidth(480);
 
     // default output dir
@@ -39,11 +39,11 @@ YtdlpDownloadDialog::YtdlpDownloadDialog(QWidget* parent)
     m_progressBar->setValue(0);
     m_progressBar->setVisible(false);
 
-    m_statusLabel = new QLabel(tr("待機中..."), this);
+    m_statusLabel = new QLabel(tr("Waiting..."), this);
 
-    m_downloadButton = new QPushButton(tr("ダウンロード"), this);
-    m_cancelButton   = new QPushButton(tr("キャンセル"), this);
-    m_closeButton    = new QPushButton(tr("閉じる"), this);
+    m_downloadButton = new QPushButton(tr("Download"), this);
+    m_cancelButton   = new QPushButton(tr("Cancel"), this);
+    m_closeButton    = new QPushButton(tr("Close"), this);
 
     m_cancelButton->setEnabled(false);
 
@@ -84,15 +84,15 @@ void YtdlpDownloadDialog::onDownloadClicked()
     const QString url = m_urlEdit->text().trimmed();
 
     if (!YtdlpDownloader::isYoutubeUrl(url)) {
-        QMessageBox::warning(this, tr("入力エラー"),
-                             tr("YouTube URL ではありません。\nhttps://youtube.com/watch?v=... の形式で入力してください。"));
+        QMessageBox::warning(this, tr("Input Error"),
+                             tr("Not a YouTube URL.\nPlease enter it in the https://youtube.com/watch?v=... format."));
         return;
     }
 
     m_downloadedFilePath.clear();
     m_progressBar->setValue(0);
     m_progressBar->setVisible(true);
-    m_statusLabel->setText(tr("ダウンロード中..."));
+    m_statusLabel->setText(tr("Downloading..."));
     m_downloadButton->setEnabled(false);
     m_cancelButton->setEnabled(true);
     m_closeButton->setEnabled(false);
@@ -103,7 +103,7 @@ void YtdlpDownloadDialog::onDownloadClicked()
 void YtdlpDownloadDialog::onCancelClicked()
 {
     m_downloader->cancel();
-    m_statusLabel->setText(tr("キャンセル中..."));
+    m_statusLabel->setText(tr("Canceling..."));
     m_cancelButton->setEnabled(false);
 }
 
@@ -122,10 +122,10 @@ void YtdlpDownloadDialog::onFinished(bool ok, const QString& outputPath, const Q
     if (ok) {
         m_downloadedFilePath = outputPath;
         m_progressBar->setValue(100);
-        m_statusLabel->setText(tr("完了: %1").arg(QFileInfo(outputPath).fileName()));
+        m_statusLabel->setText(tr("Done: %1").arg(QFileInfo(outputPath).fileName()));
         QDialog::accept();
     } else {
         m_progressBar->setVisible(false);
-        m_statusLabel->setText(tr("エラー: ") + errorMessage);
+        m_statusLabel->setText(tr("Error: ") + errorMessage);
     }
 }

@@ -39,23 +39,23 @@ SceneCutDialog::SceneCutDialog(const QString& clipPath, double clipFps, QWidget*
     , m_clipPath(clipPath)
     , m_clipFps(clipFps)
 {
-    setWindowTitle(tr("シーンカット検出"));
+    setWindowTitle(tr("Scene Cut Detection"));
     setMinimumWidth(480);
 
     // --- top row: threshold / min-scene / start / progress ---
-    QLabel* threshLabel = new QLabel(tr("閾値:"), this);
+    QLabel* threshLabel = new QLabel(tr("Threshold:"), this);
     m_thresholdSpin = new QDoubleSpinBox(this);
     m_thresholdSpin->setRange(0.05, 0.95);
     m_thresholdSpin->setSingleStep(0.05);
     m_thresholdSpin->setValue(0.35);
     m_thresholdSpin->setDecimals(2);
 
-    QLabel* minSceneLabel = new QLabel(tr("最小シーン長 (frame):"), this);
+    QLabel* minSceneLabel = new QLabel(tr("Min scene length (frame):"), this);
     m_minSceneSpin = new QSpinBox(this);
     m_minSceneSpin->setRange(1, 600);
     m_minSceneSpin->setValue(24);
 
-    m_startBtn = new QPushButton(tr("検出開始"), this);
+    m_startBtn = new QPushButton(tr("Start Detection"), this);
 
     m_progressBar = new QProgressBar(this);
     m_progressBar->setRange(0, 100);
@@ -75,19 +75,19 @@ SceneCutDialog::SceneCutDialog(const QString& clipPath, double clipFps, QWidget*
     m_cutList = new QListWidget(this);
 
     // --- bottom row: select all/none, mode radios, apply/close ---
-    m_selectAllBtn  = new QPushButton(tr("全選択"), this);
-    m_selectNoneBtn = new QPushButton(tr("全解除"), this);
+    m_selectAllBtn  = new QPushButton(tr("Select All"), this);
+    m_selectNoneBtn = new QPushButton(tr("Deselect All"), this);
 
-    m_modeMarkersRadio = new QRadioButton(tr("マーカーとして追加"), this);
-    m_modeSplitRadio   = new QRadioButton(tr("ここでクリップ分割"), this);
+    m_modeMarkersRadio = new QRadioButton(tr("Add as Markers"), this);
+    m_modeSplitRadio   = new QRadioButton(tr("Split Clips Here"), this);
     m_modeMarkersRadio->setChecked(true);
 
     QButtonGroup* modeGroup = new QButtonGroup(this);
     modeGroup->addButton(m_modeMarkersRadio);
     modeGroup->addButton(m_modeSplitRadio);
 
-    m_applyBtn = new QPushButton(tr("適用"), this);
-    m_closeBtn = new QPushButton(tr("閉じる"), this);
+    m_applyBtn = new QPushButton(tr("Apply"), this);
+    m_closeBtn = new QPushButton(tr("Close"), this);
 
     QHBoxLayout* botLayout = new QHBoxLayout;
     botLayout->addWidget(m_selectAllBtn);
@@ -170,7 +170,7 @@ void SceneCutDialog::onScannerFinished(bool ok, const QString& /*msg*/)
     const int count = qMin(frames.size(), usVec.size());
     for (int i = 0; i < count; ++i) {
         qint64 ms = usVec[i] / 1000;
-        QString text = QString("カット %1: %2 (frame %3)")
+        QString text = QString("Cut %1: %2 (frame %3)")
                            .arg(i + 1)
                            .arg(formatTime(ms))
                            .arg(frames[i]);

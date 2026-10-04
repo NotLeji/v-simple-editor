@@ -31,7 +31,7 @@ CurveEditor::CurveEditor(QWidget *parent)
     layout->setSpacing(4);
 
     auto *headerRow = new QHBoxLayout;
-    headerRow->addWidget(new QLabel(tr("チャンネル:"), this));
+    headerRow->addWidget(new QLabel(tr("Channel:"), this));
 
     m_channelCombo = new QComboBox(this);
     m_channelCombo->addItem(tr("R"));
@@ -40,7 +40,7 @@ CurveEditor::CurveEditor(QWidget *parent)
     m_channelCombo->addItem(tr("Luma"));
     headerRow->addWidget(m_channelCombo, 1);
 
-    m_resetButton = new QPushButton(tr("リセット"), this);
+    m_resetButton = new QPushButton(tr("Reset"), this);
     headerRow->addWidget(m_resetButton);
 
     layout->addLayout(headerRow);
