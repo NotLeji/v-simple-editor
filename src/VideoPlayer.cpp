@@ -2861,6 +2861,7 @@ bool VideoPlayer::tryPromotePoolDecoderTo(int newEntryIdx)
         // fast path. flushInteropCache drops stale texture handles bound
         // to the legacy device so the next paint rebuilds against the
         // pool device cleanly.
+#if defined(_WIN32)
         void *poolDevice = veditor_avHwDeviceCtxToD3D11Device(m_sharedPoolHwDeviceCtx);
         if (poolDevice) {
             m_glPreview->flushInteropCache();
@@ -2868,6 +2869,11 @@ bool VideoPlayer::tryPromotePoolDecoderTo(int newEntryIdx)
         } else {
             m_glPreview->setSharedD3D11Device(sharedD3D11Device());
         }
+#else
+        // No D3D11 on Linux: sharedD3D11Device() is nullptr; GLPreview uses
+        // its regular (non-interop) texture upload path.
+        m_glPreview->setSharedD3D11Device(sharedD3D11Device());
+#endif
     }
 
     // target shell is empty — its inner contexts moved to primary or were
@@ -8171,7 +8177,7 @@ bool VideoPlayer::runOverlayDecodeForDecoder(TrackDecoder *d,
         || (d->firstFrameDecoded
             && (drift < -halfFrame * 2
                 || drift > d->frameDurationUs * 4))) {
-        const int64_t targetUs = qBound<int64_t>(clipInUs, expectedFileLocalUs, clipOutUs);
+        const int64_t targetUs = qBound(clipInUs, expectedFileLocalUs, clipOutUs);
         av_seek_frame(d->formatCtx, -1, targetUs, AVSEEK_FLAG_BACKWARD);
         avcodec_flush_buffers(d->codecCtx);
         d->currentPositionUs = targetUs;

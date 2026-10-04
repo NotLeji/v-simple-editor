@@ -244,6 +244,7 @@ const AVPixelFormat* querySupportedPixelFormats(const AVCodec* encoder)
         return out;
     }
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(63, 0, 0)
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -271,6 +272,11 @@ const AVPixelFormat* querySupportedPixelFormats(const AVCodec* encoder)
     if (!out) return nullptr;
     for (int i = 0; i <= n; ++i) out[i] = legacy[i];
     return out;
+#else
+    // FFmpeg 9 removed AVCodec::pix_fmts; avcodec_get_supported_config() above
+    // is authoritative there, so no legacy fallback remains.
+    return nullptr;
+#endif
 }
 
 bool isSoftwarePixelFormat(AVPixelFormat fmt)

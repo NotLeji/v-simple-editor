@@ -58,7 +58,7 @@ QImage loadPdf(const QString &path, int pageIndex, int targetDpi)
     }
 
     QPdfDocument doc;
-    if (doc.load(path) != QPdfDocument::Status::Ready) {
+    if (doc.load(path) != QPdfDocument::Error::None) {
         qWarning() << "[affinity::vector] loadPdf: failed to load PDF:" << path;
         return QImage();
     }

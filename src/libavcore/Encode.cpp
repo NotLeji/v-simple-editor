@@ -243,6 +243,7 @@ static const AVPixelFormat* querySupportedPixelFormats(const AVCodec* encoder)
         return out;
     }
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(63, 0, 0)
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -270,6 +271,11 @@ static const AVPixelFormat* querySupportedPixelFormats(const AVCodec* encoder)
     if (!out) return nullptr;
     for (int i = 0; i <= n; ++i) out[i] = legacy[i];
     return out;
+#else
+    // FFmpeg 9 removed AVCodec::pix_fmts; avcodec_get_supported_config() above
+    // is authoritative there, so no legacy fallback remains.
+    return nullptr;
+#endif
 }
 
 static AVSampleFormat firstSupportedAudioSampleFormat(const AVCodec* encoder)
@@ -285,6 +291,7 @@ static AVSampleFormat firstSupportedAudioSampleFormat(const AVCodec* encoder)
         return formats[0];
     }
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(63, 0, 0)
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -305,6 +312,11 @@ static AVSampleFormat firstSupportedAudioSampleFormat(const AVCodec* encoder)
 #endif
     if (legacy && legacy[0] != AV_SAMPLE_FMT_NONE) return legacy[0];
     return AV_SAMPLE_FMT_FLTP;
+#else
+    // FFmpeg 9 removed AVCodec::sample_fmts; avcodec_get_supported_config()
+    // above is authoritative there.
+    return AV_SAMPLE_FMT_FLTP;
+#endif
 }
 
 // True when `encoder` lists `target` among its supported pixel formats. When

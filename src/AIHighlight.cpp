@@ -126,6 +126,7 @@ static AVSampleFormat firstSupportedAacSampleFormat()
         return formats[0];
     }
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(63, 0, 0)
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -147,6 +148,11 @@ static AVSampleFormat firstSupportedAacSampleFormat()
     if (legacy && legacy[0] != AV_SAMPLE_FMT_NONE)
         return legacy[0];
     return AV_SAMPLE_FMT_FLTP;
+#else
+    // FFmpeg 9 removed AVCodec::sample_fmts; avcodec_get_supported_config()
+    // above is authoritative there.
+    return AV_SAMPLE_FMT_FLTP;
+#endif
 }
 
 static bool copyOrDefaultChannelLayout(ChannelLayoutGuard &dst,

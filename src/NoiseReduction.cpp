@@ -419,7 +419,15 @@ static bool processWithFilterImpl(const QString &inputPath, const QString &outpu
             }
             audioEncCtx->sample_rate = audioDecCtx->sample_rate;
             av_channel_layout_copy(&audioEncCtx->ch_layout, &audioDecCtx->ch_layout);
-            audioEncCtx->sample_fmt = enc->sample_fmts ? enc->sample_fmts[0] : AV_SAMPLE_FMT_FLTP;
+            {
+                const void* nrCfg = nullptr;
+                int nrNum = 0;
+                AVSampleFormat nrFmt = AV_SAMPLE_FMT_FLTP;
+                if (avcodec_get_supported_config(nullptr, enc, AV_CODEC_CONFIG_SAMPLE_FORMAT,
+                                                 0, &nrCfg, &nrNum) >= 0 && nrCfg && nrNum > 0)
+                    nrFmt = static_cast<const AVSampleFormat*>(nrCfg)[0];
+                audioEncCtx->sample_fmt = nrFmt;
+            }
             audioEncCtx->bit_rate = 192000;
             audioEncCtx->time_base = {1, audioDecCtx->sample_rate};
             if (outFmtCtx->oformat->flags & AVFMT_GLOBALHEADER)
@@ -457,12 +465,18 @@ static bool processWithFilterImpl(const QString &inputPath, const QString &outpu
             videoEncCtx->height = videoDecCtx->height;
             videoEncCtx->pix_fmt = videoDecCtx->pix_fmt;
             // Verify encoder supports this pix_fmt, fallback to YUV420P
-            if (enc->pix_fmts) {
-                bool supported = false;
-                for (const auto *p = enc->pix_fmts; *p != AV_PIX_FMT_NONE; ++p) {
-                    if (*p == videoEncCtx->pix_fmt) { supported = true; break; }
+            {
+                const void* nrCfg = nullptr;
+                int nrNum = 0;
+                if (avcodec_get_supported_config(nullptr, enc, AV_CODEC_CONFIG_PIX_FORMAT,
+                                                 0, &nrCfg, &nrNum) >= 0 && nrCfg && nrNum > 0) {
+                    const AVPixelFormat* nrFmts = static_cast<const AVPixelFormat*>(nrCfg);
+                    bool supported = false;
+                    for (int i = 0; i < nrNum; ++i) {
+                        if (nrFmts[i] == videoEncCtx->pix_fmt) { supported = true; break; }
+                    }
+                    if (!supported) videoEncCtx->pix_fmt = nrFmts[0];
                 }
-                if (!supported) videoEncCtx->pix_fmt = enc->pix_fmts[0];
             }
             videoEncCtx->time_base = inFmtCtx->streams[videoIdx]->time_base;
             videoEncCtx->framerate = av_guess_frame_rate(inFmtCtx, inFmtCtx->streams[videoIdx], nullptr);
