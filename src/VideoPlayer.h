@@ -611,7 +611,14 @@ private:
 
     QLabel *m_videoDisplay;
     GLPreview *m_glPreview = nullptr;
+#ifdef _WIN32
     bool m_useGL = true;
+#else
+    // Linux: GLPreview renders black on some Mesa/Qt combos (see
+    // workspace/v-simple-editor-black-preview-notes.md). Fall back to
+    // software QLabel preview until the GL path is fixed.
+    bool m_useGL = false;
+#endif
     QPushButton *m_proxyButton = nullptr;
     QPushButton *m_stepBackButton = nullptr;
     QPushButton *m_stepFwdButton = nullptr;
